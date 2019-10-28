@@ -96,6 +96,8 @@
     right: 0;
     bottom: 0;
     left: 0;
+    width:100%;
+    height:100%;
     background-color: rgba(38, 50, 56, .6);
     overflow: hidden;
     &:before {
@@ -107,7 +109,9 @@
       height: 100%;
       content: "";
       background-image: url(~@/assets/img/login_bg.jpg);
-      background-size: cover;
+     background-size:100% 100%;
+-moz-background-size:100% 100%; 
+     background-repeat: no-repeat;
     }
     .site-content__wrapper {
       position: absolute;
