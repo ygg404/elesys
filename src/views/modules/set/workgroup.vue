@@ -13,16 +13,28 @@
     <el-table
       :data="dataList"
       border
-
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
+     
+ 
       <el-table-column
         type="selection"
         header-align="center"
         align="center"
         width="50">
       </el-table-column>
+
+ <el-table-column
+        header-align="center"
+        align="center"
+        width="150"
+        label="操作">
+        <template slot-scope="scope"> 
+          <el-button  icon="el-icon-arrow-up" @click="ChangeOrderNum(scope.row.id)"></el-button>
+        </template>
+      </el-table-column>
+
       <el-table-column
         prop="id"
         header-align="center"
@@ -36,18 +48,8 @@
         treeKey="groupId"
         label="部门名称">
       </el-table-column>
-      <el-table-column
-        prop="orderNum"
-        header-align="center"
-        align="center"
-        label="排序号">
-      </el-table-column>
-      <el-table-column
-        prop="createTime"
-        header-align="center"
-        align="center"
-        label="创建时间">
-      </el-table-column>
+      
+    
       <el-table-column
         prop="headMan"
         header-align="center"
@@ -60,24 +62,14 @@
         align="center"
         label="副队长名称">
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         prop="headId"
         header-align="center"
         align="center"
-        label="队长id">
-      </el-table-column>
-      <el-table-column
-        prop="deputyId"
-        header-align="center"
-        align="center"
-        label="副队长id">
-      </el-table-column>
-      <el-table-column
-        prop="pId"
-        header-align="center"
-        align="center"
-        label="部门父id">
-      </el-table-column>
+        label="队长id"> -->
+      <!-- </el-table-column> -->
+     
+     
       <el-table-column
         fixed="right"
         header-align="center"
@@ -137,6 +129,32 @@
         this.dataForm.sidx = val.prop
         this.getDataList()
       },
+      
+      //调整Oder_num 传递ID
+    ChangeOrderNum(id){
+     
+      this.$http({
+        
+         url: this.$http.adornUrl('/set/workgroup/changeordernum'),
+         method:'post',
+         data: this.$http.adornData(id, false)
+      }).then(({data}) => {
+          if (data && data.code === 0) {
+            //成功
+            this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500
+              })
+          } else {
+            //失败
+            this.$message.error(data.msg)
+          }
+          //更新数据
+          this.getDataList()        
+        })
+    },
+
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true

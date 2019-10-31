@@ -108,7 +108,8 @@
       width: 100%;
       height: 100%;
       content: "";
-      background-image: url(~@/assets/img/login_bg.jpg);
+      //background-image: url(~@/assets/img/login_bg.jpg);
+      background-color: rgb(66, 113, 241);
      background-size:100% 100%;
 -moz-background-size:100% 100%; 
      background-repeat: no-repeat;
