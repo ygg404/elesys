@@ -3,31 +3,41 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
     <el-form-item label="作业组名称" prop="name">
       <el-input v-model="dataForm.name" placeholder="作业组名称"></el-input>
     </el-form-item>
-    <el-form-item label="排序号" prop="orderNum">
-      <el-input v-model="dataForm.orderNum" placeholder="排序号"></el-input>
-    </el-form-item>
-    <el-form-item label="创建时间" prop="createTime">
-      <el-input v-model="dataForm.createTime" placeholder="创建时间"></el-input>
-    </el-form-item>
+    
+   <!--
     <el-form-item label="队长名称" prop="headMan">
       <el-input v-model="dataForm.headMan" placeholder="队长名称"></el-input>
     </el-form-item>
     <el-form-item label="副队长名称" prop="deputyLeader">
       <el-input v-model="dataForm.deputyLeader" placeholder="副队长名称"></el-input>
     </el-form-item>
-    <el-form-item label="队长id" prop="headId">
-      <el-input v-model="dataForm.headId" placeholder="队长id"></el-input>
+    -->
+    <el-form-item label="队长名称" prop="headId">
+     <el-select v-model="dataForm.headId" placeholder="队长名称" clearable="true">
+        <el-option
+          v-for="item in CaptainList"
+          :key="item.userId"
+          :label="item.username"
+          :value="item.userId">
+        </el-option>
+      </el-select>
     </el-form-item>
-    <el-form-item label="副队长id" prop="deputyId">
-      <el-input v-model="dataForm.deputyId" placeholder="副队长id"></el-input>
-    </el-form-item>
-    <el-form-item label="部门父id" prop="pId">
-      <el-input v-model="dataForm.pId" placeholder="部门父id"></el-input>
-    </el-form-item>
+
+    <el-form-item label="副队长名称" prop="deputyId">
+       <el-select v-model="dataForm.deputyId" placeholder="副队长名称" clearable="true">
+        <el-option
+          v-for="item in CaptainList"
+          :key="item.userId"
+          :label="item.username"
+          :value="item.userId">
+        </el-option>
+      </el-select>
+</el-form-item>
+    
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
@@ -68,16 +78,12 @@
           deputyLeader: [
             { required: true, message: '副队长名称不能为空', trigger: 'blur' }
           ],
-          headId: [
-            { required: true, message: '队长id不能为空', trigger: 'blur' }
-          ],
-          deputyId: [
-            { required: true, message: '副队长id不能为空', trigger: 'blur' }
-          ],
+         
           pId: [
             { required: true, message: '部门父id不能为空', trigger: 'blur' }
           ]
-        }
+        },
+CaptainList:[]
       }
     },
     methods: {
@@ -93,22 +99,64 @@
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.name = data.workgroup.name
-                this.dataForm.orderNum = data.workgroup.orderNum
-                this.dataForm.createTime = data.workgroup.createTime
-                this.dataForm.headMan = data.workgroup.headMan
-                this.dataForm.deputyLeader = data.workgroup.deputyLeader
-                this.dataForm.headId = data.workgroup.headId
-                this.dataForm.deputyId = data.workgroup.deputyId
-                this.dataForm.pId = data.workgroup.pId
+                this.dataForm.name = data.workGroup.name
+                this.dataForm.orderNum = data.workGroup.orderNum
+                this.dataForm.createTime = data.workGroup.createTime
+                this.dataForm.headMan = data.workGroup.headMan
+                this.dataForm.deputyLeader = data.workGroup.deputyLeader
+                this.dataForm.headId = data.workGroup.headId
+                this.dataForm.deputyId = data.workGroup.deputyId
+                if(this.dataForm.headId == 0){
+                  this.dataForm.headId = '';
+                  this.dataForm.headMan = null;
+                }
+                 if(this.dataForm.deputyId == 0){
+                   this.dataForm.deputyId = '';
+                  this.dataForm.deputyLeader = null;
+                }
               }
             })
+          }
+          this.getCaptainList();
+        })
+      },
+       getCaptainList() {
+        this.$http({
+          url: this.$http.adornUrl('/sys/user/Captain'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.CaptainList = data.list
+          } else {
+            this.dataList = []
           }
         })
       },
       // 表单提交
       dataFormSubmit () {
+   
+        if(this.dataForm.headId != null && this.dataForm.headId != ""){
+         this.dataForm.headMan = this.CaptainList.find(item => item.userId === this.dataForm.headId)['username'];
+        }
+        else{
+          this.dataForm.headMan = "";
+          this.dataForm.headId = 0;
+        }
+      
+         if(this.dataForm.deputyId != null && this.dataForm.deputyId != ""){
+         this.dataForm.deputyLeader = this.CaptainList.find(item => item.userId === this.dataForm.deputyId)['username'];
+         }
+         else{
+           this.dataForm.deputyLeader = "";
+           this.dataForm.deputyId = 0;
+         }
+
         this.$refs['dataForm'].validate((valid) => {
+          console.log("this.dataForm.headMan: " + this.dataForm.headMan);
+          console.log("this.dataForm.deputyLeader: " + this.dataForm.deputyLeader);
+          console.log("this.dataForm.headId: " + this.dataForm.headId);
+          console.log("this.dataForm.deputyId: " + this.dataForm.deputyId);
+          
           if (valid) {
             this.$http({
               url: this.$http.adornUrl(`/set/workgroup/${!this.dataForm.id ? 'save' : 'update'}`),
@@ -130,14 +178,13 @@
                   message: '操作成功',
                   type: 'success',
                   duration: 1500,
-                  onClose: () => {
-                    this.visible = false
-                    this.$emit('refreshDataList')
-                  }
+                 
                 })
               } else {
                 this.$message.error(data.msg)
               }
+               this.visible = false
+                    this.$emit('refreshDataList')
             })
           }
         })

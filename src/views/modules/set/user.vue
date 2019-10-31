@@ -51,13 +51,7 @@
           <el-tag v-else size="small">正常</el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="createTime"
-        header-align="center"
-        align="center"
-        width="180"
-        label="创建时间">
-      </el-table-column>
+     
       <el-table-column
         fixed="right"
         header-align="center"
