@@ -1,35 +1,25 @@
 <template>
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+      <el-form-item style="margin-left: 20px;">
+        <el-date-picker v-model="dataForm.startDate" type="date" value-format="yyyy-MM-dd" placeholder="开始日期" style="width: 150px;" @change="getDataList"></el-date-picker> 至
+        <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期" style="width: 150px;" @change="getDataList"></el-date-picker>
+      </el-form-item>
+      <el-form-item style="margin-left: 20px;">
+        <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('set:projectcontract:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('set:projectcontract:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">
-      <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
-      <el-table-column prop="id" header-align="center" align="center" label="id"></el-table-column>
-      <el-table-column prop="contractNo" header-align="center" align="center" label="合同编号"></el-table-column>
-      <el-table-column prop="contractAddTime" header-align="center" align="center" label="合同添加时间"></el-table-column>
-      <el-table-column prop="contractCreateTime" header-align="center" align="center" label="合同创建时间"></el-table-column>
-      <el-table-column prop="contractAuthorize" header-align="center" align="center" label="合同委托单位"></el-table-column>
-      <el-table-column prop="contractName" header-align="center" align="center" label="合同名称"></el-table-column>
-      <el-table-column prop="contractType" header-align="center" align="center" label="合同类型: 0.合同委托 1.一般委托"></el-table-column>
-      <el-table-column prop="contractNote" header-align="center" align="center" label="合同内容"></el-table-column>
-      <el-table-column prop="contractBusiness" header-align="center" align="center" label="业务负责人"></el-table-column>
-      <el-table-column prop="contractStage" header-align="center" align="center" label="合同状态: 1.正常2.回收站"></el-table-column>
-      <el-table-column prop="contractMoney" header-align="center" align="center" label="合同金额"></el-table-column>
-      <el-table-column prop="projectType" header-align="center" align="center" label="项目类型"></el-table-column>
-      <el-table-column prop="filename" header-align="center" align="center" label="文件"></el-table-column>
-      <el-table-column prop="userPhone" header-align="center" align="center" label="联系人电话"></el-table-column>
-      <el-table-column prop="userName" header-align="center" align="center" label="联系人名称"></el-table-column>
-      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+      <el-table-column prop="contractNo" header-align="center" align="center" width="120" label="项目编号" sortable :sort-orders="['descending','ascending']"></el-table-column>
+      <el-table-column prop="contractNo" header-align="center" align="center" width="120" label="合同编号" ></el-table-column>
+      <el-table-column prop="projectName" header-align="center" align="left" label="项目名称" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column header-align="center" align="left" width="300" label="操作" style="z-index: -1">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+          <el-button type="primary" size="mini" @click="UpdateHandle(scope.row.id)">恢复项目</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -49,14 +39,18 @@
 </template>
 
 <script>
-  import AddOrUpdate from './projectcontract-add-or-update'
+
+  import moment from 'moment'
+
   export default {
     data () {
       return {
         dataForm: {
           key: '',
           sidx: 'id',
-          order: 'desc'
+          order: 'desc',
+          startDate: '',
+          endDate: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -68,9 +62,9 @@
       }
     },
     components: {
-      AddOrUpdate
     },
     activated () {
+      this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1 , 1)).format('YYYY-MM-DD')
       this.getDataList()
     },
     methods: {
@@ -94,14 +88,16 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/set/projectcontract/list'),
+          url: this.$http.adornUrl('/project/recycle/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
             'key': this.dataForm.key,
             'sidx': this.dataForm.sidx,
-            'order': this.dataForm.order
+            'order': this.dataForm.order,
+            'startDate': this.dataForm.startDate,
+            'endDate': this.dataForm.endDate
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -129,13 +125,6 @@
       selectionChangeHandle (val) {
         this.dataListSelections = val
       },
-      // 新增 / 修改
-      addOrUpdateHandle (id) {
-        this.addOrUpdateVisible = true
-        this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id)
-        })
-      },
       // 删除
       deleteHandle (id) {
         var ids = id ? [id] : this.dataListSelections.map(item => {
@@ -147,7 +136,7 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/set/projectcontract/delete'),
+            url: this.$http.adornUrl('/project/recycle/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {
