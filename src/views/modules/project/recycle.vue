@@ -6,18 +6,23 @@
         <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期" style="width: 150px;" @change="getDataList"></el-date-picker>
       </el-form-item>
       <el-form-item style="margin-left: 20px;">
-        <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable @change="getDataList"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">
-      <el-table-column prop="contractNo" header-align="center" align="center" width="120" label="项目编号" sortable :sort-orders="['descending','ascending']"></el-table-column>
+      <el-table-column prop="projectNo" header-align="center" align="center" width="120" label="项目编号" sortable="custom" :sort-orders="['descending','ascending','descending']"></el-table-column>
       <el-table-column prop="contractNo" header-align="center" align="center" width="120" label="合同编号" ></el-table-column>
       <el-table-column prop="projectName" header-align="center" align="left" label="项目名称" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" :show-overflow-tooltip="true" width="100"></el-table-column>
       <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column header-align="center" align="left" width="300" label="操作" style="z-index: -1">
+      <el-table-column prop="projectStartDateTime" header-align="center" align="center" label="项目启动时间" :show-overflow-tooltip="true">
+        <template slot-scope="scope">{{scope.row.projectStartDateTime != null? scope.row.projectStartDateTime.substring(0,10) : ''}}</template>
+      </el-table-column>
+      <el-table-column prop="projectStageName" header-align="center" align="center" label="项目阶段" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column header-align="center" align="left" width="190" label="操作" style="z-index: -1">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="UpdateHandle(scope.row.id)">恢复项目</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
@@ -64,7 +69,6 @@
     components: {
     },
     activated () {
-      this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1 , 1)).format('YYYY-MM-DD')
       this.getDataList()
     },
     methods: {
