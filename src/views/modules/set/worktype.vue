@@ -16,7 +16,11 @@
       <el-table-column prop="typeName" header-align="center" align="center" label="类型姓名"></el-table-column>
       <el-table-column prop="unit" header-align="center" align="center" label="单位"></el-table-column>
       <el-table-column prop="unitOutput" header-align="center" align="center" label="单位产值"></el-table-column>
- 
+
+      <el-table-column label="项目类型" prop="projectTypeName">
+        <template slot-scope="scope"> <el-tag v-if="scope.row.projectTypeName != ''" v-for="(item,index) in scope.row.projectTypeName.split(',')" :key="index" style="margin-left: 5px;">{{item}}</el-tag></template>
+      </el-table-column>
+
       <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
@@ -40,6 +44,7 @@
 
 <script>
   import AddOrUpdate from './worktype-add-or-update'
+  import { resolve } from 'url'
   export default {
     data () {
       return {
@@ -51,17 +56,19 @@
         dataList: [],
         pageIndex: 1,
         pageSize: 25,
-        totalPage: 0,
+        totalPage: 1,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        ProjectTypeList:[]
+
       }
     },
     components: {
       AddOrUpdate
     },
     activated () {
-      this.getDataList()
+      this.getProjectList().then(success=>{this.getDataList()})
     },
     methods: {
       // 排序字段改变
@@ -78,8 +85,31 @@
             this.dataForm.order = 'desc'
         }
         this.dataForm.sidx = val.prop
-        this.getDataList()
+        this.getProjectList().then(success=>{this.getDataList()})
+
       },
+
+
+
+      //同步获取 项目类型列表数据
+      getProjectList(){
+        return new Promise( (resolve,reject) =>{
+          this.$http({
+            url: this.$http.adornUrl('/set/projecttype/selectprojecttype'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+
+              this.ProjectTypeList = data.list;
+
+              resolve(data.list)
+            } else {
+              this.dataList = []
+            }
+          })
+        })
+      },
+
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
@@ -95,8 +125,27 @@
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
+
             this.dataList = data.page.list
+
+
+//遍历数据列表
+            for(let ItemData of this.dataList){
+              ItemData.projectTypeName = ''
+              //遍历单条数据关联的项目类型ID
+              for(let PIDItem of ItemData.projectTypeIdList){
+                for(let PIDInProjectTypeListItem of this.ProjectTypeList){
+                  if(PIDItem == PIDInProjectTypeListItem.id){
+                    ItemData.projectTypeName  += PIDInProjectTypeListItem.name + ','
+                  }
+                }
+
+              }
+              ItemData.projectTypeName  = ItemData.projectTypeName.substring(0,ItemData.projectTypeName.length - 1 )
+              console.log(ItemData.projectTypeName);
+            }
             this.totalPage = data.page.totalCount
+
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -108,12 +157,12 @@
       sizeChangeHandle (val) {
         this.pageSize = val
         this.pageIndex = 1
-        this.getDataList()
+        this.getProjectList().then(success=>{this.getDataList()})
       },
       // 当前页
       currentChangeHandle (val) {
         this.pageIndex = val
-        this.getDataList()
+        this.getProjectList().then(success=>{this.getDataList()})
       },
       // 多选
       selectionChangeHandle (val) {
@@ -154,6 +203,7 @@
           })
         })
       }
+
     }
   }
 </script>

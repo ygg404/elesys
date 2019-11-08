@@ -25,13 +25,16 @@
         width="50">
       </el-table-column>
 
- <el-table-column
+
+ 
+     <el-table-column
         header-align="center"
         align="center"
         width="150"
-        label="操作">
+        label="顺序">
         <template slot-scope="scope"> 
-          <el-button  icon="el-icon-arrow-up" @click="ChangeOrderNum(scope.row.id)"></el-button>
+        <i class="el-icon-top" @click="ChangeOrderNum(scope.$index,scope.row.id)"></i>
+        
         </template>
       </el-table-column>
 
@@ -131,8 +134,10 @@
       },
       
       //调整Oder_num 传递ID
-    ChangeOrderNum(id){
-     
+    ChangeOrderNum(index,id){
+     if(index == 0){
+       return;
+     }
       this.$http({
         
          url: this.$http.adornUrl('/set/workgroup/changeordernum'),

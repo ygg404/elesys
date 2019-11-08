@@ -14,8 +14,8 @@
       <el-input v-model="dataForm.unitOutput" placeholder="单位产值"></el-input>
     </el-form-item>
 
-      <el-form-item label="请选择项目类型" prop="">
-    <el-select v-model="value1" outlined multiple placeholder="请选择项目类型" style="width: 100%;">
+      <el-form-item label="项目类型" prop="ProjectTypeIdList">
+    <el-select v-model="dataForm.ProjectTypeIdList" outlined multiple placeholder="请选择项目类型" style="width: 100%;">
                                     <el-option
                                             v-for="item in ProjectTypeList"
                                             :key="item.id"
@@ -44,7 +44,8 @@
           unit: '',
           unitOutput: '',
           startDateTime: '',
-          updateDateTime: ''
+          updateDateTime: '',
+         ProjectTypeIdList:[]
         },
         dataRule: {
           typeName: [
@@ -55,15 +56,11 @@
           ],
           unitOutput: [
             { required: true, message: '单位产值不能为空', trigger: 'blur' }
-          ],
-          startDateTime: [
-            { required: true, message: '开始时间不能为空', trigger: 'blur' }
-          ],
-          updateDateTime: [
-            { required: true, message: '更新时间不能为空', trigger: 'blur' }
           ]
         },
+        //项目类型数据
         ProjectTypeList:[]
+       
       }
     },
     methods: {
@@ -82,26 +79,41 @@
                 this.dataForm.typeName = data.workType.typeName
                 this.dataForm.unit = data.workType.unit
                 this.dataForm.unitOutput = data.workType.unitOutput
-                
+                this.dataForm.ProjectTypeIdList = data.workType.projectTypeIdList
+//console.log('ProjectTypeIdList' + this.dataForm.ProjectTypeIdList);
               }
             })
           }
-           this.getProjectTypeList();
+           this.getProjectTypeListFromApi();
         })
       },
-      //获得下拉列表内容
-       getProjectTypeList() {
-        this.$http({
+
+      //从后台获得下拉列表内容  填充至选项
+       getProjectTypeListFromApi() {
+      return new Promise((resolve,reject) =>{
+       this.$http({
           url: this.$http.adornUrl('/set/projecttype/selectprojecttype'),
-          method: 'get'
+          method:'get'
         }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.ProjectTypeList = data.list
-          } else {
-            this.dataList = []
-          }
+            if (data && data.code === 0) {
+                //项目类型数据 赋值
+                this.ProjectTypeList = data.list;
+                
+                // for(let item of data.list){
+                //   let option = {
+                //     value:item.id,
+                //     label:item.name
+                //   };
+                //   this.ProjectTypeIdList.push(option);
+               // }
+               resolve(data.list)
+            } else {
+              //this.dataList = []
+            }
         })
+      })
       },
+
       // 表单提交
       dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {
@@ -113,14 +125,18 @@
                 'id': this.dataForm.id || undefined,
                 'typeName': this.dataForm.typeName,
                 'unit': this.dataForm.unit,
-                'unitOutput': this.dataForm.unitOutput
+                'unitOutput': this.dataForm.unitOutput,
+                'projectTypeIdList': this.dataForm.ProjectTypeIdList
+               
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
+                console.log('接收到ProjectTypeIdList' + this.dataForm.ProjectTypeIdList);
                 this.$message({
                   message: '操作成功',
                   type: 'success',
-                  duration: 1500     
+                  duration: 1500
+                      
                 })
                  this.visible = false
                     this.$emit('refreshDataList')

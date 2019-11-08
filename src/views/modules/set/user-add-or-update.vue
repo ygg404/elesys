@@ -21,6 +21,19 @@
           <el-checkbox v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
+
+        <el-form-item label="工作组" prop="workGroupID">
+    <el-select v-model="dataForm.workGroupID"  placeholder="请选择工作组" style="width: 50%;">
+                                    <el-option
+                                            v-for="item in WorkGroupDataList"
+                                            :key="item.id"
+                                            :label="item.name"
+                                            :value="item.id">
+                                    </el-option>
+                                </el-select>
+      </el-form-item>
+    
+
       <el-form-item label="状态" size="mini" prop="status">
         <el-radio-group v-model="dataForm.status">
           <el-radio :label="0">禁用</el-radio>
@@ -67,6 +80,7 @@
           salt: '',
           email: '',
           mobile: '',
+          workGroupID:'',
           roleIdList: [],
           status: 1
         },
@@ -83,7 +97,10 @@
           comfirmPassword: [
             { validator: validateComfirmPassword, trigger: 'blur' }
           ]
-        }
+        },
+
+        //工作组数据列表
+        WorkGroupDataList:[]
       }
     },
     methods: {
@@ -113,11 +130,31 @@
                 this.dataForm.salt = data.user.salt
                 this.dataForm.roleIdList = data.user.roleIdList
                 this.dataForm.status = data.user.status
+                this.dataForm.workGroupID = data.user.workGroupID
               }
             })
           }
+          this.getWorkGroupDataListFromApi();
         })
       },
+
+         //从后台获得工作组数据列表内容  填充至选项
+       getWorkGroupDataListFromApi() {
+      return new Promise((resolve,reject) =>{
+       this.$http({
+          url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
+          method:'get'
+        }).then(({data}) => {
+            if (data && data.code === 0) {
+                this.WorkGroupDataList = data.list;
+               resolve(data.list)
+            } else {
+              //this.dataList = []
+            }
+        })
+      })
+      },
+
       // 表单提交
       dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {
@@ -132,7 +169,8 @@
                 'password': this.dataForm.password,
                 'salt': this.dataForm.salt,
                 'status': this.dataForm.status,
-                'roleIdList': this.dataForm.roleIdList
+                'roleIdList': this.dataForm.roleIdList,
+                'workGroupID':this.dataForm.workGroupID
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
