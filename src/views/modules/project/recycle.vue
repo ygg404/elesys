@@ -24,8 +24,8 @@
       <el-table-column prop="projectStageName" header-align="center" align="center" label="项目阶段" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column header-align="center" align="left" width="190" label="操作" style="z-index: -1">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="UpdateHandle(scope.row.id)">恢复项目</el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button type="primary" size="mini" @click="restoreHandle(scope.row)">恢复项目</el-button>
+          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.projectNo)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -44,7 +44,6 @@
 </template>
 
 <script>
-
   import moment from 'moment'
 
   export default {
@@ -66,8 +65,7 @@
         addOrUpdateVisible: false
       }
     },
-    components: {
-    },
+    components: {},
     activated () {
       this.getDataList()
     },
@@ -129,12 +127,11 @@
       selectionChangeHandle (val) {
         this.dataListSelections = val
       },
-      // 删除
-      deleteHandle (id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.id
-        })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+      // 根据项目编号删除
+      deleteHandle (projectNo) {
+        console.log(projectNo)
+        let tip = '此操作将永久删除编号为[' + projectNo + ']的项目信息, 是否继续?'
+        this.$confirm(tip, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -142,7 +139,37 @@
           this.$http({
             url: this.$http.adornUrl('/project/recycle/delete'),
             method: 'post',
-            data: this.$http.adornData(ids, false)
+            data: this.$http.adornData({
+              'projectNo': projectNo
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.getDataList()
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 恢复项目
+      restoreHandle (row) {
+        let tip = '是否将恢复编号为[' + row.projectNo + ']的项目信息?'
+        this.$confirm(tip, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/project/recycle/update'),
+            method: 'post',
+            data: {
+              'id': row.id,
+              'projectNo': row.projectNo
+            }
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({

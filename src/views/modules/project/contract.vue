@@ -31,8 +31,8 @@
             </el-table-column>
             <el-table-column  width="150" label="操作">
               <template slot-scope="scope">
-                <el-button type="primary" size="mini" >修改</el-button>
-                <el-button type="danger" size="mini" @click="deleteProject(scope.row)">删除</el-button>
+                <el-button type="primary" size="mini" @click="addOrUpdateProjectHandle(id = scope.row.id)" v-if="isAuth('project:project:update')">修改</el-button>
+                <el-button type="danger" size="mini" @click="deleteProjectHandle(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -43,19 +43,19 @@
       <el-table-column prop="contractAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="contractType" header-align="center" align="center" width="100" label="合同类型">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.contractType === 0" size="small" type="danger">合同委托</el-tag>
-          <el-tag v-else-if="scope.row.contractType === 1" size="small" type="success">一般合同</el-tag>
+          <el-tag v-if="scope.row.contractType === 0" size="small" type="success">合同委托</el-tag>
+          <el-tag v-else-if="scope.row.contractType === 1" size="small" type="warning">一般合同</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="contractAddTime" header-align="center" align="center" width="120" label="签订时间">
         <template slot-scope="scope">{{scope.row.contractAddTime != null? scope.row.contractAddTime.substring(0,10) : ''}}</template>
       </el-table-column>
-      <el-table-column header-align="center" align="left" width="300" label="操作" style="z-index: -1">
+      <el-table-column header-align="center" align="left" width="320" label="操作" style="z-index: -1">
         <template slot-scope="scope">
-          <el-button type="warning" size="mini" @click="addProject(scope.row)">添加项目</el-button>
-          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
-          <el-button v-if="scope.row.fileName" type="success" size="mini" @click="downloadFile(scope.row)">下载</el-button>
+          <el-button type="warning" size="mini" @click="addOrUpdateProjectHandle(id = '' ,scope.row)" v-if="isAuth('project:project:save')">添加项目</el-button>
+          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)" v-if="isAuth('project:contract:update')">修改</el-button>
+          <el-button type="danger" size="mini" @click="deleteHandle(scope.row)" v-if="isAuth('project:contract:delete')">删除</el-button>
+          <el-button v-if="scope.row.filename" style="background-color: #5daf34;color: white;" size="mini" @click="downloadFile(scope.row)">下载</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -68,13 +68,17 @@
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
-    <!-- 弹窗, 新增 / 修改 -->
+    <!-- 弹窗, 新增 / 修改  合同-->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <!-- 弹窗, 新增 / 修改  项目-->
+    <project-add-or-update v-if="projectAddOrUpdateVisible" ref="projectAddOrUpdate" @refreshDataList="getDataList" ></project-add-or-update>
   </div>
 </template>
 
 <script>
+  import Vue from 'vue'
   import AddOrUpdate from './contract-add-or-update'
+  import ProjectAddOrUpdate from './project-add-or-update'
   import moment from 'moment'
 
   export default {
@@ -87,20 +91,24 @@
           startDate: '',
           endDate: ''
         },
+        downContractUrl: window.SITE_CONFIG['baseUrl'] + '/project/contract/download?contractNo=',  // 合同下载路径接口,
+        tokenHeaders: { token: Vue.cookie.get('token') },  // token请求
         dataList: [],
         pageIndex: 1,
         pageSize: 25,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        projectAddOrUpdateVisible: false
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,
+      ProjectAddOrUpdate
     },
     activated () {
-      this.dataForm.startDate =  moment(new Date(new Date().getFullYear(), new Date().getMonth() -1 , 1)).format('YYYY-MM-DD');
+      this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
       this.getDataList()
     },
     methods: {
@@ -161,19 +169,26 @@
       selectionChangeHandle (val) {
         this.dataListSelections = val
       },
-      // 新增 / 修改
+      // 新增 / 修改 合同
       addOrUpdateHandle (id) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(id)
         })
       },
-      // 删除
-      deleteHandle (id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.id
+      // 新增 / 修改 项目
+      addOrUpdateProjectHandle (id, item) {
+        this.projectAddOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.projectAddOrUpdate.init(id, item)
         })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+      },
+      // 删除
+      deleteHandle (scop) {
+        var ids = scop.id ? [scop.id] : this.dataListSelections.map(item => {
+          return item.ids
+        })
+        this.$confirm('确定对合同编号[' + scop.contractNo + ']进行删除操作?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -182,6 +197,62 @@
             url: this.$http.adornUrl('/project/contract/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.getDataList()
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 下载合同文件
+      downloadFile (item) {
+        let downurl = this.downContractUrl + item.contractNo
+        let xhr = new XMLHttpRequest()
+        // GET请求,请求路径url,async(是否异步)
+        xhr.open('GET', downurl, true)
+        // 设置请求头参数的方式,如果没有可忽略此行代码
+        xhr.setRequestHeader('token', Vue.cookie.get('token'))
+        // 设置响应类型为 blob
+        xhr.responseType = 'blob'
+        // 关键部分
+        xhr.onload = function (e) {
+          // 如果请求执行成功
+          if (this.status === 200) {
+            let blob = this.response
+            let filename = item.filename
+            let a = document.createElement('a')
+            // 创键临时url对象
+            var url = URL.createObjectURL(blob)
+            a.href = url
+            a.download = filename
+            a.click()
+            // 释放之前创建的URL对象
+            window.URL.revokeObjectURL(url)
+          }
+        }
+        // 发送请求
+        xhr.send()
+      },
+      // 删除项目将项目放入回收站
+      deleteProjectHandle (item) {
+        console.log(item)
+        let tip = '此操作将项目编号为[' + item.projectNo + ']的项目放入回收站, 是否继续?'
+        this.$confirm(tip, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/project/project/delete'),
+            method: 'post',
+            data: this.$http.adornData(item.id, false)
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({

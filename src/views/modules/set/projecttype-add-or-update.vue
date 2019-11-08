@@ -3,11 +3,12 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
-    <el-form-item label="内容" prop="name">
-      <el-input v-model="dataForm.name" placeholder="内容"></el-input>
-    </el-form-item>
-    
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+             label-width="80px">
+      <el-form-item label="内容" prop="name">
+        <el-input v-model="dataForm.name" placeholder="内容"></el-input>
+      </el-form-item>
+
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
@@ -28,10 +29,10 @@
         },
         dataRule: {
           name: [
-            { required: true, message: '内容不能为空', trigger: 'blur' }
+            {required: true, message: '内容不能为空', trigger: 'blur'}
           ],
           nameCode: [
-            { required: true, message: '内容代码不能为空', trigger: 'blur' }
+            {required: true, message: '内容代码不能为空', trigger: 'blur'}
           ]
         }
       }
@@ -50,7 +51,6 @@
             }).then(({data}) => {
               if (data && data.code === 0) {
                 this.dataForm.name = data.projectType.name
-               
               }
             })
           }
@@ -73,14 +73,13 @@
                 this.$message({
                   message: '操作成功',
                   type: 'success',
-                  duration: 1500,
-                 
+                  duration: 1500
                 })
               } else {
                 this.$message.error(data.msg)
               }
-               this.visible = false
-                    this.$emit('refreshDataList')
+              this.visible = false
+              this.$emit('refreshDataList')
             })
           }
         })

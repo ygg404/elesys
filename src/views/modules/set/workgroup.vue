@@ -7,7 +7,9 @@
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
         <el-button v-if="isAuth('set:workgroup:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('set:workgroup:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('set:workgroup:delete')" type="danger" @click="deleteHandle()"
+                   :disabled="dataListSelections.length <= 0">批量删除
+        </el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -16,28 +18,21 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-     
- 
       <el-table-column
         type="selection"
         header-align="center"
         align="center"
         width="50">
       </el-table-column>
-
-
- 
-     <el-table-column
+      <el-table-column
         header-align="center"
         align="center"
         width="150"
         label="顺序">
-        <template slot-scope="scope"> 
-        <i class="el-icon-top" @click="ChangeOrderNum(scope.$index,scope.row.id)"></i>
-        
+        <template slot-scope="scope">
+          <i class="el-icon-top" @click="ChangeOrderNum(scope.$index,scope.row.id)"></i>
         </template>
       </el-table-column>
-
       <el-table-column
         prop="id"
         header-align="center"
@@ -51,8 +46,6 @@
         treeKey="groupId"
         label="部门名称">
       </el-table-column>
-      
-    
       <el-table-column
         prop="headMan"
         header-align="center"
@@ -65,14 +58,6 @@
         align="center"
         label="副队长名称">
       </el-table-column>
-      <!-- <el-table-column
-        prop="headId"
-        header-align="center"
-        align="center"
-        label="队长id"> -->
-      <!-- </el-table-column> -->
-     
-     
       <el-table-column
         fixed="right"
         header-align="center"
@@ -92,6 +77,7 @@
 
 <script>
   import AddOrUpdate from './workgroup-add-or-update'
+
   export default {
     data () {
       return {
@@ -132,33 +118,33 @@
         this.dataForm.sidx = val.prop
         this.getDataList()
       },
-      
+
       //调整Oder_num 传递ID
-    ChangeOrderNum(index,id){
-     if(index == 0){
-       return;
-     }
-      this.$http({
-        
-         url: this.$http.adornUrl('/set/workgroup/changeordernum'),
-         method:'post',
-         data: this.$http.adornData(id, false)
-      }).then(({data}) => {
+      ChangeOrderNum (index, id) {
+        if (index == 0) {
+          return
+        }
+        this.$http({
+
+          url: this.$http.adornUrl('/set/workgroup/changeordernum'),
+          method: 'post',
+          data: this.$http.adornData(id, false)
+        }).then(({data}) => {
           if (data && data.code === 0) {
             //成功
             this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500
-              })
+              message: '操作成功',
+              type: 'success',
+              duration: 1500
+            })
           } else {
             //失败
             this.$message.error(data.msg)
           }
           //更新数据
-          this.getDataList()        
+          this.getDataList()
         })
-    },
+      },
 
       // 获取数据列表
       getDataList () {

@@ -41,20 +41,19 @@
         align="center"
         label="用户名">
       </el-table-column>
-
-
-<el-table-column label="角色组" prop="rname">
-  <template slot-scope="scope"> <el-tag v-if="scope.row.rname != ''" v-for="(item,index) in (scope.row.rname || '').split(',')" :key="index" style="margin-left: 5px;">{{item}}</el-tag></template>
-</el-table-column>
-
-
- <el-table-column
+      <el-table-column label="角色组" prop="rname">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.rname != ''" v-for="(item,index) in (scope.row.rname || '').split(',')" :key="index"
+                  style="margin-left: 5px;">{{item}}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="workGroupName"
         header-align="center"
         align="center"
         label="工作组">
-</el-table-column>
-
+      </el-table-column>
       <el-table-column
         prop="status"
         header-align="center"
@@ -65,9 +64,6 @@
           <el-tag v-else size="small">正常</el-tag>
         </template>
       </el-table-column>
-     
-
-
       <el-table-column
         fixed="right"
         header-align="center"
@@ -75,8 +71,12 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="isAuth('sys:user:update')" type="primary" size="mini" @click="addOrUpdateHandle(scope.row.userId)">修改</el-button>
-          <el-button v-if="isAuth('sys:user:delete')" type="danger" size="mini" @click="deleteHandle(scope.row.userId)">删除</el-button>
+          <el-button v-if="isAuth('sys:user:update')" type="primary" size="mini"
+                     @click="addOrUpdateHandle(scope.row.userId)">修改
+          </el-button>
+          <el-button v-if="isAuth('sys:user:delete')" type="danger" size="mini" @click="deleteHandle(scope.row.userId)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -96,6 +96,7 @@
 
 <script>
   import AddOrUpdate from './user-add-or-update'
+
   export default {
     data () {
       return {
@@ -109,16 +110,20 @@
         dataListLoading: false,
         dataListSelections: [],
         addOrUpdateVisible: false,
-        SysRoleDataList:[],
-         //工作组数据列表
-        WorkGroupDataList:[]
+        SysRoleDataList: [],
+        // 工作组数据列表
+        WorkGroupDataList: []
       }
     },
     components: {
       AddOrUpdate
     },
     activated () {
-         this.getWorkGroupDataListFromApi().then(success => {this.getSysRoleList().then(success=>{this.getDataList()})})
+      this.getWorkGroupDataListFromApi().then(success => {
+        this.getSysRoleList().then(success => {
+          this.getDataList()
+        })
+      })
     },
     methods: {
       // 获取数据列表
@@ -135,24 +140,23 @@
         }).then(({data}) => {
           if (data && data.code === 0) {
             this.dataList = data.page.list
-         //遍历数据列表
-             for(let ItemData of this.dataList){ 
-               ItemData.rname = ''
-               //遍历单条数据关联的角色组类型ID
-                      for(let RIDItem of ItemData.roleIdList){
-                        
-                       for(let RListItem of this.SysRoleDataList){
-                       
-                               if(RIDItem == RListItem.roleId){
-                             ItemData.rname  += RListItem.roleName + ','
-                               }
-                       }
-                     
-                      }
-                      ItemData.rname  = ItemData.rname.substring(0,ItemData.rname.length - 1 )
-                   console.log(ItemData.rname);
-                
-             }
+            // 遍历数据列表
+            for (let ItemData of this.dataList) {
+              ItemData.rname = ''
+              // 遍历单条数据关联的角色组类型ID
+              for (let RIDItem of ItemData.roleIdList) {
+                for (let RListItem of this.SysRoleDataList) {
+
+                  if (RIDItem === RListItem.roleId) {
+                    ItemData.rname += RListItem.roleName + ','
+                  }
+                }
+
+              }
+              ItemData.rname = ItemData.rname.substring(0, ItemData.rname.length - 1)
+              console.log(ItemData.rname)
+
+            }
             this.totalPage = data.page.totalCount
 
           } else {
@@ -162,46 +166,44 @@
           this.dataListLoading = false
         })
       },
-     
-     //通过工作组ID找到对应的工作组名称(参数 工作组ID 工作组列表)
-     getCorrespondingWorkGroupName(WGid,WorkGroupList){
-       let res = '';
-       for(let item of WorkGroupList){
-         if(WGid == item.id){
-          res = item.name;
-         }
-       }
-       return res;
-     },
 
-        //从后台获得工作组数据列表内容  填充至选项
-       getWorkGroupDataListFromApi() {
-      return new Promise((resolve,reject) =>{
-       this.$http({
-          url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
-          method:'get'
-        }).then(({data}) => {
-            if (data && data.code === 0) {
-                this.WorkGroupDataList = data.list;
-               resolve(data.list)
-            } else {
-              //this.dataList = []
-            }
-        })
-      })
+      // 通过工作组ID找到对应的工作组名称(参数 工作组ID 工作组列表)
+      getCorrespondingWorkGroupName (WGid, WorkGroupList) {
+        let res = ''
+        for (let item of WorkGroupList) {
+          if (WGid === item.id) {
+            res = item.name
+          }
+        }
+        return res
       },
 
-        //同步获取 角色组列表数据
-      getSysRoleList(){
-        return new Promise( (resolve,reject) =>{
-        this.$http({
-            url: this.$http.adornUrl('/sys/role/ShowRoleData'),
+      // 从后台获得工作组数据列表内容  填充至选项
+      getWorkGroupDataListFromApi () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-            
-                this.SysRoleDataList = data.list;
-          
+              this.WorkGroupDataList = data.list
+              resolve(data.list)
+            } else {
+              // this.dataList = []
+            }
+          })
+        })
+      },
+
+      // 同步获取 角色组列表数据
+      getSysRoleList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/sys/role/select'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.SysRoleDataList = data.list
               resolve(data.list)
             } else {
               this.dataList = []
@@ -214,12 +216,16 @@
       sizeChangeHandle (val) {
         this.pageSize = val
         this.pageIndex = 1
-        this.getSysRoleList().then(success=>{this.getDataList()})
+        this.getSysRoleList().then(success => {
+          this.getDataList()
+        })
       },
       // 当前页
       currentChangeHandle (val) {
         this.pageIndex = val
-        this.getSysRoleList().then(success=>{this.getDataList()})
+        this.getSysRoleList().then(success => {
+          this.getDataList()
+        })
       },
       // 多选
       selectionChangeHandle (val) {
@@ -258,7 +264,8 @@
               this.$message.error(data.msg)
             }
           })
-        }).catch(() => {})
+        }).catch(() => {
+        })
       }
     }
   }

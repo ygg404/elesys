@@ -3,7 +3,8 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+             label-width="80px">
       <el-form-item label="用户帐号" prop="userAccount">
         <el-input v-model="dataForm.userAccount" placeholder="登录帐号"></el-input>
       </el-form-item>
@@ -18,22 +19,20 @@
       </el-form-item>
       <el-form-item label="角色" size="mini" prop="roleIdList">
         <el-checkbox-group v-model="dataForm.roleIdList">
-          <el-checkbox v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}</el-checkbox>
+          <el-checkbox v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}
+          </el-checkbox>
         </el-checkbox-group>
       </el-form-item>
-
-        <el-form-item label="工作组" prop="workGroupID">
-    <el-select v-model="dataForm.workGroupID"  placeholder="请选择工作组" style="width: 50%;">
-                                    <el-option
-                                            v-for="item in WorkGroupDataList"
-                                            :key="item.id"
-                                            :label="item.name"
-                                            :value="item.id">
-                                    </el-option>
-                                </el-select>
+      <el-form-item label="工作组" prop="workGroupID">
+        <el-select v-model="dataForm.workGroupID" placeholder="请选择工作组" clearable  style="width: 50%;">
+          <el-option
+            v-for="item in WorkGroupDataList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id">
+          </el-option>
+        </el-select>
       </el-form-item>
-    
-
       <el-form-item label="状态" size="mini" prop="status">
         <el-radio-group v-model="dataForm.status">
           <el-radio :label="0">禁用</el-radio>
@@ -80,27 +79,27 @@
           salt: '',
           email: '',
           mobile: '',
-          workGroupID:'',
+          workGroupID: '',
           roleIdList: [],
           status: 1
         },
         dataRule: {
           userAccount: [
-            { required: true, message: '登录账号不能为空', trigger: 'blur' }
+            {required: true, message: '登录账号不能为空', trigger: 'blur'}
           ],
           userName: [
-            { required: true, message: '用户名不能为空', trigger: 'blur' }
+            {required: true, message: '用户名不能为空', trigger: 'blur'}
           ],
           password: [
-            { validator: validatePassword, trigger: 'blur' }
+            {validator: validatePassword, trigger: 'blur'}
           ],
           comfirmPassword: [
-            { validator: validateComfirmPassword, trigger: 'blur' }
+            {validator: validateComfirmPassword, trigger: 'blur'}
           ]
         },
 
-        //工作组数据列表
-        WorkGroupDataList:[]
+        // 工作组数据列表
+        WorkGroupDataList: []
       }
     },
     methods: {
@@ -118,6 +117,7 @@
             this.$refs['dataForm'].resetFields()
           })
         }).then(() => {
+          this.getWorkGroupDataListFromApi()
           if (this.dataForm.id) {
             this.$http({
               url: this.$http.adornUrl(`/sys/user/info/${this.dataForm.id}`),
@@ -134,25 +134,25 @@
               }
             })
           }
-          this.getWorkGroupDataListFromApi();
+
         })
       },
 
-         //从后台获得工作组数据列表内容  填充至选项
-       getWorkGroupDataListFromApi() {
-      return new Promise((resolve,reject) =>{
-       this.$http({
-          url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
-          method:'get'
-        }).then(({data}) => {
+      // 从后台获得工作组数据列表内容  填充至选项
+      getWorkGroupDataListFromApi () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
+            method: 'get'
+          }).then(({data}) => {
             if (data && data.code === 0) {
-                this.WorkGroupDataList = data.list;
-               resolve(data.list)
+              this.WorkGroupDataList = data.list
+              resolve(data.list)
             } else {
-              //this.dataList = []
+              // this.dataList = []
             }
+          })
         })
-      })
       },
 
       // 表单提交
@@ -170,7 +170,7 @@
                 'salt': this.dataForm.salt,
                 'status': this.dataForm.status,
                 'roleIdList': this.dataForm.roleIdList,
-                'workGroupID':this.dataForm.workGroupID
+                'workGroupID': this.dataForm.workGroupID
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
