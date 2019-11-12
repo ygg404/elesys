@@ -7,6 +7,7 @@
     </el-form>
     <el-table
       :data="dataList"
+      v-loading="dataListLoading"
       border
       style="width: 100%;">
       <el-table-column prop="menuId" header-align="center" align="center" width="80" label="ID"></el-table-column>
@@ -75,7 +76,7 @@
       getDataList () {
         this.dataListLoading = true
         let that = this
-        return new Promise(function (resolve, reject){
+        return new Promise(function (resolve, reject) {
           that.$http({
             url: that.$http.adornUrl('/sys/menu/list'),
             method: 'get',

@@ -52,7 +52,7 @@
       }
     },
     created () {
-      this.getCaptcha()
+      // this.getCaptcha()
     },
     methods: {
       // 提交表单

@@ -10,6 +10,9 @@ export default {
     },
     updateName (state, name) {
       state.name = name
+    },
+    updateAccount (state, account) {
+      state.account = account
     }
   }
 }
