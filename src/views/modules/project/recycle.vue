@@ -14,7 +14,7 @@
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">
       <el-table-column prop="projectNo" header-align="center" align="center" width="120" label="项目编号" sortable="custom" :sort-orders="['descending','ascending','descending']"></el-table-column>
-      <el-table-column prop="contractNo" header-align="center" align="center" width="120" label="合同编号" ></el-table-column>
+      <!--<el-table-column prop="contractNo" header-align="center" align="center" width="120" label="合同编号" ></el-table-column>-->
       <el-table-column prop="projectName" header-align="center" align="left" label="项目名称" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" :show-overflow-tooltip="true" width="100"></el-table-column>
       <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>

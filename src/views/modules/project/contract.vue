@@ -55,7 +55,7 @@
           <el-button type="warning" size="mini" @click="addOrUpdateProjectHandle(id = '' ,scope.row)" v-if="isAuth('project:project:save')">添加项目</el-button>
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)" v-if="isAuth('project:contract:update')">修改</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row)" v-if="isAuth('project:contract:delete')">删除</el-button>
-          <el-button v-if="scope.row.filename" style="background-color: #5daf34;color: white;" size="mini" @click="downloadFile(scope.row)">下载</el-button>
+          <el-button v-if="scope.row.filename" type="success" size="mini" @click="downloadFile(scope.row)">下载</el-button>
         </template>
       </el-table-column>
     </el-table>

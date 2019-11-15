@@ -29,7 +29,7 @@
         align="center"
         label="ID"
         sortable
-        :sort-orders="['asc', 'desc']"
+        :sort-orders="['descending','ascending']"
         width="80">
       </el-table-column>
       <el-table-column
@@ -37,7 +37,7 @@
         header-align="center"
         align="center"
         sortable
-        :sort-orders="['asc', 'desc']"
+        :sort-orders="['descending','ascending']"
         label="输入项">
       </el-table-column>
       <el-table-column

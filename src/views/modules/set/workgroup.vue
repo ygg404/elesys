@@ -27,16 +27,17 @@
       <el-table-column
         header-align="center"
         align="center"
-        width="150"
+        width="90"
         label="顺序">
         <template slot-scope="scope">
-          <i class="el-icon-top" @click="ChangeOrderNum(scope.$index,scope.row.id)"></i>
+          <i class="el-icon-top el-i-top" @click="ChangeOrderNum(scope.$index,scope.row.id)"></i>
         </template>
       </el-table-column>
       <el-table-column
         prop="id"
         header-align="center"
         align="center"
+        width="80"
         label="ID">
       </el-table-column>
       <el-table-column
@@ -119,9 +120,9 @@
         this.getDataList()
       },
 
-      //调整Oder_num 传递ID
+      // 调整Oder_num 传递ID
       ChangeOrderNum (index, id) {
-        if (index == 0) {
+        if (index === 0) {
           return
         }
         this.$http({
@@ -131,17 +132,17 @@
           data: this.$http.adornData(id, false)
         }).then(({data}) => {
           if (data && data.code === 0) {
-            //成功
+            // 成功
             this.$message({
               message: '操作成功',
               type: 'success',
               duration: 1500
             })
           } else {
-            //失败
+            // 失败
             this.$message.error(data.msg)
           }
-          //更新数据
+          // 更新数据
           this.getDataList()
         })
       },
@@ -221,3 +222,13 @@
     }
   }
 </script>
+
+<style scoped>
+  .el-i-top {
+    color: #2D64B3;
+    cursor: pointer;
+    width: 80px;
+    font-weight: 700;
+    font-size: 19px;
+  }
+</style>

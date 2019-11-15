@@ -37,6 +37,9 @@ const mainRoutes = {
     { path: '/theme', component: _import('common/theme'), name: 'theme', meta: { title: '主题' } },
     // { path: '/demo-echarts', component: _import('demo/echarts'), name: 'demo-echarts', meta: { title: 'demo-echarts', isTab: true } },
     // { path: '/demo-ueditor', component: _import('demo/ueditor'), name: 'demo-ueditor', meta: { title: 'demo-ueditor', isTab: true } }
+    { path: '/project/allocation', component: _import('modules/project/project-allocation'), name: 'allocation', meta: { title: '项目安排' ,isTab: true} },
+    { path: '/project/editwork', component: _import('modules/project/project-work'), name: 'editwork', meta: { title: '项目工作' ,isTab: true} },
+    { path: '/project/editquality', component: _import('modules/project/project-editquality'), name: 'editquality', meta: { title: '质量检查',isTab: true } },
   ],
   beforeEnter (to, from, next) {
     let token = Vue.cookie.get('token')
