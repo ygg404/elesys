@@ -52,7 +52,7 @@
             {{scope.row.projectStatus === 0? '暂停项目' : '启动项目'}}
           </el-button>
           <!--质量检查按钮-->
-
+          <el-button class="quality_btn"  size="mini" @click="editQualityHandle(scope.row)" v-if="isAuth('project:project:work') && roleradio==3">编辑质检</el-button>
           <!--产值核算按钮-->
         </template>
       </el-table-column>
@@ -196,6 +196,10 @@
       editWorkHandle (item) {
         this.$router.push({ path: '/project/editwork', query: {projectNo: item.projectNo} })
       },
+      // 编辑质量检查
+      editQualityHandle (item) {
+        this.$router.push({ path: '/project/editquality', query: {projectNo: item.projectNo} })
+      },
       // 暂停或启动项目
       stopProjectHandle (item) {
         this.$http({
@@ -218,7 +222,8 @@
             this.$message.error(data.msg)
           }
         })
-      }
+      },
+
     }
 
   }
@@ -231,5 +236,9 @@
     -moz-user-select:none;
     -ms-user-select:none;
     user-select:none;
+  }
+  .quality_btn{
+    background-color: #006F94;
+    color: white;
   }
 </style>

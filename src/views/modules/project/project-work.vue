@@ -7,7 +7,6 @@
         </template>
         <div style="background-color: #f0f0f0">
           <div>项目名称：{{projectInfo.projectName}}</div>
-          <div>委托单位：{{projectInfo.projectAuthorize}}</div>
           <div>项目类型：{{projectInfo.projectType}}</div>
           <div>委托单位：{{projectInfo.projectAuthorize}}</div>
           <div>委托要求：{{projectInfo.projectNote}}</div>
