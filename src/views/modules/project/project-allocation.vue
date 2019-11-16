@@ -78,7 +78,7 @@
           <div slot="header" class="clearfix" style="padding: 0">
             <span class="span_title">作业组数据</span>
           </div>
-          <div v-for="group in this.groupWorkList" :key="group.groupId" class="group_item">
+          <div v-for="group in this.groupWorkList" :key="group.groupId" class="group_item" v-if="group.checked">
             {{group.groupName}}:占比{{group.outputRate}}%，产值:{{group.projectOutput}}，最短工期:{{group.shortDateTime}}，最长工期:{{group.lastDateTime}}。
           </div>
         </el-card>
@@ -195,7 +195,8 @@
       projectGroupHandle (projectNo) {
         this.projectGroupVisible = true
         this.$nextTick(() => {
-          this.$refs.projectgroupAddOrUpdate.init(projectNo)
+          console.log(this.dataForm.projectOutput)
+          this.$refs.projectgroupAddOrUpdate.init(projectNo, this.dataForm.projectOutput)
         })
       },
       // 表单提交
@@ -279,7 +280,7 @@
               }
             })
           } else {
-              ;
+            ;
           }
         })
       },

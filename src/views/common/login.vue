@@ -17,7 +17,7 @@
             </el-form-item>
 
             <el-form-item>
-              <el-button class="login-btn-submit" type="primary" @click="dataFormSubmit()">登录</el-button>
+              <el-button  class="login-btn-submit" :icon="loading==true?'el-icon-loading':''"  type="primary" @click="dataFormSubmit()">登录</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -31,6 +31,7 @@
   export default {
     data () {
       return {
+        loading: false,
         dataForm: {
           userName: '',
           password: '',
@@ -59,6 +60,7 @@
       dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            this.loading = true
             this.$http({
               url: this.$http.adornUrl('/sys/login'),
               method: 'post',
@@ -69,6 +71,7 @@
                 'captcha': this.dataForm.captcha
               })
             }).then(({data}) => {
+              this.loading = false
               if (data && data.code === 0) {
                 this.$cookie.set('token', data.token)
                 this.$router.replace({ name: 'home' })
