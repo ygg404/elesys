@@ -74,9 +74,12 @@
         <div style="margin-top: 10px;">
           <el-button type="primary" size="large" @click="projectGroupHandle(projectNo)">选择作业组</el-button>
         </div>
-        <el-card class="box-card group_info" style="margin-top: 10px;">
+        <el-card class="box-card group_info" style="margin-top: 10px;" v-if="dataForm.projectCharge != null">
           <div slot="header" class="clearfix" style="padding: 0">
             <span class="span_title">作业组数据</span>
+            <div style="float:right;">
+              <span>项目负责人:{{dataForm.projectCharge}}</span>
+            </div>
           </div>
           <div v-for="group in this.groupWorkList" :key="group.groupId" class="group_item" v-if="group.checked">
             {{group.groupName}}:占比{{group.outputRate}}%，产值:{{group.projectOutput}}，最短工期:{{group.shortDateTime}}，最长工期:{{group.lastDateTime}}。
@@ -170,6 +173,7 @@
         this.getWorkRequireList()
         this.getInfoByProjectNo(this.projectNo)  // 获取项目基本信息
         this.getGroupByProjectNo(this.projectNo) // 获取项目分组情况
+        // this.getProjectCharge(this.projectNo)  // 获取项目负责人
       },
       // 工作日期
       countWorkDateHandler () {
@@ -272,6 +276,7 @@
                   this.dataForm.workRequire = data.projectPlan.workRequire
                   this.dataForm.workNote = data.projectPlan.workNote
                   this.dataForm.projectBegunDateTime = data.projectPlan.projectBegunDateTime
+                  this.dataForm.projectCharge = data.projectPlan.projectCharge
                 }
                 resolve(data)
               } else {
@@ -402,6 +407,23 @@
             if (worknote.id === value) this.dataForm.workRequire = this.dataForm.workRequire + worknote.shortcutNote + ';'
           }
         }
+      },
+      // 获取项目负责人
+      getProjectCharge (projectNo) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/plan/info/${projectNo}`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.projectPlan)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
       },
       // 保存作业信息
       savePlanData () {

@@ -1,8 +1,8 @@
 <template>
   <el-dialog
-    title="选择作业组" :close-on-click-modal="false" :visible.sync="visible">
+    title="选择作业组" :close-on-click-modal="false" :visible.sync="visible" >
     <span class="span_output">预计产值：{{this.totalOutPut}}</span>
-    <el-table :data="groupList" border  style="width: 100%;" :summary-method='getSum'  show-summary>
+    <el-table :data="groupList" border  style="width: 100%;" v-loading="loading">
       <el-table-column prop="name" header-align="center" align="left" label="组名" >
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.checked" size="large" @change="headMenListEvent">{{scope.row.groupName}}</el-checkbox>
@@ -10,12 +10,12 @@
       </el-table-column>
       <el-table-column prop="outputRate" header-align="center" align="center" width="120" label="占比(%)" >
         <template slot-scope="scope">
-          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.outputRate"></el-input>
+          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.outputRate" @change="addRate(scope.row)"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="projectOutput" header-align="center" align="center" label="产值" >
         <template slot-scope="scope">
-          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectOutput"></el-input>
+          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectOutput" @change="addOutPut(scope.row)"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="shortDateTime" header-align="center" align="center" label="最短工期" >
@@ -29,7 +29,10 @@
         </template>
       </el-table-column>
     </el-table>
-
+    <div style="color: #00a2d4">
+      合计：<span :class="(totalOutPut > tOutPut+1 || totalOutPut < tOutPut -1)? 'span_error':'span_ok'"> 产值{{tOutPut}}</span>,
+      <span :class="(tRate > 100.01 || tRate < 99.99)? 'span_error':'span_ok'"> 占比{{tRate}}%</span>
+    </div>
     <div style="float: left;margin-top: 10px;">
       项目负责人:
       <el-select v-model="headId" placeholder="项目负责人"  style="width: 130px;" >
@@ -48,7 +51,10 @@
     data () {
       return {
         visible: false,
+        loading: true,
         totalOutPut: 0,
+        tOutPut: 0,  // 计算中的产值和占比
+        tRate: 0,
         projectNo: '',
         dataForm: {
           id: 0,
@@ -70,46 +76,51 @@
     },
     methods: {
       init (projectNo, totalOutPut = 0) {
+        this.projectNo = projectNo
         this.totalOutPut = totalOutPut
         this.getProjectWorkList(projectNo).then(grouplist => {
           this.groupList = grouplist
           this.headMenListEvent()
+          this.loading = false
+          this.getProjectCharge(projectNo).then(projectPlan => {
+            for (let headman of this.headManList) {
+              if (headman.headMan === projectPlan.projectCharge) this.headId = headman.headId
+            }
+          })
         })
         this.visible = true
       },
       // 表单提交
       dataFormSubmit () {
-        console.log(1111)
-        // this.$refs['dataForm'].validate((valid) => {
-        //   if (valid) {
-        //     this.$http({
-        //       url: this.$http.adornUrl(`/project/projectgroup/${!this.dataForm.id ? 'save' : 'update'}`),
-        //       method: 'post',
-        //       data: this.$http.adornData({
-        //         'id': this.dataForm.id || undefined,
-        //         'projectNo': this.dataForm.projectNo,
-        //         'groupId': this.dataForm.groupId,
-        //         'outputRate': this.dataForm.outputRate,
-        //         'shortDateTime': this.dataForm.shortDateTime,
-        //         'lastDateTime': this.dataForm.lastDateTime,
-        //         'projectOutput': this.dataForm.projectOutput,
-        //         'projectActuallyOutput': this.dataForm.projectActuallyOutput
-        //       })
-        //     }).then(({data}) => {
-        //       if (data && data.code === 0) {
-        //         this.$message({
-        //           message: '操作成功',
-        //           type: 'success',
-        //           duration: 1500
-        //         })
-        //         this.visible = false
-        //         this.$emit('refreshDataList')
-        //       } else {
-        //         this.$message.error(data.msg)
-        //       }
-        //     })
-        //   }
-        // })
+        if (this.tRate > 100.01 || this.tRate < 99.99) {
+          this.$message.error('总百分比不能超过100或者小于100')
+          return
+        } else if (this.totalOutPut > this.tOutPut + 1 || this.totalOutPut < this.tOutPut - 1) {
+          this.$message.error('总计产值不能超过或者小于总预计产值')
+          return
+        }
+
+        this.$http({
+          url: this.$http.adornUrl(`/project/group/saveList`),
+          method: 'post',
+          data: this.$http.adornData({
+            'pgroupList': this.groupList,
+            'projectNo': this.projectNo,
+            'headId': this.headId
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500
+            })
+            this.visible = false
+            this.$emit('refreshDataList')
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
       },
       // 作业队长列表
       headMenListEvent () {
@@ -124,36 +135,78 @@
             this.headId = group.headId
           }
         }
+        this.getSum()
       },
-      getSum (param) {
-        const { columns, data} = param
-        const sums = []
-        columns.forEach((column, index) => { //这步是为了让最后一行出现 合计 这一行，并且最后一行第一列出现 合计 二字。合计的字可以在这里更改
-          if (index === 0) {
-            sums[index] = '合计'
-            return
+      addRate (item) {
+        console.log(item)
+        item.projectOutput = (item.outputRate * this.totalOutPut / 100).toFixed(2)
+        var shortNum = item.projectOutput * 0.7 / 2400 - parseInt(item.projectOutput * 0.7 / 2400)
+
+        if (shortNum === 0) {
+          item.shortDateTime = Math.round(item.projectOutput * 0.7 / 2400)
+        } else if (shortNum < 0.5) {
+          item.shortDateTime = parseInt(item.projectOutput * 0.7 / 2400) + 0.5
+        } else {
+          item.shortDateTime = Math.round(item.projectOutput * 0.7 / 2400)
+        }
+
+        var lastNum = item.projectOutput * 1.3 / 2400 - parseInt(item.projectOutput * 1.3 / 2400)
+        if (lastNum === 0) {
+          item.lastDateTime = Math.round(item.projectOutput * 1.3 / 2400)
+        }
+        if (lastNum < 0.5) {
+          item.lastDateTime = parseInt(item.projectOutput * 1.3 / 2400) + 0.5
+        } else {
+          item.lastDateTime = Math.round(item.projectOutput * 1.3 / 2400)
+        }
+
+        this.getSum()
+      },
+      addOutPut (item) {
+        // console.log(this.project_output)
+        item.outputRate = (item.projectOutput * 100 / this.totalOutPut).toFixed(2)
+        var shortNum = Math.round(item.projectOutput * 0.7 / 2400 - parseInt(item.projectOutput * 0.7 / 2400))
+        console.log('short:' + shortNum)
+        if (0 < shortNum < 0.5) {
+          item.shortDateTime = parseInt(item.projectOutput * 0.7 / 2400) + 0.5
+        } else {
+          item.shortDateTime = Math.round(item.projectOutput * 0.7 / 2400)
+        }
+        var lastNum = Math.round(item.output * 1.3 / 2400 - parseInt(item.projectOutput * 1.3 / 2400))
+        if (0 < lastNum < 0.5) {
+          item.lastDateTime = parseInt(item.projectOutput / 2400 * 1.3) + 0.5
+        } else {
+          item.lastDateTime = Math.round(item.projectOutput / 2400 * 1.3, 2)
+        }
+        this.getSum()
+      },
+      // 运算总和
+      getSum () {
+        this.tRate = 0
+        this.tOutPut = 0
+        for (let group of this.groupList) {
+          if (group.checked) {
+            this.tOutPut += Math.round(group.projectOutput, 2)
+            this.tRate += Math.round(group.outputRate, 2)
           }
-          switch (column.property) {
-            case 'outputRate':    // 这里是需要计算的列所绑定的prop的值
-              console.log(column)
-              const values = data.map(item => Number(item[column.property]));
-              if (!values.every(value => isNaN(value))) {
-                sums[index] = values.reduce((prev, curr) => {
-                  const value = Number(curr);
-                  if (!isNaN(value)) {
-                    return prev + curr;
-                  } else {
-                    return prev;
-                  }
-                }, 0);
-              }
-              sums[index] += ' %'
-              break
-            default: // 这个默认不要忘记写
-              break
-          }
+        }
+      },
+      // 获取项目负责人
+      getProjectCharge (projectNo) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/plan/info/${projectNo}`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.projectPlan)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
         })
-        return sums
       },
       // 获取作业分组数据
       getProjectWorkList (projectNo) {
@@ -180,5 +233,11 @@
   .span_output{
     font-size: 15px;
     font-weight: 500;
+  }
+  .span_ok{
+    color: #00b7ee;
+  }
+  .span_error{
+    color: red;
   }
 </style>
