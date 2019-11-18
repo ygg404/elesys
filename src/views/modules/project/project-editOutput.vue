@@ -43,13 +43,16 @@
         </el-card>
       </el-col>
       <el-col :span="16">
+        <el-radio-group v-model="groupradio">
         <div v-for="(groupOutput,index) in outPutGroupList" v-if="groupOutput.checked">
           <el-card>
-            <div slot="header" class="clearfix"><span class="group_card">{{groupOutput.groupName}}</span></div>
-            <el-table :data="groupOutput.checkOutputList" border  style="width: 100%;" v-loading="loading">
-              <el-table-column prop="name" header-align="center" align="left" label="作业类型" ></el-table-column>
-              <el-table-column prop="outputRate" header-align="center" align="center"  label="工作量单位" ></el-table-column>
-              <el-table-column prop="projectOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
+            <div slot="header" class="clearfix">
+              <el-radio :label="groupOutput.groupId"><span class="group_card">{{groupOutput.groupName}}</span></el-radio>
+            </div>
+            <el-table :data="chooseRatio(groupOutput.checkOutputVoList)" border  style="width: 100%;">
+              <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" ></el-table-column>
+              <el-table-column prop="unit" header-align="center" align="center"  label="工作量单位" ></el-table-column>
+              <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
               <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" >
                 <template slot-scope="scope">
                   <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectRatio"></el-input>
@@ -67,6 +70,7 @@
             </div>
           </el-card>
         </div>
+        </el-radio-group>
       </el-col>
     </el-row>
 
@@ -85,6 +89,7 @@
     data () {
       return {
         loading: true,
+        groupradio: 0,
         projectNo: '',
         projectInfo: '',
         projectTypelist: [],   // 项目类型列表
@@ -127,8 +132,7 @@
                 }
               }
               this.workTypeInit()
-              this.getOutPutGroupList(this.projectNo)
-              this.loading = false
+              this.getOutPutGroupList(this.projectNo).then(success => {this.loading = false})
             })
           })
         })
@@ -238,6 +242,48 @@
           }
         }
         this.workTypeInit()
+      },
+      allOutput () {
+        let count = 0.0
+        let allCount = 0.0
+        this.outPutGroupList.forEach(element => {
+          element.outPutWraps.forEach(e => {
+            if (e.check) {
+              let output = e.projectRatio * e.unitOutput * e.workLoad
+              count += output
+            }
+          })
+        })
+        return allCount += count
+      },
+      addRatio (item) {
+        item.typeOut = this.numFilter(
+          item.workLoad * item.projectRatio * item.unitOutput
+        )
+      },
+      // 保留小数点后两位的过滤器，尾数不四舍五入
+      numFilter (value) {
+        // 截取当前数据到小数点后三位
+        let tempVal = parseFloat(value).toFixed(3)
+        let realVal = tempVal.substring(0, tempVal.length - 1)
+        return realVal
+      },
+      // 工作类型在表格勾选显示
+      chooseRatio (params) {
+        //  console.log(params)
+        let temp = []
+        params.forEach(e => {
+          if (e.check) {
+            e.typeOut = this.numFilter(
+              e.workLoad * e.projectRatio * e.typeOutput
+            )
+            if (e.projectRatio == null || e.workLoad == null) {
+              e.projectRatio = 1
+              e.workLoad = 0
+            }
+            temp.push(e)
+          }
+        })
       },
       // 返回
       goBack () {
