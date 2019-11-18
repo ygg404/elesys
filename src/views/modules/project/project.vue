@@ -65,7 +65,7 @@
           </el-tooltip>
           <!--产值核算按钮-->
           <el-tooltip class="item" effect="light" content="编辑核算" placement="left">
-            <el-button class="output_btn"  size="mini" icon="el-icon-edit-outline" @click="editQualityHandle(scope.row)" v-if="isAuth('project:project:work') && roleradio==4"></el-button>
+            <el-button class="output_btn"  size="mini" icon="el-icon-edit-outline" @click="editOutputHandle(scope.row)" v-if="isAuth('project:project:work') && roleradio==4"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -212,6 +212,10 @@
       // 编辑质量检查
       editQualityHandle (item) {
         this.$router.push({ path: '/project/editquality', query: {projectNo: item.projectNo} })
+      },
+      // 产值核算
+      editOutputHandle (item) {
+        this.$router.push({ path: '/project/editoutput', query: {projectNo: item.projectNo} })
       },
       // 暂停或启动项目
       stopProjectHandle (item) {

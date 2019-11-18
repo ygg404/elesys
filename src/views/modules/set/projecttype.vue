@@ -82,7 +82,7 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/set/projecttype/list'),
+          url: this.$http.adornUrl('/set/projecttype/page'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,

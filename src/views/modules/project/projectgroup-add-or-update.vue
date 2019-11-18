@@ -159,7 +159,7 @@
         } else {
           item.lastDateTime = Math.round(item.projectOutput * 1.3 / 2400)
         }
-
+        item.projectOutput = Math.round(item.projectOutput,2)
         this.getSum()
       },
       addOutPut (item) {
@@ -172,12 +172,14 @@
         } else {
           item.shortDateTime = Math.round(item.projectOutput * 0.7 / 2400)
         }
-        var lastNum = Math.round(item.output * 1.3 / 2400 - parseInt(item.projectOutput * 1.3 / 2400))
+        var lastNum = Math.round(item.projectOutput * 1.3 / 2400 - parseInt(item.projectOutput * 1.3 / 2400))
+        console.log('lastNum:' + lastNum)
         if (0 < lastNum < 0.5) {
           item.lastDateTime = parseInt(item.projectOutput / 2400 * 1.3) + 0.5
         } else {
-          item.lastDateTime = Math.round(item.projectOutput / 2400 * 1.3, 2)
+          item.lastDateTime = Math.round(item.projectOutput / 2400 * 1.3)
         }
+        item.outputRate = Math.round(item.outputRate , 2)
         this.getSum()
       },
       // 运算总和
