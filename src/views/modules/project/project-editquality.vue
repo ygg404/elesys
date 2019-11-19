@@ -45,25 +45,31 @@
         <el-form-item label="质量评分" prop="qualityScore">
           <el-input type="number" placeholder="质量评分" oninput="if(value>100)value=100;if(value<0)value=0;" max="100" min="0" size="large"  v-model="dataForm.qualityScore" style="width: 140px;"></el-input>
         </el-form-item>
-        <el-button type="primary" size="large">添加质量评分</el-button>
+        <el-button type="primary" size="large" @click="addQualityscoreHandler">添加质量评分</el-button>
       </el-card>
     </el-form>
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
     </div>
+
+    <!--&lt;!&ndash; 弹窗, 新增 / 修改  项目组&ndash;&gt;-->
+    <!--<qualityscore-add-or-update v-if="projectGroupVisible" ref="qualityScoreAddOrUpdate" @refreshDataList="init"></qualityscore-add-or-update>-->
   </div>
 </template>
 
 <script>
   import {closeTab} from '@/utils/tabs'
+  import qualityScoreAddOrUpdate from './qualityscore-add-or-update'
 
   export default {
     data () {
       return {
+        projectNo: '',
         projectInfo: '',
         qualityNotelist: [],
         qualityNoteValue: '',
+        qualityScoreVisible: false,
         dataForm: {
           id: '',
           qualityNote: '',
@@ -88,6 +94,9 @@
         this.getInfoByProjectNo(projectNo)
         this.getQualityByProjectNo(projectNo)
         this.getQualityNotelist()
+      },
+      components: {
+        qualityScoreAddOrUpdate
       },
       // 获取项目基本信息
       getInfoByProjectNo (projectNo) {
@@ -155,6 +164,13 @@
             if (note.id === value) this.dataForm.qualityNote = this.dataForm.qualityNote + note.shortcutNote + ';'
           }
         }
+      },
+      // 添加质量评分
+      addQualityscoreHandler () {
+        this.qualityScoreVisible = true
+        // this.$nextTick(() => {
+        //   this.$refs.qualityScoreAddOrUpdate.init(this.projectNo)
+        // })
       },
       // 返回
       goBack () {

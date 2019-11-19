@@ -414,10 +414,10 @@
 
     }
 
-    .span_title {
-      font-size: 18px;
-      font-weight: 700;
-    }
+    /*.span_title {*/
+      /*font-size: 18px;*/
+      /*font-weight: 700;*/
+    /*}*/
 
     .bottom_btn{
       margin: 20px;
