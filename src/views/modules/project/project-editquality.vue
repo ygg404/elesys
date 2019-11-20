@@ -53,14 +53,14 @@
       <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
     </div>
 
-    <!--&lt;!&ndash; 弹窗, 新增 / 修改  项目组&ndash;&gt;-->
-    <!--<qualityscore-add-or-update v-if="projectGroupVisible" ref="qualityScoreAddOrUpdate" @refreshDataList="init"></qualityscore-add-or-update>-->
+    <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
+    <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="init"></qualityscore-add-or-update>
   </div>
 </template>
 
 <script>
   import {closeTab} from '@/utils/tabs'
-  import qualityScoreAddOrUpdate from './qualityscore-add-or-update'
+  import qualityscoreAddOrUpdate from './qualityscore-add-or-update'
 
   export default {
     data () {
@@ -85,18 +85,46 @@
         }
       }
     },
-    mounted () {
+    components: {
+      qualityscoreAddOrUpdate
+    },
+    activated () {
       this.init()
     },
     methods: {
       init () {
-        let projectNo = this.$route.query.projectNo
-        this.getInfoByProjectNo(projectNo)
-        this.getQualityByProjectNo(projectNo)
+        this.projectNo = this.$route.query.projectNo
+        this.getInfoByProjectNo(this.projectNo)
+        this.getQualityByProjectNo(this.projectNo)
         this.getQualityNotelist()
       },
-      components: {
-        qualityScoreAddOrUpdate
+      // 提交数据
+      dataFormSubmit () {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            this.$http({
+              url: this.$http.adornUrl(`/project/quality/save`),
+              method: 'post',
+              data: this.$http.adornData({
+                'projectNo': this.projectNo,
+                'qualityNote': this.dataForm.qualityNote,
+                'qualityScore': this.dataForm.qualityScore
+              })
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  duration: 1500
+                })
+                this.visible = false
+                this.$emit('refreshDataList')
+              } else {
+                this.$message.error(data.msg)
+              }
+            })
+          }
+        })
       },
       // 获取项目基本信息
       getInfoByProjectNo (projectNo) {
@@ -168,9 +196,9 @@
       // 添加质量评分
       addQualityscoreHandler () {
         this.qualityScoreVisible = true
-        // this.$nextTick(() => {
-        //   this.$refs.qualityScoreAddOrUpdate.init(this.projectNo)
-        // })
+        this.$nextTick(() => {
+          this.$refs.qualityscoreAddOrUpdate.init(this.projectNo)
+        })
       },
       // 返回
       goBack () {

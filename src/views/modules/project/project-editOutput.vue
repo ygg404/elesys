@@ -142,7 +142,7 @@
         for (let workType of this.workTypelist) {
           workType.isVisible = false
           // 工作类型 不属于 任意项目则设为 可见
-          if (workType.projectTypeIdList == null) {
+          if (workType.projectTypeIdList.length === 0) {
             workType.isVisible = true
           } else {
             for (let ptypeId of workType.projectTypeIdList) {

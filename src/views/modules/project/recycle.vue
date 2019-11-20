@@ -21,7 +21,7 @@
       <el-table-column prop="projectStartDateTime" header-align="center" align="center" label="项目启动时间" :show-overflow-tooltip="true">
         <template slot-scope="scope">{{scope.row.projectStartDateTime != null? scope.row.projectStartDateTime.substring(0,10) : ''}}</template>
       </el-table-column>
-      <el-table-column prop="projectStageName" header-align="center" align="center" label="项目阶段" :show-overflow-tooltip="true"></el-table-column>
+      <!--<el-table-column prop="projectStageName" header-align="center" align="center" label="项目阶段" :show-overflow-tooltip="true"></el-table-column>-->
       <el-table-column header-align="center" align="left" width="190" label="操作" style="z-index: -1">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="restoreHandle(scope.row)">恢复项目</el-button>

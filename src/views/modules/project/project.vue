@@ -10,9 +10,12 @@
       </el-radio-group>
     </div>
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <el-form-item style="margin-left: 20px;">
-        <el-date-picker v-model="dataForm.startDate" type="date" value-format="yyyy-MM-dd" placeholder="开始日期" style="width: 150px;" @change="getDataList"></el-date-picker> 至
-        <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期" style="width: 150px;" @change="getDataList"></el-date-picker>
+      <el-select v-model="dataForm.dateItemId" placeholder="时间类型"  style="width: 135px;">
+        <el-option v-for="item in dateItemList" :label="item.dateItem" :key="item.id" :value="item.id"  ></el-option>
+      </el-select>
+      <el-form-item style="margin-left: -2px;">
+        <el-date-picker v-model="dataForm.startDate" type="date" value-format="yyyy-MM-dd" placeholder="开始日期" style="width: 145px;" @change="getDataList"></el-date-picker> 至
+        <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期" style="width: 145px;" @change="getDataList"></el-date-picker>
       </el-form-item>
       <el-form-item style="margin-left: 20px;">
         <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable></el-input>
@@ -35,9 +38,14 @@
       </el-table-column>
       <el-table-column prop="scheduleRate" header-align="center" align="center" width="120" label="项目进度" >
         <template slot-scope="scope">
-          <div @click="getScheduleList(scope.row)">
+          <!--是作业人员则添加 进度-->
+          <div v-if="roleradio==2" @click="setScheduleList(scope.row)">
           <el-progress  class="proclass"  :text-inside="true" :stroke-width="22" :percentage="scope.row.scheduleRate != null? scope.row.scheduleRate : 0">
           </el-progress></div>
+          <!--非作业人员则查看 进度-->
+          <div v-else @click="getScheduleList(scope.row)">
+            <el-progress  class="proclass"  :text-inside="true" :stroke-width="22" :percentage="scope.row.scheduleRate != null? scope.row.scheduleRate : 0">
+            </el-progress></div>
         </template>
       </el-table-column>
       <el-table-column prop="projectStartDateTime" header-align="center" align="center" width="120" label="项目启动时间"></el-table-column>
@@ -92,15 +100,21 @@
       </span>
     </el-dialog>
   </el-card>
+  <!-- 弹窗, 新增 / 修改  项目组-->
+  <projectschedule-add-or-update v-if="projectscheduleVisible" ref="projectscheduleAddOrUpdate" @refreshDataList="getDataList"></projectschedule-add-or-update>
 </template>
 
 <script>
   import moment from 'moment'
+  import projectscheduleAddOrUpdate from './projectschedule-add-or-update'
 
   export default {
     data () {
       return {
+        projectscheduleVisible: false,
+        dateItemList: [], // 时间类型列表
         dataForm: {
+          dateItemId: 0,
           key: '',
           sidx: 'id',
           order: 'desc',
@@ -122,8 +136,13 @@
         allocationVisible: false  // 项目安排
       }
     },
+    components: {
+      projectscheduleAddOrUpdate
+    },
     activated () {
       this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
+      this.dateItemList = [{'id': 0, 'dateItem': '项目启动时间'}, {'id': 1, 'dateItem': '项目开工时间'},
+        {'id': 2, 'dateItem': '工作完成时间'}, {'id': 3, 'dateItem': '质检完成时间'}, {'id': 4, 'dateItem': '结算时间'}]
       this.getDataList()
     },
     methods: {
