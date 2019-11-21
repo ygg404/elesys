@@ -36,7 +36,7 @@
       <el-form-item v-if="dataForm.type !== 0" label="授权标识" prop="perms">
         <el-input v-model="dataForm.perms" placeholder="多个用逗号分隔, 如: user:list,user:create"></el-input>
       </el-form-item>
-      <el-form-item v-if="dataForm.type !== 2" label="排序号" prop="orderNum">
+      <el-form-item label="排序号" prop="orderNum">
         <el-input-number v-model="dataForm.orderNum" controls-position="right" :min="0" label="排序号"></el-input-number>
       </el-form-item>
       <el-form-item v-if="dataForm.type !== 2" label="菜单图标" prop="icon">

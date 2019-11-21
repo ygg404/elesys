@@ -41,6 +41,8 @@ const mainRoutes = {
     { path: '/project/editwork', component: _import('modules/project/project-work'), name: 'editwork', meta: { title: '项目工作' ,isTab: true} },
     { path: '/project/editquality', component: _import('modules/project/project-editquality'), name: 'editquality', meta: { title: '质量检查',isTab: true } },
     { path: '/project/editoutput', component: _import('modules/project/project-editOutput'), name: 'editoutput', meta: { title: '产值核算',isTab: true } },
+    { path: '/project/editauthorize', component: _import('modules/project/project-editauthorize'), name: 'editauthorize', meta: { title: '项目审定',isTab: true } },
+
   ],
   beforeEnter (to, from, next) {
     let token = Vue.cookie.get('token')
