@@ -432,14 +432,14 @@
       // 返回
       goBack () {
         console.log('goBack')
-        closeTab('allocation')
+        closeTab('project-editallocation')
       }
     },
     watch: {
       '$route': function (to, from) {
         this.projectNo = to.query['projectNo']
         // 执行数据更新查询
-        if (to.name === 'allocation') {
+        if (to.name === 'project-editallocation') {
           this.init()
         } else {
           this.goBack()

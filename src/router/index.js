@@ -37,11 +37,11 @@ const mainRoutes = {
     { path: '/theme', component: _import('common/theme'), name: 'theme', meta: { title: '主题' } },
     // { path: '/demo-echarts', component: _import('demo/echarts'), name: 'demo-echarts', meta: { title: 'demo-echarts', isTab: true } },
     // { path: '/demo-ueditor', component: _import('demo/ueditor'), name: 'demo-ueditor', meta: { title: 'demo-ueditor', isTab: true } }
-    { path: '/project/allocation', component: _import('modules/project/project-allocation'), name: 'allocation', meta: { title: '项目安排' ,isTab: true} },
-    { path: '/project/editwork', component: _import('modules/project/project-work'), name: 'editwork', meta: { title: '项目工作' ,isTab: true} },
-    { path: '/project/editquality', component: _import('modules/project/project-editquality'), name: 'editquality', meta: { title: '质量检查',isTab: true } },
-    { path: '/project/editoutput', component: _import('modules/project/project-editOutput'), name: 'editoutput', meta: { title: '产值核算',isTab: true } },
-    { path: '/project/editauthorize', component: _import('modules/project/project-editauthorize'), name: 'editauthorize', meta: { title: '项目审定',isTab: true } },
+    // { path: '/project-editallocation', component: _import('modules/project/editallocation'), name: 'project-editallocation', meta: { title: '项目安排' ,isTab: true} },
+    // { path: '/project-editwork', component: _import('modules/project/editwork'), name: 'editwork', meta: { title: '项目工作' ,isTab: true} },
+    // { path: '/project-editquality', component: _import('modules/project/editquality'), name: 'editquality', meta: { title: '质量检查',isTab: true } },
+    // { path: '/project-editoutput', component: _import('modules/project/editoutput'), name: 'editoutput', meta: { title: '产值核算',isTab: true } },
+    // { path: '/project-editauthorize', component: _import('modules/project/editauthorize'), name: 'editauthorize', meta: { title: '项目审定',isTab: true } },
 
   ],
   beforeEnter (to, from, next) {
@@ -74,7 +74,8 @@ router.beforeEach((to, from, next) => {
       params: http.adornParams()
     }).then(({data}) => {
       if (data && data.code === 0) {
-        fnAddDynamicMenuRoutes(data.menuList)
+        // console.log('按钮路由：' + data.btnList)
+        fnAddDynamicMenuRoutes(data.menuList.concat(data.btnList))
         router.options.isAddDynamicMenuRoutes = true
         sessionStorage.setItem('menuList', JSON.stringify(data.menuList || '[]'))
         sessionStorage.setItem('permissions', JSON.stringify(data.permissions || '[]'))
@@ -90,6 +91,38 @@ router.beforeEach((to, from, next) => {
     })
   }
 })
+
+/**
+ * 添加路由按钮
+ */
+function btnAddRoutes (btnList) {
+  for (var i = 0; i < btnList.length; i++) {
+    if (btnList[i].url && /\S/.test(btnList[i].url)) {
+      btnList[i].url = btnList[i].url.replace(/^\//, '')
+      var route = {
+        path: '/' + btnList[i].url.replace('/', '-'),
+        component: _import(`modules/${btnList[i].url}`) || null,
+        name: btnList[i].url.replace('/', '-'),
+        meta: {
+          title: btnList[i].name,
+          isTab: true
+        }
+      }
+      // url以http[s]://开头, 通过iframe展示
+      if (isURL(btnList[i].url)) {
+        route['path'] = `i-${btnList[i].menuId}`
+        route['name'] = `i-${btnList[i].menuId}`
+        route['meta']['iframeUrl'] = btnList[i].url
+      } else {
+        try {
+          route['component'] = _import(`modules/${btnList[i].url}`) || null
+        } catch (e) {}
+      }
+      mainRoutes.children.push(route)
+    }
+  }
+  console.log(mainRoutes.children)
+}
 
 /**
  * 判断当前路由类型, global: 全局路由, main: 主入口路由

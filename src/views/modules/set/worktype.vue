@@ -7,17 +7,24 @@
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
         <el-button v-if="isAuth('set:worktype:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('set:worktype:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('set:worktype:delete')" type="danger" @click="deleteHandle()"
+                   :disabled="dataListSelections.length <= 0">批量删除
+        </el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">
+    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle"
+              @sort-change="changeSort" style="width: 100%;">
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
       <el-table-column prop="id" header-align="center" align="center" label="ID" width="80"></el-table-column>
       <el-table-column prop="typeName" header-align="center" align="center" label="类型名称"></el-table-column>
       <el-table-column prop="unit" header-align="center" align="center" label="单位" width="100"></el-table-column>
       <el-table-column prop="unitOutput" header-align="center" align="center" label="单位产值" width="80"></el-table-column>
-      <el-table-column label="项目类型" prop="projectTypeName">
-        <template slot-scope="scope"> <el-tag v-if="scope.row.projectTypeName != ''" v-for="(item,index) in scope.row.projectTypeName.split(',')" :key="index" style="margin-left: 5px;">{{item}}</el-tag></template>
+      <el-table-column label="项目类型" prop="projectTypeName" header-align="center" align="center">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.projectTypeName != ''" v-for="(item,index) in scope.row.projectTypeName.split(',')"
+                  :key="index" style="margin-left: 5px;">{{item}}
+          </el-tag>
+        </template>
       </el-table-column>
       <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
@@ -42,7 +49,8 @@
 
 <script>
   import AddOrUpdate from './worktype-add-or-update'
-  import { resolve } from 'url'
+  import {resolve} from 'url'
+
   export default {
     data () {
       return {
@@ -58,7 +66,7 @@
         dataListLoading: false,
         dataListSelections: [],
         addOrUpdateVisible: false,
-        ProjectTypeList:[]
+        ProjectTypeList: []
 
       }
     },
@@ -66,7 +74,9 @@
       AddOrUpdate
     },
     activated () {
-      this.getProjectList().then(success=>{this.getDataList()})
+      this.getProjectList().then(success => {
+        this.getDataList()
+      })
     },
     methods: {
       // 排序字段改变
@@ -83,23 +93,20 @@
             this.dataForm.order = 'desc'
         }
         this.dataForm.sidx = val.prop
-        this.getProjectList().then(success=>{this.getDataList()})
+        this.getProjectList().then(success => {
+          this.getDataList()
+        })
 
       },
-
-
-
-      //同步获取 项目类型列表数据
-      getProjectList(){
-        return new Promise( (resolve,reject) =>{
+      // 同步获取 项目类型列表数据
+      getProjectList () {
+        return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl('/set/projecttype/selectprojecttype'),
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-
-              this.ProjectTypeList = data.list;
-
+              this.ProjectTypeList = data.list
               resolve(data.list)
             } else {
               this.dataList = []
@@ -123,27 +130,24 @@
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
-
             this.dataList = data.page.list
 
-
-//遍历数据列表
-            for(let ItemData of this.dataList){
+            // 遍历数据列表
+            for (let ItemData of this.dataList) {
               ItemData.projectTypeName = ''
-              //遍历单条数据关联的项目类型ID
-              for(let PIDItem of ItemData.projectTypeIdList){
-                for(let PIDInProjectTypeListItem of this.ProjectTypeList){
-                  if(PIDItem == PIDInProjectTypeListItem.id){
-                    ItemData.projectTypeName  += PIDInProjectTypeListItem.name + ','
+              // 遍历单条数据关联的项目类型ID
+              for (let PIDItem of ItemData.projectTypeIdList) {
+                for (let PIDInProjectTypeListItem of this.ProjectTypeList) {
+                  if (PIDItem === PIDInProjectTypeListItem.id) {
+                    ItemData.projectTypeName += PIDInProjectTypeListItem.name + ','
                   }
                 }
 
               }
-              ItemData.projectTypeName  = ItemData.projectTypeName.substring(0,ItemData.projectTypeName.length - 1 )
-              console.log(ItemData.projectTypeName);
+              ItemData.projectTypeName = ItemData.projectTypeName.substring(0, ItemData.projectTypeName.length - 1)
+              console.log(ItemData.projectTypeName)
             }
             this.totalPage = data.page.totalCount
-
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -155,12 +159,16 @@
       sizeChangeHandle (val) {
         this.pageSize = val
         this.pageIndex = 1
-        this.getProjectList().then(success=>{this.getDataList()})
+        this.getProjectList().then(success => {
+          this.getDataList()
+        })
       },
       // 当前页
       currentChangeHandle (val) {
         this.pageIndex = val
-        this.getProjectList().then(success=>{this.getDataList()})
+        this.getProjectList().then(success => {
+          this.getDataList()
+        })
       },
       // 多选
       selectionChangeHandle (val) {

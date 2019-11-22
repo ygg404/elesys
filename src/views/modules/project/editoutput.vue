@@ -320,14 +320,14 @@
       // 返回
       goBack () {
         console.log('goBack')
-        closeTab('editoutput')
+        closeTab('project-editoutput')
       }
     },
     watch: {
       '$route': function (to, from) {
         this.projectNo = to.query['projectNo']
         // 执行数据更新查询
-        if (to.name === 'editoutput') {
+        if (to.name === 'project-editoutput') {
           this.init()
         } else {
           this.goBack()

@@ -11,7 +11,7 @@
           <el-radio :label="5">项目审定员</el-radio>
         </el-radio-group>
       </div>
-      <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+      <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()" style="width: 100%;">
         <el-select v-model="dataForm.dateItemId" placeholder="时间类型"  style="width: 135px;"  @change="getDataList" class="select_btn">
           <el-option v-for="item in dateItemList" :label="item.dateItem" :key="item.id" :value="item.id" ></el-option>
         </el-select>
@@ -25,10 +25,10 @@
         <el-form-item>
           <el-button @click="getDataList()">查询</el-button>
         </el-form-item>
-        <el-form-item>
-          <el-button @click="outputChartHandle" type="primary" icon="el-icon-s-data">产值统计表</el-button>
-          <el-button @click="collectChartHandle" type="primary" icon="el-icon-s-data">汇总产值统计表</el-button>
-          <el-button @click="qualityChartHandle" type="primary" icon="el-icon-s-data">质量统计表</el-button>
+        <el-form-item style="right: 0">
+          <el-button @click="outputChartHandle" type="primary" icon="el-icon-s-data">产值表</el-button>
+          <el-button @click="collectChartHandle" type="primary" icon="el-icon-s-data">产值汇总表</el-button>
+          <el-button @click="qualityChartHandle" type="primary" icon="el-icon-s-data">质量表</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="dataList" border v-loading="dataListLoading"  @sort-change="changeSort" style="width: 100%;">
@@ -254,35 +254,36 @@
       },
       // 编辑安排
       editProjectHandle (item) {
-        this.$router.push({ path: '/project/allocation', query: {projectNo: item.projectNo} })
+        console.log(this.$router)
+        this.$router.push({ path: '/project-editallocation', query: {projectNo: item.projectNo} })
       },
       // 编辑工作
       editWorkHandle (item) {
-        this.$router.push({ path: '/project/editwork', query: {projectNo: item.projectNo} })
+        this.$router.push({ path: '/project-editwork', query: {projectNo: item.projectNo} })
       },
       // 编辑质量检查
       editQualityHandle (item) {
-        this.$router.push({ path: '/project/editquality', query: {projectNo: item.projectNo} })
+        this.$router.push({ path: '/project-editquality', query: {projectNo: item.projectNo} })
       },
       // 产值核算
       editOutputHandle (item) {
-        this.$router.push({ path: '/project/editoutput', query: {projectNo: item.projectNo} })
+        this.$router.push({ path: '/project-editoutput', query: {projectNo: item.projectNo} })
       },
       // 项目审定
       editExamineHandle (item) {
-        this.$router.push({ path: '/project/editauthorize', query: {projectNo: item.projectNo} })
+        this.$router.push({ path: '/project-editauthorize', query: {projectNo: item.projectNo} })
       },
       // 产值统计表
       outputChartHandle () {
-        this.$router.push({ path: '/project/outputChart' })
+        this.$router.push({ path: '/project-chartoutput' })
       },
       // 产值汇总统计表
       collectChartHandle () {
-        this.$router.push({ path: '/project/collectChart' })
+        this.$router.push({ path: '/project-chartcollect' })
       },
       // 质量统计表
       qualityChartHandle () {
-        this.$router.push({ path: '/project/qualityChart' })
+        this.$router.push({ path: '/project-chartquality' })
       },
       // 暂停或启动项目
       stopProjectHandle (item) {

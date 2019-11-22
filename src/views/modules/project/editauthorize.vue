@@ -137,14 +137,14 @@
       // 返回
       goBack () {
         console.log('goBack')
-        closeTab('editauthorize')
+        closeTab('project-editauthorize')
       }
     },
     watch: {
       '$route': function (to, from) {
         this.projectNo = to.query['projectNo']
         // 执行数据更新查询
-        if (to.name === 'editauthorize') {
+        if (to.name === 'project-editauthorize') {
           this.init()
         } else {
           this.goBack()

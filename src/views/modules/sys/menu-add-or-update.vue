@@ -30,7 +30,7 @@
         </el-popover>
         <el-input v-model="dataForm.parentName" v-popover:menuListPopover :readonly="true" placeholder="点击选择上级菜单" class="menu-list__input"></el-input>
       </el-form-item>
-      <el-form-item v-if="dataForm.type === 1" label="菜单路由" prop="url">
+      <el-form-item v-if="dataForm.type !== 0" label="菜单路由" prop="url">
         <el-input v-model="dataForm.url" placeholder="菜单路由"></el-input>
       </el-form-item>
       <el-form-item v-if="dataForm.type !== 0" label="授权标识" prop="perms">
