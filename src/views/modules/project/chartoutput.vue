@@ -33,11 +33,23 @@
           </el-row>
           <el-row  v-if="data.groupName != null" class="item_row">
             <el-col :span="12"><div>{{data.projectName}}</div></el-col>
-            <el-col :span="4"><div >{{data.projectStartDateTime}}</div></el-col>
-            <el-col :span="4"><div >{{data.wFinishDateTime === null? '#':data.wFinishDateTime}}</div></el-col>
+            <el-col :span="4"><div >{{data.projectStartDateTime === null? '&ensp; ':data.projectStartDateTime}}</div></el-col>
+            <el-col :span="4"><div >{{data.wFinishDateTime === null? '&ensp; ':data.wFinishDateTime}}</div></el-col>
             <el-col :span="4"><div >{{data.projectActuallyOutput}}</div></el-col>
           </el-row>
+          <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
+            <el-col :span="12"><div class="group-header">合计{{data.projectSum}}个项目</div></el-col>
+            <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
+            <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
+            <el-col :span="4"><div class="group-header">{{data.outputSum}}</div></el-col>
+          </el-row>
         </div>
+        <el-row  class="table_row item_footer">
+          <el-col :span="12"><div class="group-header">总共合计{{totalProjectSum}}个项目</div></el-col>
+          <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
+          <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
+          <el-col :span="4"><div class="group-header">{{totalOutPut}}</div></el-col>
+        </el-row>
       </div>
     </el-card>
   </div>
@@ -57,10 +69,8 @@
         },
         monthTitle: '', // 月份标题
         workGroupList: [],
-        dataList: [{
-          groupName: '',
-          projectList: []
-        }],
+        totalOutput: 0, // 合计总产值
+        totalProjectSum: 0,  // 项目合计数
         dataListLoading: false
       }
     },
@@ -80,7 +90,7 @@
             + this.dataForm.endDate.getFullYear() + '年' + (this.dataForm.endDate.getMonth() + 1) + '月'
         }
         let startDate = moment(new Date(this.dataForm.startDate.getFullYear(), this.dataForm.startDate.getMonth(), 1)).format('YYYY-MM-DD')
-        let endDate = moment(new Date(this.dataForm.startDate.getFullYear(), this.dataForm.startDate.getMonth() + 1, 1)).format('YYYY-MM-DD')
+        let endDate = moment(new Date(this.dataForm.endDate.getFullYear(), this.dataForm.endDate.getMonth() + 1, 1)).format('YYYY-MM-DD')
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/project/chartoutput/list'),
@@ -102,25 +112,41 @@
       },
       // 表格初始化
       tableDataInit (datalist) {
+        this.totalOutPut = 0
+        this.totalProjectSum = 0
         this.dataList = []
         let groupName = null
         datalist.forEach((item, index) => {
           item.groupShow = false
+          item.footerShow = false
+          this.totalProjectSum += 1
+          let outputtemp = parseFloat((item.projectActuallyOutput == null ? 0 : item.projectActuallyOutput).toFixed(2))
+          this.totalOutPut = parseFloat((this.totalOutPut + outputtemp).toFixed(2))
+        })
+        console.log(this.totalOutPut)
+        datalist.forEach((item, index) => {
           if (groupName !== item.groupName) {
             item.groupShow = true
             groupName = item.groupName
-            // for (let i = index; i < datalist.length; i++) {
-            //   if (datalist[i].groupName === groupdat.groupName) {
-            //     groupdat.projectList.push(datalist[i])
-            //   } else {
-            //     break
-            //   }
-            // }
+            let projectSum = 0
+            let outputSum = 0
+            for (let i = index; i < datalist.length; i++) {
+              if (datalist[i].groupName === groupName) {
+                projectSum += 1
+                outputSum += datalist[i].projectActuallyOutput
+                datalist[i].projectSum = projectSum
+                datalist[i].outputSum = parseFloat(outputSum.toFixed(2))
+                if (i >= datalist.length - 1) datalist[i].footerShow = true
+              } else {
+                datalist[i - 1].footerShow = true
+                break
+              }
+            }
             // this.dataList.push(groupdat)
           }
         })
         this.dataList = datalist
-        console.log(this.dataList)
+        console.log(this.datalist)
       },
       // 从后台获得工作组数据列表内容  填充至选项
       getWorkGroupDataListFromApi () {
@@ -191,10 +217,13 @@
   .table_class .table_row .grid-header{
     font-weight: 700;
     font-size: 16px;
-    color: #051117;
+    color: rgba(15, 17, 23, 0.78);
   }
   .table_class .table_row .group-header{
     font-weight: 700;
     font-size: 15px;
+  }
+  .table_class .item_footer{
+    color: #00b7ee;
   }
 </style>

@@ -92,12 +92,12 @@
         for (var i = 1; i < 16; i++) {
           let scoreDetail = {
             checkcontent: this.checkcontent[i - 1],
-            check_a: "",
-            check_b: "",
-            check_c: "",
-            check_d: "",
-            check_result: "",
-            check_type: "",
+            check_a: '',
+            check_b: '',
+            check_c: '',
+            check_d: '',
+            check_result: '',
+            check_type: '',
             project_no: this.projectNo,
             score: 0,   // 扣除总分
             type_id: i

@@ -1,29 +1,46 @@
+<!--报表总览-->
 <template>
   <div class="mod-config">
-    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('finance:account:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('finance:account:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
-      </el-form-item>
-    </el-form>
-    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">
-      <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
-      <el-table-column prop="id" header-align="center" align="center" label=""></el-table-column>
+    <template>
+
+      <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+
+        <el-form-item style="margin-left: 20px;">
+          <el-date-picker v-model="dataForm.startDate" type="date" value-format="yyyy-MM-dd" placeholder="开始日期" style="width: 150px;" @change="getDataList"></el-date-picker> 至
+          <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期" style="width: 150px;" @change="getDataList"></el-date-picker>
+        </el-form-item>
+
+        <el-select v-model="dataForm.ProjectTypeIdList" outlined  placeholder="类型选择" style="width: 30%;">
+          <el-option
+            v-for="item in ProjectTypeList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id">
+          </el-option>
+        </el-select>
+
+        <el-form-item style="margin-left: 20px;">
+          <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="getDataList()">查询</el-button>
+        </el-form-item>
+      </el-form>
+
+    </template>
+    <el-table :data="dataList" border v-loading="dataListLoading" @sort-change="changeSort" style="width: 100%;">
       <el-table-column prop="contractNo" header-align="center" align="center" label="合同编号"></el-table-column>
-      <el-table-column prop="accountNote" header-align="center" align="center" label="收支内容"></el-table-column>
-      <el-table-column prop="accountNum" header-align="center" align="center" label="收支金额"></el-table-column>
-      <el-table-column prop="accountType" header-align="center" align="center" label="支出类型"></el-table-column>
-      <el-table-column prop="accountTypeName" header-align="center" align="center" label="支出类型名称"></el-table-column>
-      <el-table-column prop="accountAddDateTime" header-align="center" align="center" label="账号收支添加时间"></el-table-column>
-      <el-table-column prop="createDateTime" header-align="center" align="center" label="创建时间"></el-table-column>
+      <el-table-column prop="contractName" header-align="center" align="center" label="合同名称"></el-table-column>
+      <el-table-column prop="contractAuthorize" header-align="center" align="center" label="委托单位"></el-table-column>
+      <el-table-column prop="contractBusiness" header-align="center" align="center" label="业务负责人"></el-table-column>
+      <el-table-column prop="contractCreateTime" header-align="center" align="center" label="启动时间"></el-table-column>
+      <el-table-column prop="contractMoney" header-align="center" align="center" label="应收"></el-table-column>
+      <el-table-column prop="projectActuallyReceipts" header-align="center" align="center" label="实收"></el-table-column>
+      <el-table-column prop="projectNotReceipts" header-align="center" align="center" label="未收"></el-table-column>
+      <el-table-column prop="projectExpenditure" header-align="center" align="center" label="支出"></el-table-column>
       <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.contractNo)">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -36,13 +53,14 @@
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
-    <!-- 弹窗, 新增 / 修改 -->
-    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <!-- 编辑 -->
+    <edit-account v-if="visible" ref="ShowAccount" @refreshDataList="getDataList"></edit-account>
   </div>
 </template>
 
 <script>
-  import AddOrUpdate from './account-add-or-update'
+
+  import EditAccount from './edit-account'
   export default {
     data () {
       return {
@@ -57,16 +75,45 @@
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false
+        //编辑页面  edit-account对话框组件
+        visible: false,
+
+//类型选择 搜索作用
+        ProjectTypeList:[]
+
+
+
       }
     },
     components: {
-      AddOrUpdate
+      EditAccount
     },
     activated () {
       this.getDataList()
+      this.getProjectTypeListFromApi();
     },
     methods: {
+
+//选择类型
+      getProjectTypeListFromApi() {
+        return new Promise((resolve,reject) =>{
+          this.$http({
+            url: this.$http.adornUrl('/set/projecttype/selectprojecttype'),
+            method:'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              //项目类型数据 赋值
+              this.ProjectTypeList = data.list;
+
+
+              resolve(data.list)
+            } else {
+              //this.dataList = []
+            }
+          })
+        })
+      },
+
       // 排序字段改变
       changeSort (val) {
         console.log(val)
@@ -118,45 +165,15 @@
         this.pageIndex = val
         this.getDataList()
       },
-      // 多选
-      selectionChangeHandle (val) {
-        this.dataListSelections = val
-      },
-      // 新增 / 修改
-      addOrUpdateHandle (id) {
-        this.addOrUpdateVisible = true
+
+      //按钮点击事件
+      addOrUpdateHandle (contractNo) {
+        this.visible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id)
-        })
-      },
-      // 删除
-      deleteHandle (id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.id
-        })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/finance/account/delete'),
-            method: 'post',
-            data: this.$http.adornData(ids, false)
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500
-              })
-              this.getDataList()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
+          this.$refs.ShowAccount.init(contractNo)
         })
       }
+
     }
   }
 </script>
