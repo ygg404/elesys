@@ -33,7 +33,7 @@ const mainRoutes = {
     // 1. isTab: 是否通过tab展示内容, true: 是, false: 否
     // 2. iframeUrl: 是否通过iframe嵌套展示内容, '以http[s]://开头': 是, '': 否
     // 提示: 如需要通过iframe嵌套展示内容, 但不通过tab打开, 请自行创建组件使用iframe处理!
-    { path: '/home', component: _import('common/home'), name: 'home', meta: { title: '首页' } },
+    { path: '/home', component: _import('common/home'), name: 'home', meta: { title: '个人中心' } },
     { path: '/theme', component: _import('common/theme'), name: 'theme', meta: { title: '主题' } },
     // { path: '/demo-echarts', component: _import('demo/echarts'), name: 'demo-echarts', meta: { title: 'demo-echarts', isTab: true } },
     // { path: '/demo-ueditor', component: _import('demo/ueditor'), name: 'demo-ueditor', meta: { title: 'demo-ueditor', isTab: true } }
@@ -92,37 +92,6 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-/**
- * 添加路由按钮
- */
-function btnAddRoutes (btnList) {
-  for (var i = 0; i < btnList.length; i++) {
-    if (btnList[i].url && /\S/.test(btnList[i].url)) {
-      btnList[i].url = btnList[i].url.replace(/^\//, '')
-      var route = {
-        path: '/' + btnList[i].url.replace('/', '-'),
-        component: _import(`modules/${btnList[i].url}`) || null,
-        name: btnList[i].url.replace('/', '-'),
-        meta: {
-          title: btnList[i].name,
-          isTab: true
-        }
-      }
-      // url以http[s]://开头, 通过iframe展示
-      if (isURL(btnList[i].url)) {
-        route['path'] = `i-${btnList[i].menuId}`
-        route['name'] = `i-${btnList[i].menuId}`
-        route['meta']['iframeUrl'] = btnList[i].url
-      } else {
-        try {
-          route['component'] = _import(`modules/${btnList[i].url}`) || null
-        } catch (e) {}
-      }
-      mainRoutes.children.push(route)
-    }
-  }
-  console.log(mainRoutes.children)
-}
 
 /**
  * 判断当前路由类型, global: 全局路由, main: 主入口路由
