@@ -109,6 +109,7 @@
     methods: {
       init () {
         this.projectNo = this.$route.query.projectNo
+        this.getCutoffTime()
         this.getInfoByProjectNo(this.projectNo).then(success => {
           this.getProjectTypelist().then(success => {
             this.getWorkTypelist().then(success => {
@@ -196,6 +197,26 @@
           })
         })
       },
+      // 获取结算时间
+      getCutoffTime () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/quality/getInfo`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'projectNo': this.projectNo
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.cutOffTime = data.checkQuality.cutOffTime
+              resolve(data.checkQuality)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
       // 获取项目基本信息
       getInfoByProjectNo (projectNo) {
         return new Promise((resolve, reject) => {
@@ -255,8 +276,28 @@
           })
         })
       },
+      // 提交结算时间
+      postCutoffTimeToApi(){
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/quality/save`),
+            method: 'post',
+            data: this.$http.adornData({
+              'projectNo': this.projectNo,
+              'cutOffTime': this.cutOffTime
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
       // 保存产值核算
-      saveForm () {
+      postOutputToApi () {
         this.$http({
           url: this.$http.adornUrl(`/project/checkoutput/save`),
           method: 'post',
@@ -276,6 +317,11 @@
           } else {
             this.$message.error(data.msg)
           }
+        })
+      },
+      saveForm () {
+        this.postCutoffTimeToApi().then(success => {
+          this.postOutputToApi()
         })
       },
       // 项目类型改变

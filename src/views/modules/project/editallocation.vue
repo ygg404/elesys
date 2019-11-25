@@ -197,14 +197,19 @@
       },
       // 选择作业组
       projectGroupHandle (projectNo) {
-        this.projectGroupVisible = true
-        this.$nextTick(() => {
-          console.log(this.dataForm.projectOutput)
-          this.$refs.projectgroupAddOrUpdate.init(projectNo, this.dataForm.projectOutput)
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            this.dataFormSubmit(false)
+            this.projectGroupVisible = true
+            this.$nextTick(() => {
+              console.log(this.dataForm.projectOutput)
+              this.$refs.projectgroupAddOrUpdate.init(projectNo, this.dataForm.projectOutput)
+            })
+          }
         })
       },
       // 表单提交
-      dataFormSubmit () {
+      dataFormSubmit (goback = true) {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
@@ -229,11 +234,13 @@
                   type: 'success',
                   duration: 1500
                 })
-                this.goBack()
+                if (goback) this.goBack()
               } else {
                 this.$message.error(data.msg)
               }
             })
+          } else {
+            return false
           }
         })
       },
