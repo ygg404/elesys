@@ -19,7 +19,7 @@
         <div>产值统计表</div>
         <div class="date_title">{{monthTitle}}</div>
       </div>
-      <div class="table_class">
+      <div class="table_class" v-loading="dataListLoading">
         <el-row class="table_row">
           <el-col :span="12"><div class="grid-header">项目名称</div></el-col>
           <el-col :span="4"><div class="grid-header">项目启动时间</div></el-col>
@@ -38,7 +38,7 @@
             <el-col :span="4"><div >{{data.projectActuallyOutput}}</div></el-col>
           </el-row>
           <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
-            <el-col :span="12"><div class="group-header">合计{{data.projectSum}}个项目</div></el-col>
+            <el-col :span="12"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
             <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
             <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
             <el-col :span="4"><div class="group-header">{{data.outputSum}}</div></el-col>
@@ -215,9 +215,10 @@
     background-color: rgba(0, 183, 238, 0.59);
   }
   .table_class .table_row .grid-header{
-    font-weight: 700;
+    font-weight: 900;
     font-size: 16px;
-    color: rgba(15, 17, 23, 0.78);
+    line-height: 150%;
+    color: rgba(15, 17, 23, 0.61);
   }
   .table_class .table_row .group-header{
     font-weight: 700;

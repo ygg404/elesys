@@ -108,6 +108,8 @@
       ProjectAddOrUpdate
     },
     activated () {
+      this.pageSize = 25
+      this.pageIndex = 1
       this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
       this.getDataList()
     },
@@ -130,6 +132,10 @@
       },
       // 获取数据列表
       getDataList () {
+        // 时间判断 （结束时间大于开始时间 ，则清空结束时间）
+        if (new Date(this.dataForm.startDate) >= new Date(this.dataForm.endDate)) {
+          this.dataForm.endDate = null
+        }
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/project/contract/list'),
@@ -150,6 +156,7 @@
           } else {
             this.dataList = []
             this.totalPage = 0
+            this.$message.error(data.msg)
           }
           this.dataListLoading = false
         })

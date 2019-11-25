@@ -1,7 +1,7 @@
 <template>
   <div class="mod-config">
-    <el-collapse accordion >
-      <el-collapse-item style="border: 1px solid #2D64B3 ">
+    <el-collapse >
+      <el-collapse-item style="border: 1px solid #8c939d ">
         <template slot="title">
           <span class="span_title">项目基本信息</span>
         </template>

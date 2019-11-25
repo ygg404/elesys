@@ -5,10 +5,10 @@
         <span style="color: #2D64B3">角色选择：  </span>
         <el-radio-group v-model="roleradio" style="margin-left: 10px;">
           <el-radio :label="1" :disabled="!isAuth('project:project:plan')">项目安排员</el-radio>
-          <el-radio :label="2">项目作业员</el-radio>
-          <el-radio :label="3">质检人员</el-radio>
-          <el-radio :label="4">产值核算员</el-radio>
-          <el-radio :label="5">项目审定员</el-radio>
+          <el-radio :label="2" :disabled="!isAuth('project:work:list')">项目作业员</el-radio>
+          <el-radio :label="3" :disabled="!isAuth('project:quality:list')">质检人员</el-radio>
+          <el-radio :label="4" :disabled="!isAuth('project:checkoutput:list')">产值核算员</el-radio>
+          <el-radio :label="5" :disabled="!isAuth('project:authorize:list')">项目审定员</el-radio>
         </el-radio-group>
       </div>
       <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()" style="width: 100%;">
@@ -90,35 +90,37 @@
             <!--项目作业按钮-->
             <el-tooltip class="item" effect="light" content="编辑工作" placement="left-start">
               <el-button type="success" size="mini" icon="el-icon-edit" @click="editWorkHandle(scope.row)"
-                         v-if="isAuth('project:project:work') && roleradio==2"></el-button>
+                         v-if="isAuth('project:work:update') && roleradio==2"></el-button>
             </el-tooltip>
             <el-tooltip class="item" effect="light" content="任务单打印" placement="left-start">
               <el-button type="success" size="mini" icon="el-icon-printer" @click="deleteHandle(scope.row)"
-                         v-if="isAuth('project:project:work') && roleradio==2"></el-button>
+                         v-if="isAuth('project:work:print') && roleradio==2"></el-button>
             </el-tooltip>
             <el-tooltip class="item" effect="light" :content="scope.row.projectStatus === 0? '暂停项目' : '启动项目'"
                         placement="left-start">
               <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini"
                          icon="el-icon-refresh-left"
-                         @click="stopProjectHandle(scope.row)" v-if="isAuth('project:project:work') && roleradio==2">
+                         @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list') && roleradio==2">
               </el-button>
             </el-tooltip>
             <!--质量检查按钮-->
             <el-tooltip class="item" effect="light" content="编辑质检" placement="left">
               <el-button class="quality_btn" size="mini" icon="el-icon-edit-outline"
                          @click="editQualityHandle(scope.row)"
-                         v-if="isAuth('project:project:work') && roleradio==3"></el-button>
+                         v-if="isAuth('project:quality:update') && roleradio==3"></el-button>
             </el-tooltip>
             <!--产值核算按钮-->
             <el-tooltip class="item" effect="light" content="编辑核算" placement="left">
               <el-button class="output_btn" size="mini" icon="el-icon-edit-outline" @click="editOutputHandle(scope.row)"
-                         v-if="isAuth('project:project:work') && roleradio==4"></el-button>
+                         v-if="isAuth('project:checkoutput:update') && roleradio==4"></el-button>
             </el-tooltip>
             <!--项目审定按钮-->
             <el-tooltip class="item" effect="light" content="编辑审定" placement="left">
               <el-button class="examine_btn" size="mini" icon="el-icon-edit-outline"
-                         @click="editExamineHandle(scope.row)"
-                         v-if="isAuth('project:project:work') && roleradio==5"></el-button>
+                         @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:update') && roleradio==5"></el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="light" content="审定单打印" placement="left">
+              <el-button class="examine_btn" size="mini" icon="el-icon-printer" @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:print') && roleradio==5"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -243,6 +245,7 @@
           } else {
             this.dataList = []
             this.totalPage = 0
+            this.$message.error(data.msg)
           }
           this.dataListLoading = false
         })
@@ -293,6 +296,10 @@
       },
       // 编辑工作
       editWorkHandle (item) {
+        if (item.scheduleRate < 90) {
+          this.$message.error('项目未完结，最高进度只可达90%，请添加进度后再进行作业编辑')
+          return
+        }
         this.$router.push({path: '/project-editwork', query: {projectNo: item.projectNo}})
       },
       // 编辑质量检查
