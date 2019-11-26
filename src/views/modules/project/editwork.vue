@@ -366,7 +366,7 @@
               method: 'post',
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,
-                'projectNo': this.projectNo,
+                'projectNo': this.dataForm.projectNo,
                 'technicalDisclosureNote': this.dataForm.technicalDisclosureNote,
                 'checkSuggestion': this.dataForm.checkSuggestion,
                 'dataName': this.dataForm.dataName,

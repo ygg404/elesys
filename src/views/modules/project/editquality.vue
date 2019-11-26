@@ -119,6 +119,7 @@
                 })
                 this.visible = false
                 this.$emit('refreshDataList')
+                this.goBack()
               } else {
                 this.$message.error(data.msg)
               }

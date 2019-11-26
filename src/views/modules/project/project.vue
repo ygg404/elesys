@@ -46,8 +46,38 @@
                          width="120"></el-table-column>
         <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="85">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.projectStatus === 0" size="small" type="success">启动</el-tag>
+            <el-tag v-if="scope.row.projectStatus === 0" size="small" type="primary">启动</el-tag>
             <el-tag v-else-if="scope.row.projectStatus === 1" size="small" type="danger">暂停</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isPlan" header-align="center" align="center" label="安排情况" width="85" v-if="roleradio==1">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.isPlan === 1" size="small" type="success">已安排</el-tag>
+            <el-tag v-else size="small" type="info">未安排</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isWork" header-align="center" align="center" label="作业情况" width="85" v-if="roleradio==2">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.isWork === 1" size="small" type="success">已作业</el-tag>
+            <el-tag v-else size="small" type="info">未作业</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isCheck" header-align="center" align="center" label="质检情况" width="85" v-if="roleradio==3">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.isCheck === 1" size="small" type="success">已质检</el-tag>
+            <el-tag v-else size="small" type="info">未质检</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isOutput" header-align="center" align="center" label="核算情况" width="85" v-if="roleradio==4">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.isOutput === 1" size="small" type="success">已核算</el-tag>
+            <el-tag v-else size="small" type="info">未核算</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isAuthorize" header-align="center" align="center" label="审核情况" width="85" v-if="roleradio==5">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.isAuthorize === 1" size="small" type="success">已审核</el-tag>
+            <el-tag v-else size="small" type="info">未审核</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="scheduleRate" header-align="center" align="center" width="120" label="项目进度">
