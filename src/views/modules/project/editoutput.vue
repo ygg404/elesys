@@ -303,7 +303,8 @@
           method: 'post',
           data: this.$http.adornData({
             'projectNo': this.projectNo,
-            'pgroupList': this.outPutGroupList
+            'pgroupList': this.outPutGroupList,
+            'projectActuallyOutput': this.totalOutPut
           })
         }).then(({data}) => {
           if (data && data.code === 0) {

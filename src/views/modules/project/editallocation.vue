@@ -67,6 +67,7 @@
             <el-row :gutter="24"><el-col :span="8"><span>委托单位：</span></el-col> <el-col :span="16"><span>{{projectInfo.projectAuthorize}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>委托要求：</span></el-col> <el-col :span="16"><span>{{projectInfo.projectNote}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>业务负责人：</span></el-col> <el-col :span="16"><span>{{projectInfo.contractBusiness}}</span></el-col></el-row>
+            <el-row :gutter="24"><el-col :span="8"><span>项目立项人：</span></el-col> <el-col :span="16"><span>{{projectInfo.createUserName}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>联系人：</span></el-col> <el-col :span="16"><span>{{projectInfo.userName}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>联系人电话：</span></el-col> <el-col :span="16"><span>{{projectInfo.userPhone}}</span></el-col></el-row>
           </div>
@@ -171,6 +172,7 @@
         this.getExecutelist()
         this.getWorkNotelist()
         this.getWorkRequireList()
+        this.getProjectDataCoe()
         this.getInfoByProjectNo(this.projectNo)  // 获取项目基本信息
         this.getGroupByProjectNo(this.projectNo) // 获取项目分组情况
         // this.getProjectCharge(this.projectNo)  // 获取项目负责人
@@ -230,7 +232,7 @@
             }).then(({data}) => {
               if (data && data.code === 0) {
                 this.$message({
-                  message: '操作成功',
+                  message: '保存并提交成功',
                   type: 'success',
                   duration: 1500
                 })
@@ -432,9 +434,22 @@
           })
         })
       },
-      // 保存作业信息
-      savePlanData () {
-        ;
+      // 获取各组项目产值和进度数据
+      getProjectDataCoe () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/group/getProjectDataCoe`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
       },
       // 返回
       goBack () {

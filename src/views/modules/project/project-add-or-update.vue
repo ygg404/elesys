@@ -5,7 +5,7 @@
     width="40%"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
-      <el-form-item label="生产负责人" prop="projectProduce">
+      <el-form-item label="生产负责人" prop="projectProduce" >
         <el-select v-model="dataForm.projectProduceAccount" placeholder="生产负责人"  style="width: 100%;">
           <el-option v-for="item in produceList" :label="item.username" :key="item.useraccount" :value="item.useraccount"  ></el-option>
         </el-select>

@@ -50,31 +50,31 @@
             <el-tag v-else-if="scope.row.projectStatus === 1" size="small" type="danger">暂停</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="isPlan" header-align="center" align="center" label="安排情况" width="85" v-if="roleradio==1">
+        <el-table-column :key="Math.random()"  prop="isPlan" header-align="center" align="center" label="安排情况" width="85" v-if="roleradio===1">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.isPlan === 1" size="small" type="success">已安排</el-tag>
-            <el-tag v-else size="small" type="info">未安排</el-tag>
+            <el-tag v-if="scope.row.isPlan == 1" size="small" type="success">已安排</el-tag>
+            <el-tag  v-if="scope.row.isPlan != 1" size="small" type="info">未安排</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="isWork" header-align="center" align="center" label="作业情况" width="85" v-if="roleradio==2">
-          <template slot-scope="scope">
+        <el-table-column :key="Math.random()"  prop="isWork" header-align="center" align="center" label="作业情况" width="85" v-if="roleradio===2">
+          <template slot-scope="scope" >
             <el-tag v-if="scope.row.isWork === 1" size="small" type="success">已作业</el-tag>
             <el-tag v-else size="small" type="info">未作业</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="isCheck" header-align="center" align="center" label="质检情况" width="85" v-if="roleradio==3">
-          <template slot-scope="scope">
-            <el-tag v-if="scope.row.isCheck === 1" size="small" type="success">已质检</el-tag>
-            <el-tag v-else size="small" type="info">未质检</el-tag>
+        <el-table-column :key="Math.random()"  prop="isCheck" header-align="center" align="center" label="质检情况" width="85" v-if="roleradio===3">
+          <template slot-scope="scope" >
+            <el-tag v-if="scope.row.isCheck == 1" size="small" type="success">已质检</el-tag>
+            <el-tag v-if="scope.row.isCheck != 1" size="small" type="info">未质检</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="isOutput" header-align="center" align="center" label="核算情况" width="85" v-if="roleradio==4">
+        <el-table-column prop="isOutput" header-align="center" align="center" label="核算情况" width="85" v-if="roleradio===4">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.isOutput === 1" size="small" type="success">已核算</el-tag>
-            <el-tag v-else size="small" type="info">未核算</el-tag>
+            <el-tag v-if="scope.row.isOutput == 1" size="small" type="success">已核算</el-tag>
+            <el-tag v-if="scope.row.isOutput != 1" size="small" type="info">未核算</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="isAuthorize" header-align="center" align="center" label="审核情况" width="85" v-if="roleradio==5">
+        <el-table-column :key="Math.random()"  prop="isAuthorize" header-align="center" align="center" label="审核情况" width="85" v-if="roleradio===5">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.isAuthorize === 1" size="small" type="success">已审核</el-tag>
             <el-tag v-else size="small" type="info">未审核</el-tag>
@@ -109,16 +109,15 @@
           <template slot-scope="scope">{{scope.row.cutOffTime != null? scope.row.cutOffTime.substring(0,7) : ''}}
           </template>
         </el-table-column>
-        <el-table-column header-align="center" align="center" :width="roleradio==2 || roleradio==5?190:100" label="操作"
-                         style="z-index: -1">
+        <el-table-column header-align="center" align="center" :width="roleradio==2 || roleradio==5?190:100" label="操作">
           <template slot-scope="scope">
             <!--项目安排按钮-->
-            <el-tooltip class="item" effect="light" content="编辑安排" placement="left-start">
+            <el-tooltip class="item" content="编辑安排" placement="left-start">
               <el-button type="primary" size="mini" icon="el-icon-edit" @click="editProjectHandle(scope.row)"
                          v-if="isAuth('project:project:plan') && roleradio==1"></el-button>
             </el-tooltip>
             <!--项目作业按钮-->
-            <el-tooltip class="item" effect="light" content="编辑工作" placement="left-start">
+            <el-tooltip class="item" effect="light" content="编辑工作" placement="left-start" >
               <el-button type="success" size="mini" icon="el-icon-edit" @click="editWorkHandle(scope.row)"
                          v-if="isAuth('project:work:update') && roleradio==2"></el-button>
             </el-tooltip>
@@ -188,6 +187,7 @@
 <script>
   import moment from 'moment'
   import projectscheduleAddOrUpdate from './projectschedule-add-or-update'
+  import {isAuth} from '../../../utils'
 
   export default {
     data () {
@@ -202,7 +202,7 @@
           startDate: '',
           endDate: ''
         },
-        roleradio: 1,
+        roleradio: 0,
         dataList: [],
         pageIndex: 1,
         pageSize: 25,
@@ -229,6 +229,12 @@
         {'id': 4, 'dateItem': '结算时间'}]
       this.pageIndex = 1
       this.pageSize = 25
+      // 角色选择初始化
+      if (isAuth('project:authorize:list')) this.roleradio = 5
+      if (isAuth('project:checkoutput:list')) this.roleradio = 4
+      if (isAuth('project:quality:list')) this.roleradio = 3
+      if (isAuth('project:work:list')) this.roleradio = 2
+      if (isAuth('project:project:plan')) this.roleradio = 1
       this.getDataList()
     },
     methods: {

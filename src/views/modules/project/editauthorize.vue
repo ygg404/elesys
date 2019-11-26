@@ -114,7 +114,7 @@
           return
         }
         this.$http({
-          url: this.$http.adornUrl(`/project/project/update`),
+          url: this.$http.adornUrl(`/project/project/authorize`),
           method: 'post',
           data: this.$http.adornData({
             'id': this.dataForm.id,
