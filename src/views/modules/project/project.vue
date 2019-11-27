@@ -30,9 +30,9 @@
           <el-button @click="getDataList()">查询</el-button>
         </el-form-item>
         <el-form-item style="right: 0">
-          <el-button @click="outputChartHandle" type="primary" icon="el-icon-s-data">产值表</el-button>
-          <el-button @click="collectChartHandle" type="primary" icon="el-icon-s-data">产值汇总表</el-button>
-          <el-button @click="qualityChartHandle" type="primary" icon="el-icon-s-data">质量表</el-button>
+          <el-button @click="outputChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartoutput')">产值表</el-button>
+          <el-button @click="collectChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartcollect')">产值汇总表</el-button>
+          <el-button @click="qualityChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartquality')">质量表</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="dataList" border v-loading="dataListLoading" @sort-change="changeSort" style="width: 100%;">
