@@ -88,6 +88,32 @@
         </el-card>
       </el-col>
     </el-row>
+
+    <el-card class="rate_info">
+      <el-table  :data="groupRateList" style="width: 100%" >
+        <el-table-column type="expand" >
+          <template slot-scope="props">
+            <el-table  :data="props.row.projectList" style="width: 100%;" :row-class-name="getTableclass" border>
+              <el-table-column label="项目名称" prop="projectName"></el-table-column>
+              <el-table-column label="项目启动时间" prop="projectStartDateTime"></el-table-column>
+              <el-table-column label="预算产值" prop="projectOutput"></el-table-column>
+              <el-table-column label="实际产值" prop="projectActuallyOutput"></el-table-column>
+              <el-table-column label="进度" prop="scheduleRate">
+                <template slot-scope="scope">
+                  <el-progress :text-inside="true"  :stroke-width="26" :percentage="scope.row.scheduleRate" ></el-progress>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
+        <el-table-column label="组名" prop="groupName"></el-table-column>
+        <el-table-column label="已安排产值" prop="isSetOutput"></el-table-column>
+        <el-table-column label="未完成产值" prop="isNotOutput"></el-table-column>
+        <el-table-column label="未完成项目数" prop="undoneNum"></el-table-column>
+        <!--<el-table-column label="安排系数" prop="groupRate"></el-table-column>-->
+      </el-table>
+    </el-card>
+
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
@@ -123,6 +149,7 @@
           projectQualityDate: '',
           projectActuallyOutput: ''
         },
+        groupRateList: [],
         produceList: [],
         dataRule: {
           executeStandard: [
@@ -443,6 +470,7 @@
             params: this.$http.adornParams()
           }).then(({data}) => {
             if (data && data.code === 0) {
+              this.groupRateList = data.list
               resolve(data.list)
             } else {
               this.$message.error(data.msg)
@@ -505,12 +533,11 @@
     text-align: center;
   }
 
-  .el-select-dropdown{
-    max-width: 243px;
-  }
-
   .info_class span{
     font-size: 15px;
   }
 
+  .rate_info{
+    margin-top: 10px;
+  }
 </style>

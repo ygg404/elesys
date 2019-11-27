@@ -109,47 +109,54 @@
           <template slot-scope="scope">{{scope.row.cutOffTime != null? scope.row.cutOffTime.substring(0,7) : ''}}
           </template>
         </el-table-column>
-        <el-table-column header-align="center" align="center" :width="roleradio==2 || roleradio==5?190:100" label="操作">
+        <!--项目安排按钮-->
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作"  v-if="roleradio==1">
           <template slot-scope="scope">
-            <!--项目安排按钮-->
             <el-tooltip class="item" content="编辑安排" placement="left-start">
-              <el-button type="primary" size="mini" icon="el-icon-edit" @click="editProjectHandle(scope.row)"
-                         v-if="isAuth('project:project:plan') && roleradio==1"></el-button>
+              <el-button type="primary" size="mini" icon="el-icon-edit" @click="editProjectHandle(scope.row)" v-if="isAuth('project:project:plan')"></el-button>
             </el-tooltip>
-            <!--项目作业按钮-->
-            <el-tooltip class="item" effect="light" content="编辑工作" placement="left-start" >
-              <el-button type="success" size="mini" icon="el-icon-edit" @click="editWorkHandle(scope.row)"
-                         v-if="isAuth('project:work:update') && roleradio==2"></el-button>
+          </template>
+        </el-table-column>
+        <!--项目作业按钮-->
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="190" label="操作" v-if="roleradio==2">
+          <template slot-scope="scope">
+            <el-tooltip class="item"  content="编辑工作" placement="left-start" >
+              <el-button type="success" size="mini" icon="el-icon-edit" @click="editWorkHandle(scope.row)" v-if="isAuth('project:work:update')"></el-button>
             </el-tooltip>
-            <el-tooltip class="item" effect="light" content="任务单打印" placement="left-start">
-              <el-button type="success" size="mini" icon="el-icon-printer" @click="deleteHandle(scope.row)"
-                         v-if="isAuth('project:work:print') && roleradio==2"></el-button>
+            <el-tooltip class="item"  content="任务单打印" placement="left-start">
+              <el-button type="success" size="mini" icon="el-icon-printer" @click="deleteHandle(scope.row)" v-if="isAuth('project:work:print')"></el-button>
             </el-tooltip>
-            <el-tooltip class="item" effect="light" :content="scope.row.projectStatus === 0? '暂停项目' : '启动项目'"
-                        placement="left-start">
-              <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini"
-                         icon="el-icon-refresh-left"
-                         @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list') && roleradio==2">
+            <el-tooltip class="item"  :content="scope.row.projectStatus === 0? '暂停项目' : '启动项目'" placement="left-start">
+              <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini" icon="el-icon-refresh-left" @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list')">
               </el-button>
             </el-tooltip>
-            <!--质量检查按钮-->
-            <el-tooltip class="item" effect="light" content="编辑质检" placement="left">
-              <el-button class="quality_btn" size="mini" icon="el-icon-edit-outline"
-                         @click="editQualityHandle(scope.row)"
-                         v-if="isAuth('project:quality:update') && roleradio==3"></el-button>
+          </template>
+        </el-table-column>
+        <!--质量检查按钮-->
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==3">
+          <template slot-scope="scope">
+            <el-tooltip class="item"  content="编辑质检" placement="left">
+              <el-button class="quality_btn" size="mini" icon="el-icon-edit-outline" @click="editQualityHandle(scope.row)" v-if="isAuth('project:quality:update')"></el-button>
             </el-tooltip>
-            <!--产值核算按钮-->
-            <el-tooltip class="item" effect="light" content="编辑核算" placement="left">
-              <el-button class="output_btn" size="mini" icon="el-icon-edit-outline" @click="editOutputHandle(scope.row)"
-                         v-if="isAuth('project:checkoutput:update') && roleradio==4"></el-button>
+          </template>
+        </el-table-column>
+        <!--产值核算按钮-->
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==4">
+          <template slot-scope="scope">
+            <el-tooltip class="item" content="编辑核算" placement="left">
+              <el-button class="output_btn" size="mini" icon="el-icon-edit-outline" @click="editOutputHandle(scope.row)" v-if="isAuth('project:checkoutput:update')"></el-button>
             </el-tooltip>
-            <!--项目审定按钮-->
-            <el-tooltip class="item" effect="light" content="编辑审定" placement="left">
+          </template>
+        </el-table-column>
+        <!--项目审定按钮-->
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="190" label="操作" v-if="roleradio==5">
+          <template slot-scope="scope">
+            <el-tooltip class="item" content="编辑审定" placement="left">
               <el-button class="examine_btn" size="mini" icon="el-icon-edit-outline"
-                         @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:update') && roleradio==5"></el-button>
+                         @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:update')"></el-button>
             </el-tooltip>
-            <el-tooltip class="item" effect="light" content="审定单打印" placement="left">
-              <el-button class="examine_btn" size="mini" icon="el-icon-printer" @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:print') && roleradio==5"></el-button>
+            <el-tooltip class="item" content="审定单打印" placement="left">
+              <el-button class="examine_btn" size="mini" icon="el-icon-printer" @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:print')"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>

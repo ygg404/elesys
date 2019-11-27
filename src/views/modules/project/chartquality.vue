@@ -12,48 +12,50 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button icon="el-icon-printer" type="primary">打印</el-button>
+          <el-button icon="el-icon-printer" type="primary" @click="printChart">打印</el-button>
         </el-form-item>
       </el-form>
-      <div class="chart_title">
-        <div>质量统计表</div>
-        <div class="date_title">{{dateTitle}}</div>
-      </div>
-      <div class="table_class" v-loading="dataListLoading">
-        <el-row class="table_row">
-          <el-col :span="11"><div class="grid-header">项目名称</div></el-col>
-          <el-col :span="2"><div class="grid-header">质量评分</div></el-col>
-          <el-col :span="2"><div class="grid-header">质量等级</div></el-col>
-          <el-col :span="3"><div class="grid-header">项目负责人</div></el-col>
-          <el-col :span="3"><div class="grid-header">质检员</div></el-col>
-          <el-col :span="3"><div class="grid-header">质检审核员</div></el-col>
-        </el-row>
-        <div v-for="(data, index) in dataList">
-          <el-row v-if="data.groupShow" class="table_row">
-            <el-col :span="11"><div class="group-header">{{data.groupName}}</div></el-col>
-            <el-col :span="13"></el-col>
+      <div id="chartId">
+        <div class="chart_title">
+          <div>质量统计表</div>
+          <div class="date_title">{{dateTitle}}</div>
+        </div>
+        <div class="table_class" v-loading="dataListLoading">
+          <el-row class="table_row">
+            <el-col :span="9"><div class="grid-header">项目名称</div></el-col>
+            <el-col :span="3"><div class="grid-header">质量评分</div></el-col>
+            <el-col :span="3"><div class="grid-header">质量等级</div></el-col>
+            <el-col :span="3"><div class="grid-header">项目负责人</div></el-col>
+            <el-col :span="3"><div class="grid-header">质检员</div></el-col>
+            <el-col :span="3"><div class="grid-header">质检审核员</div></el-col>
           </el-row>
-          <el-row  v-if="data.groupName != null" class="item_row">
-            <el-col :span="11"><div >{{data.projectName}}</div></el-col>
-            <el-col :span="2"><div >{{data.qualityScore  === null? '&ensp; ': data.qualityScore}}</div></el-col>
-            <el-col :span="2"><div >{{data.qualityLevel}}</div></el-col>
-            <el-col :span="3"><div >{{data.projectCharge  === null? '&ensp; ': data.projectCharge}}</div></el-col>
-            <el-col :span="3"><div >{{data.qualityUserName}}</div></el-col>
-            <el-col :span="3"><div >{{data.qualityConfirmName}}</div></el-col>
-          </el-row>
-          <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
-            <el-col :span="11"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
-            <el-col :span="13">
-              <div class="group-header">优:{{data.excellentCount}}项；良:{{data.goodCount}}项；及格:{{data.passCount}}项；不及格:{{data.failCount}}项；优良:{{data.goodexceSum}}项；优良率:{{data.goodRate}}%；</div>
+          <div v-for="(data, index) in dataList">
+            <el-row v-if="data.groupShow" class="table_row">
+              <el-col :span="9"><div class="group-header">{{data.groupName}}</div></el-col>
+              <el-col :span="15"></el-col>
+            </el-row>
+            <el-row  v-if="data.groupName != null" class="item_row">
+              <el-col :span="9"><div >{{data.projectName}}</div></el-col>
+              <el-col :span="3"><div >{{data.qualityScore  === null? '&ensp; ': data.qualityScore}}</div></el-col>
+              <el-col :span="3"><div >{{data.qualityLevel}}</div></el-col>
+              <el-col :span="3"><div >{{data.projectCharge  === null? '&ensp; ': data.projectCharge}}</div></el-col>
+              <el-col :span="3"><div >{{data.qualityUserName}}</div></el-col>
+              <el-col :span="3"><div >{{data.qualityConfirmName}}</div></el-col>
+            </el-row>
+            <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
+              <el-col :span="9"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
+              <el-col :span="15">
+                <div class="group-header">优:{{data.excellentCount}}项；良:{{data.goodCount}}项；及格:{{data.passCount}}项；不及格:{{data.failCount}}项；优良:{{data.goodexceSum}}项；优良率:{{data.goodRate}}%；</div>
+              </el-col>
+            </el-row>
+          </div>
+          <el-row  class="table_row item_footer">
+            <el-col :span="9"><div class="group-header">总共合计{{totalProjectSum}}个项目</div></el-col>
+            <el-col :span="15">
+              <div class="group-header">优:{{projectSum.excellentCount}}项；良:{{projectSum.goodCount}}项；及格:{{projectSum.passCount}}项；不及格:{{projectSum.failCount}}项；优良:{{projectSum.goodexceSum}}项；优良率:{{projectSum.goodRate}}%；</div>
             </el-col>
           </el-row>
         </div>
-        <el-row  class="table_row item_footer">
-          <el-col :span="11"><div class="group-header">总共合计{{totalProjectSum}}个项目</div></el-col>
-          <el-col :span="13">
-            <div class="group-header">优:{{projectSum.excellentCount}}项；良:{{projectSum.goodCount}}项；及格:{{projectSum.passCount}}项；不及格:{{projectSum.failCount}}项；优良:{{projectSum.goodexceSum}}项；优良率:{{projectSum.goodRate}}%；</div>
-          </el-col>
-        </el-row>
       </div>
     </el-card>
   </div>
@@ -206,6 +208,16 @@
           this.dataListLoading = false
         })
       },
+      // 打印报表
+      printChart () {
+        const print = document.getElementById('chartId').innerHTML
+        // 把当前页面替换成要打印的内容
+        document.body.innerHTML = print
+        // 打印
+        window.print()
+        // 刷新页面
+        window.location.reload()
+      }
     }
   }
 </script>

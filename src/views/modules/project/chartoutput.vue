@@ -12,44 +12,46 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button icon="el-icon-printer" type="primary">打印</el-button>
+          <el-button icon="el-icon-printer" type="primary" @click="printChart">打印</el-button>
         </el-form-item>
       </el-form>
-      <div class="chart_title">
-        <div>产值统计表</div>
-        <div class="date_title">{{monthTitle}}</div>
-      </div>
-      <div class="table_class" v-loading="dataListLoading">
-        <el-row class="table_row">
-          <el-col :span="12"><div class="grid-header">项目名称</div></el-col>
-          <el-col :span="4"><div class="grid-header">项目启动时间</div></el-col>
-          <el-col :span="4"><div class="grid-header">作业完成时间</div></el-col>
-          <el-col :span="4"><div class="grid-header">实际产值</div></el-col>
-        </el-row>
-        <div v-for="(data, index) in dataList">
-          <el-row v-if="data.groupShow" class="table_row">
-            <el-col :span="12"><div class="group-header">{{data.groupName}}</div></el-col>
-            <el-col :span="12"></el-col>
+      <div id="chartId">
+        <div class="chart_title">
+          <div>产值统计表</div>
+          <div class="date_title">{{monthTitle}}</div>
+        </div>
+        <div class="table_class" v-loading="dataListLoading">
+          <el-row class="table_row">
+            <el-col :span="12"><div class="grid-header">项目名称</div></el-col>
+            <el-col :span="4"><div class="grid-header">项目启动时间</div></el-col>
+            <el-col :span="4"><div class="grid-header">作业完成时间</div></el-col>
+            <el-col :span="4"><div class="grid-header">实际产值</div></el-col>
           </el-row>
-          <el-row  v-if="data.groupName != null" class="item_row">
-            <el-col :span="12"><div>{{data.projectName}}</div></el-col>
-            <el-col :span="4"><div >{{data.projectStartDateTime === null? '&ensp; ':data.projectStartDateTime}}</div></el-col>
-            <el-col :span="4"><div >{{data.wFinishDateTime === null? '&ensp; ':data.wFinishDateTime}}</div></el-col>
-            <el-col :span="4"><div >{{data.projectActuallyOutput}}</div></el-col>
-          </el-row>
-          <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
-            <el-col :span="12"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
+          <div v-for="(data, index) in dataList">
+            <el-row v-if="data.groupShow" class="table_row">
+              <el-col :span="12"><div class="group-header">{{data.groupName}}</div></el-col>
+              <el-col :span="12"></el-col>
+            </el-row>
+            <el-row  v-if="data.groupName != null" class="item_row">
+              <el-col :span="12"><div>{{data.projectName}}</div></el-col>
+              <el-col :span="4"><div >{{data.projectStartDateTime === null? '&ensp; ':data.projectStartDateTime}}</div></el-col>
+              <el-col :span="4"><div >{{data.wFinishDateTime === null? '&ensp; ':data.wFinishDateTime}}</div></el-col>
+              <el-col :span="4"><div >{{data.projectActuallyOutput}}</div></el-col>
+            </el-row>
+            <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
+              <el-col :span="12"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
+              <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
+              <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
+              <el-col :span="4"><div class="group-header">{{data.outputSum}}</div></el-col>
+            </el-row>
+          </div>
+          <el-row  class="table_row item_footer">
+            <el-col :span="12"><div class="group-header">总共合计{{totalProjectSum}}个项目</div></el-col>
             <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
             <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
-            <el-col :span="4"><div class="group-header">{{data.outputSum}}</div></el-col>
+            <el-col :span="4"><div class="group-header">{{totalOutPut}}</div></el-col>
           </el-row>
         </div>
-        <el-row  class="table_row item_footer">
-          <el-col :span="12"><div class="group-header">总共合计{{totalProjectSum}}个项目</div></el-col>
-          <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
-          <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
-          <el-col :span="4"><div class="group-header">{{totalOutPut}}</div></el-col>
-        </el-row>
       </div>
     </el-card>
   </div>
@@ -163,6 +165,16 @@
             }
           })
         })
+      },
+      // 打印报表
+      printChart () {
+        const print = document.getElementById('chartId').innerHTML
+        // 把当前页面替换成要打印的内容
+        document.body.innerHTML = print
+        // 打印
+        window.print()
+        // 刷新页面
+        window.location.reload()
       },
       // 开始时间处理
       startDateHandle () {
