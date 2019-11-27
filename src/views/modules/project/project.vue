@@ -155,8 +155,8 @@
               <el-button class="examine_btn" size="mini" icon="el-icon-edit-outline"
                          @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:update')"></el-button>
             </el-tooltip>
-            <el-tooltip class="item" content="审定单打印" placement="left">
-              <el-button class="examine_btn" size="mini" icon="el-icon-printer" @click="editExamineHandle(scope.row)" v-if="isAuth('project:authorize:print')"></el-button>
+            <el-tooltip class="item" content="流程单打印" placement="left">
+              <el-button class="examine_btn" size="mini" icon="el-icon-printer" @click="printProjectHandle(scope.row)" v-if="isAuth('project:authorize:print')"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -348,6 +348,10 @@
       // 作业任务单打印
       printWorkHandle (item) {
         this.$router.push({path: '/project-printwork', query: {projectNo: item.projectNo}})
+      },
+      // 任务流程单打印
+      printProjectHandle (item) {
+        this.$router.push({path: '/project-printproject', query: {projectNo: item.projectNo}})
       },
       // 编辑质量检查
       editQualityHandle (item) {

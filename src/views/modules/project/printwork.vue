@@ -84,46 +84,74 @@
               </p>
             </td>
           </tr>
-          <tr style="height:34.0000pt;">
-            <td width="82" valign="center" rowspan="2" style="width:62.1500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:1.0000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:none;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">
+          <!--<tr style="height:34.0000pt;">-->
+            <!--<td width="82" valign="center" rowspan="2" style="width:62.1500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:1.0000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:none;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">-->
+              <!--<p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">-->
+                <!--<b><span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">预计工作量及产值</span></b>-->
+                <!--<b><span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span></b>-->
+              <!--</p>-->
+            <!--</td>-->
+            <!--<td width="705" valign="center" colspan="8" style="width:528.7500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:1.0000pt solid windowtext;border-top:none;mso-border-top-alt:1.0000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">-->
+              <!--<p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">-->
+                <!--<span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.projectWorkload}}</span>-->
+                <!--<span style="font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>-->
+              <!--</p>-->
+            <!--</td>-->
+          <!--</tr>-->
+          <tr style="height:21.7500pt;">
+            <td width="82" valign="center" style="width:62.1500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:1.0000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
               <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
-                <b><span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">预计工作量及产值</span></b>
+                <b><span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">预计工作量</span></b>
                 <b><span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span></b>
               </p>
             </td>
-            <td width="705" valign="center" colspan="8" style="width:528.7500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:1.0000pt solid windowtext;border-top:none;mso-border-top-alt:1.0000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
+            <td width="477" valign="center" colspan="6" style="width:358.0000pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
               <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
                 <span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.projectWorkload}}</span>
                 <span style="font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>
               </p>
             </td>
-          </tr>
-          <tr style="height:34.0000pt;">
-            <td width="160" valign="center" colspan="2" style="width:120.5500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">
+            <td width="104" valign="center" style="width:78.5000pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
               <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
-                <b><span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">产值计算明细</span></b>
-                <b><span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span></b>
+                <b><span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">预算产值（元）</span></b>
+                <b><span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>
+                </b>
               </p>
             </td>
-            <td width="316" valign="center" colspan="4" style="width:237.4500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:none;mso-border-right-alt:none;border-top:1.0000pt solid windowtext;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">
+            <td width="123" valign="center" style="width:92.2500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:1.0000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
               <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
-                <span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.projectOutPutNote}}</span>
+                <span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.projectOutput}}</span>
                 <span style="font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>
               </p>
             </td>
-            <td width="104" valign="center" style="width:78.5000pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:0.5000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:1.0000pt solid windowtext;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">
-              <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
-                <b><span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">预算产值（元）</span></b>
-                <b><span style="font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span></b>
-              </p>
-            </td>
-            <td width="123" valign="center" style="width:92.2500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:1.0000pt solid windowtext;border-top:1.0000pt solid windowtext;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">
-              <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
-                <span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.projectOutput}}</span>
-                <span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>
-              </p>
-            </td>
           </tr>
+
+          <!--<tr style="height:34.0000pt;">-->
+            <!--<td width="160" valign="center" colspan="2" style="width:120.5500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">-->
+              <!--<p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">-->
+                <!--<b><span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">产值计算明细</span></b>-->
+                <!--<b><span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span></b>-->
+              <!--</p>-->
+            <!--</td>-->
+            <!--<td width="316" valign="center" colspan="4" style="width:237.4500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:none;mso-border-right-alt:none;border-top:1.0000pt solid windowtext;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">-->
+              <!--<p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">-->
+                <!--<span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.projectWorkload}}</span>-->
+                <!--<span style="font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>-->
+              <!--</p>-->
+            <!--</td>-->
+            <!--<td width="104" valign="center" style="width:78.5000pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:0.5000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:1.0000pt solid windowtext;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">-->
+              <!--<p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">-->
+                <!--<b><span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">预算产值（元）</span></b>-->
+                <!--<b><span style="font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span></b>-->
+              <!--</p>-->
+            <!--</td>-->
+            <!--<td width="123" valign="center" style="width:92.2500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:1.0000pt solid windowtext;border-top:1.0000pt solid windowtext;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">-->
+              <!--<p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">-->
+                <!--<span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.projectOutput}}</span>-->
+                <!--<span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>-->
+              <!--</p>-->
+            <!--</td>-->
+          <!--</tr>-->
           <tr style="height:25.5000pt;">
             <td width="82" valign="center" rowspan="2" style="width:62.1500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:1.0000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:none;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">
               <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
@@ -220,7 +248,7 @@
       </div>
     </div>
     <div style="text-align: center;width: 100%;">
-      <el-button type="primary" size="large" @click="printChart">打印</el-button>
+      <el-button type="primary" icon="el-icon-printer" size="large" @click="printChart">打印</el-button>
     </div>
   </div>
 </template>
@@ -277,17 +305,17 @@
         closeTab('project-printwork')
       }
     },
-    watch: {
-      '$route': function (to, from) {
-        this.projectNo = to.query['projectNo']
-        // 执行数据更新查询
-        if (to.name === 'project-printwork') {
-          this.init()
-        } else {
-          this.goBack()
-        }
-      }
-    }
+    // watch: {
+    //   '$route': function (to, from) {
+    //     this.projectNo = to.query['projectNo']
+    //     // 执行数据更新查询
+    //     if (to.name === 'project-printwork') {
+    //       this.init()
+    //     } else {
+    //       this.goBack()
+    //     }
+    //   }
+    // }
   }
 </script>
 
