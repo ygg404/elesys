@@ -124,7 +124,7 @@
               <el-button type="success" size="mini" icon="el-icon-edit" @click="editWorkHandle(scope.row)" v-if="isAuth('project:work:update')"></el-button>
             </el-tooltip>
             <el-tooltip class="item"  content="任务单打印" placement="left-start">
-              <el-button type="success" size="mini" icon="el-icon-printer" @click="deleteHandle(scope.row)" v-if="isAuth('project:work:print')"></el-button>
+              <el-button type="success" size="mini" icon="el-icon-printer" @click="printWorkHandle(scope.row)" v-if="isAuth('project:work:print')"></el-button>
             </el-tooltip>
             <el-tooltip class="item"  :content="scope.row.projectStatus === 0? '暂停项目' : '启动项目'" placement="left-start">
               <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini" icon="el-icon-refresh-left" @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list')">
@@ -344,6 +344,10 @@
           return
         }
         this.$router.push({path: '/project-editwork', query: {projectNo: item.projectNo}})
+      },
+      // 作业任务单打印
+      printWorkHandle (item) {
+        this.$router.push({path: '/project-printwork', query: {projectNo: item.projectNo}})
       },
       // 编辑质量检查
       editQualityHandle (item) {
