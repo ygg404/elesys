@@ -85,6 +85,7 @@
               this.totalProjectNum += item.projectNum
               this.totalOutPut += item.output
             })
+            this.totalOutPut = this.totalOutPut.toFixed(2)
           } else {
             this.dataList = []
           }

@@ -5,8 +5,8 @@
         <el-button v-if="isAuth('project:contract:save')" type="primary" @click="addOrUpdateHandle()">添加合同</el-button>
       </el-form-item>
       <el-form-item style="margin-left: 20px;">
-        <el-date-picker v-model="dataForm.startDate" type="date" value-format="yyyy-MM-dd" placeholder="开始日期" style="width: 150px;" @change="getDataList"></el-date-picker> 至
-        <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期" style="width: 150px;" @change="getDataList"></el-date-picker>
+        <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
+        <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
       </el-form-item>
       <el-form-item style="margin-left: 20px;">
         <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable></el-input>
@@ -84,6 +84,8 @@
   export default {
     data () {
       return {
+        pickerOptionsStart: {},
+        pickerOptionsEnd: {},
         dataForm: {
           key: '',
           sidx: 'id',
@@ -133,9 +135,10 @@
       // 获取数据列表
       getDataList () {
         // 时间判断 （结束时间大于开始时间 ，则清空结束时间）
-        if (new Date(this.dataForm.startDate) >= new Date(this.dataForm.endDate)) {
-          this.dataForm.endDate = null
-        }
+        let startDate = ''
+        let endDate = ''
+        if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
+        if (this.dataForm.endDate != null) endDate = moment(new Date(this.dataForm.endDate)).format('YYYY-MM-DD')
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/project/contract/list'),
@@ -146,8 +149,8 @@
             'key': this.dataForm.key,
             'sidx': this.dataForm.sidx,
             'order': this.dataForm.order,
-            'startDate': this.dataForm.startDate,
-            'endDate': this.dataForm.endDate
+            'startDate': startDate,
+            'endDate': endDate
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -160,6 +163,26 @@
           }
           this.dataListLoading = false
         })
+      },
+      // 开始时间改变
+      changeStart () {
+        this.pickerOptionsStart = Object.assign({}, this.pickerOptionsStart, {
+          disabledDate: (time) => {
+            return time.getTime() > this.dataForm.endDate
+          }
+        })
+        this.pageIndex = 1
+        this.getDataList()
+      },
+      // 结束时间改变
+      changeEnd () {
+        this.pickerOptionsEnd = Object.assign({}, this.pickerOptionsEnd, {
+          disabledDate: (time) => {
+            return time.getTime() < this.dataForm.startDate
+          }
+        })
+        this.pageIndex = 1
+        this.getDataList()
       },
       // 每页数
       sizeChangeHandle (val) {

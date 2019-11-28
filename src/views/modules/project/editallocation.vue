@@ -254,6 +254,7 @@
                 'executeStandard': this.dataForm.executeStandard,
                 'workRequire': this.dataForm.workRequire,
                 'workNote': this.dataForm.workNote,
+                'projectWriter': this.projectInfo.createUserName,
                 'projectBegunDateTime': this.dataForm.projectBegunDateTime
               })
             }).then(({data}) => {

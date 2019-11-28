@@ -26,10 +26,10 @@
         <el-form-item style="margin-left: 20px;">
           <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable @change="getDataList"></el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item style="margin-left: -10px;">
           <el-button @click="getDataList()">查询</el-button>
         </el-form-item>
-        <el-form-item style="right: 0">
+        <el-form-item style="float: right">
           <el-button @click="outputChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartoutput')">产值表</el-button>
           <el-button @click="collectChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartcollect')">产值汇总表</el-button>
           <el-button @click="qualityChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartquality')">质量表</el-button>
