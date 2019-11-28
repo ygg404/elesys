@@ -51,7 +51,23 @@
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
+      <el-button type="danger" size="large" @click="repairVisible = true">退回返修</el-button>
     </div>
+
+    <el-dialog title="提出返修" :close-on-click-modal="false" width="50%" :visible.sync="repairVisible">
+      <el-select  placeholder="返修意见快捷输入" v-model="repairValue" style="width: 100%" multiple collapse-tags  @change="repairNoteHandler()" >
+        <el-option v-for="item in repairNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+      </el-select>
+      <el-form :model="repairForm" :rules="repairRule" ref="repairForm" @keyup.enter.native="repairNoteSubmit()" class="form_class">
+        <el-form-item prop="backNote">
+          <el-input type="textarea" placeholder="请输入返修意见" maxlength="1000" size="large" show-word-limit rows="4"   v-model="repairForm.backNote" ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="repairVisible = false">取消</el-button>
+        <el-button type="primary" @click="repairNoteSubmit()">确定</el-button>
+      </span>
+    </el-dialog>
 
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
     <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="init"></qualityscore-add-or-update>
@@ -70,6 +86,7 @@
         qualityNotelist: [],
         qualityNoteValue: '',
         qualityScoreVisible: false,
+        repairVisible: false,
         dataForm: {
           id: '',
           qualityNote: '',
@@ -81,6 +98,16 @@
           ],
           qualityScore: [
             { required: true, message: '质量分数不能为空', trigger: 'blur' }
+          ]
+        },
+        repairNotelist: [], // 返修快捷输入列表
+        repairValue: '', // 返修短语
+        repairForm: {
+          backNote: ''
+        },  // 返修意见
+        repairRule: {
+          repairNote: [
+            { required: true, message: '返修意见不能为空', trigger: 'blur' }
           ]
         }
       }
@@ -97,6 +124,7 @@
         this.getInfoByProjectNo(this.projectNo)
         this.getQualityByProjectNo(this.projectNo)
         this.getQualityNotelist()
+        this.getRepairNotelist()
       },
       // 提交数据
       dataFormSubmit () {
@@ -185,6 +213,24 @@
           })
         })
       },
+      // 获取返修综述列表
+      getRepairNotelist () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/set/wpshortcut/getListByShortTypeId/12`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.repairNotelist = data.list
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
       qualityNoteHandler () {
         console.log(this.qualityNoteValue)
         this.dataForm.qualityNote = ''
@@ -193,6 +239,43 @@
             if (note.id === value) this.dataForm.qualityNote = this.dataForm.qualityNote + note.shortcutNote + ';'
           }
         }
+      },
+      repairNoteHandler () {
+        console.log(this.repairNote)
+        this.repairNote = ''
+        for (let value of this.repairValue) {
+          for (let note of this.repairNotelist) {
+            if (note.id === value) this.repairNote = this.repairNote + note.shortcutNote + ';'
+          }
+        }
+      },
+      // 提交返修意见
+      repairNoteSubmit () {
+        this.$refs['repairForm'].validate((valid) => {
+          if (valid) {
+            this.$http({
+              url: this.$http.adornUrl(`/project/backwork/save`),
+              method: 'post',
+              data: this.$http.adornData({
+                'projectNo': this.projectNo,
+                'backNote': this.repairForm.backNote
+              })
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+                this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  duration: 1500
+                })
+                this.visible = false
+                this.$emit('refreshDataList')
+                this.goBack()
+              } else {
+                this.$message.error(data.msg)
+              }
+            })
+          }
+        })
       },
       // 添加质量评分
       addQualityscoreHandler () {

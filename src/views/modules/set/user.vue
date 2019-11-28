@@ -10,55 +10,20 @@
         <el-button v-if="isAuth('sys:user:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
-    <el-table
-      :data="dataList"
-      border
-      v-loading="dataListLoading"
-      @selection-change="selectionChangeHandle"
-      style="width: 100%;">
-      <el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
-      </el-table-column>
-      <el-table-column
-        prop="userId"
-        header-align="center"
-        align="center"
-        width="80"
-        label="ID">
-      </el-table-column>
-      <el-table-column
-        prop="useraccount"
-        header-align="center"
-        align="center"
-        label="用户账号">
-      </el-table-column>
-      <el-table-column
-        prop="username"
-        header-align="center"
-        align="center"
-        label="用户名">
-      </el-table-column>
-      <el-table-column label="角色组" prop="rname">
+    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" style="width: 100%;">
+      <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
+      <el-table-column prop="userId" header-align="center" align="center" width="80" label="ID"></el-table-column>
+      <el-table-column prop="useraccount" header-align="center" align="center" label="用户账号"></el-table-column>
+      <el-table-column prop="username" header-align="center" align="center" label="用户名"></el-table-column>
+      <el-table-column label="角色组" header-align="center" align="center" prop="rname">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.rname != ''" v-for="(item,index) in (scope.row.rname || '').split(',')" :key="index"
                   style="margin-left: 5px;">{{item}}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="workGroupName"
-        header-align="center"
-        align="center"
-        label="工作组">
-      </el-table-column>
-      <el-table-column
-        prop="status"
-        header-align="center"
-        align="center"
-        label="状态">
+      <el-table-column prop="workGroupName" header-align="center" align="center" label="工作组"></el-table-column>
+      <el-table-column prop="status" header-align="center" align="center" label="状态" width="80">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === 0" size="small" type="danger">禁用</el-tag>
           <el-tag v-else size="small">正常</el-tag>

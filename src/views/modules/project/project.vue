@@ -17,14 +17,11 @@
           <el-option v-for="item in dateItemList" :label="item.dateItem" :key="item.id" :value="item.id"></el-option>
         </el-select>
         <el-form-item style="margin-left: -2px;">
-          <el-date-picker v-model="dataForm.startDate" type="date" value-format="yyyy-MM-dd" placeholder="开始日期"
-                          style="width: 145px;" @change="getDataList"></el-date-picker>
-          至
-          <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期"
-                          style="width: 145px;" @change="getDataList"></el-date-picker>
+          <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
+          <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
         </el-form-item>
         <el-form-item style="margin-left: 20px;">
-          <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable @change="getDataList"></el-input>
+          <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable style="width: 150px;"  @change="getDataList"></el-input>
         </el-form-item>
         <el-form-item style="margin-left: -10px;">
           <el-button @click="getDataList()">查询</el-button>
@@ -59,6 +56,7 @@
         <el-table-column :key="Math.random()"  prop="isWork" header-align="center" align="center" label="作业情况" width="85" v-if="roleradio===2">
           <template slot-scope="scope" >
             <el-tag v-if="scope.row.isWork === 1" size="small" type="success">已作业</el-tag>
+            <el-tag v-else-if="scope.row.isWork === 2" size="small" type="danger">返修中</el-tag>
             <el-tag v-else size="small" type="info">未作业</el-tag>
           </template>
         </el-table-column>
@@ -118,7 +116,7 @@
           </template>
         </el-table-column>
         <!--项目作业按钮-->
-        <el-table-column :key="Math.random()"  header-align="center" align="center" width="190" label="操作" v-if="roleradio==2">
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="240" label="操作" v-if="roleradio==2">
           <template slot-scope="scope">
             <el-tooltip class="item"  content="编辑工作" placement="left-start" >
               <el-button type="success" size="mini" icon="el-icon-edit" @click="editWorkHandle(scope.row)" v-if="isAuth('project:work:update')"></el-button>
@@ -128,6 +126,10 @@
             </el-tooltip>
             <el-tooltip class="item"  :content="scope.row.projectStatus === 0? '暂停项目' : '启动项目'" placement="left-start">
               <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini" icon="el-icon-refresh-left" @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list')">
+              </el-button>
+            </el-tooltip>
+            <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.backId != null">
+              <el-button type="warning" size="mini" icon="el-icon-s-tools" @click="setBackworkHandle(scope.row)" >
               </el-button>
             </el-tooltip>
           </template>
@@ -188,18 +190,25 @@
     <!-- 弹窗, 新增 / 修改  项目组-->
     <projectschedule-add-or-update v-if="projectscheduleVisible" ref="projectscheduleAddOrUpdate"
                                    @refreshDataList="getDataList"></projectschedule-add-or-update>
+    <!-- 弹窗, 新增 / 修改  返修-->
+    <backwork-add-or-update v-if="backworkVisible" ref="backworkAddOrUpdate"
+                                   @refreshDataList="getDataList"></backwork-add-or-update>
   </div>
 </template>
 
 <script>
   import moment from 'moment'
   import projectscheduleAddOrUpdate from './projectschedule-add-or-update'
+  import backworkAddOrUpdate from './backwork-add-or-update'
   import {isAuth} from '../../../utils'
 
   export default {
     data () {
       return {
+        pickerOptionsStart: {},
+        pickerOptionsEnd: {},
         projectscheduleVisible: false,
+        backworkVisible: false,
         dateItemList: [], // 时间类型列表
         dataForm: {
           dateItemId: 0,
@@ -225,10 +234,12 @@
       }
     },
     components: {
-      projectscheduleAddOrUpdate
+      projectscheduleAddOrUpdate,
+      backworkAddOrUpdate
     },
     activated () {
-      this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
+      this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+      this.changeEnd()
       this.dateItemList = [{'id': 0, 'dateItem': '项目启动时间'},
         {'id': 1, 'dateItem': '项目开工时间'},
         {'id': 2, 'dateItem': '作业完成时间'},
@@ -263,10 +274,10 @@
       },
       // 获取数据列表
       getDataList () {
-        // 时间判断 （结束时间大于开始时间 ，则清空结束时间）
-        if (new Date(this.dataForm.startDate) >= new Date(this.dataForm.endDate)) {
-          this.dataForm.endDate = null
-        }
+        let startDate = ''
+        let endDate = ''
+        if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
+        if (this.dataForm.endDate != null) endDate = moment(new Date(this.dataForm.endDate)).format('YYYY-MM-DD')
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/project/manage/page'),
@@ -277,8 +288,8 @@
             'key': this.dataForm.key,
             'sidx': this.dataForm.sidx,
             'order': this.dataForm.order,
-            'startDate': this.dataForm.startDate,
-            'endDate': this.dataForm.endDate,
+            'startDate': startDate,
+            'endDate': endDate,
             'dateItemId': this.dataForm.dateItemId
           })
         }).then(({data}) => {
@@ -292,6 +303,26 @@
           }
           this.dataListLoading = false
         })
+      },
+      // 开始时间改变
+      changeStart () {
+        this.pickerOptionsStart = Object.assign({}, this.pickerOptionsStart, {
+          disabledDate: (time) => {
+            return time.getTime() > this.dataForm.endDate
+          }
+        })
+        this.pageIndex = 1
+        this.getDataList()
+      },
+      // 结束时间改变
+      changeEnd () {
+        this.pickerOptionsEnd = Object.assign({}, this.pickerOptionsEnd, {
+          disabledDate: (time) => {
+            return time.getTime() < this.dataForm.startDate
+          }
+        })
+        this.pageIndex = 1
+        this.getDataList()
       },
       // 每页数
       sizeChangeHandle (val) {
@@ -330,6 +361,13 @@
         this.projectscheduleVisible = true
         this.$nextTick(() => {
           this.$refs.projectscheduleAddOrUpdate.init(item)
+        })
+      },
+      // 返修内容
+      setBackworkHandle (item) {
+        this.backworkVisible = true
+        this.$nextTick(() => {
+          this.$refs.backworkAddOrUpdate.init(item.projectNo)
         })
       },
       // 编辑安排

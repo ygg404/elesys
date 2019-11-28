@@ -9,7 +9,7 @@
         <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
       </el-form-item>
       <el-form-item style="margin-left: 20px;">
-        <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable ></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
@@ -112,7 +112,8 @@
     activated () {
       this.pageSize = 25
       this.pageIndex = 1
-      this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
+      this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+      this.changeEnd()
       this.getDataList()
     },
     methods: {
@@ -134,7 +135,6 @@
       },
       // 获取数据列表
       getDataList () {
-        // 时间判断 （结束时间大于开始时间 ，则清空结束时间）
         let startDate = ''
         let endDate = ''
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
