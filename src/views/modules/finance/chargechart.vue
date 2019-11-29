@@ -33,10 +33,7 @@
             <el-col :span="2"><div class="grid-header">业务负责人</div></el-col>
           </el-row>
           <div v-for="(data, index) in dataList">
-            <el-row v-if="data.BusinessShow" class="table_row">
-              <el-col :span="12"><div class="group-header">负责人:{{data.contractBusiness}}</div></el-col>
-              <el-col :span="12"></el-col>
-            </el-row>
+           
             <el-row  v-if="data.contractBusiness != null" class="item_row">
               <el-col :span="7"><div style="min-height:1px;"><span class="ContractNameSpan">{{data.contractName}}</span></div></el-col>
               <el-col :span="4"><div style="min-height:1px;"><span class="ContractNameSpan">{{data.contractAuthorize}}</span></div></el-col>
@@ -47,12 +44,7 @@
               <el-col :span="2"><div style="min-height:1px;"><span class="ContractCountSpan">{{data.projectNotReceipts}}</span></div></el-col>
               <el-col :span="2"><div style="min-height:1px;"><span class="ContractBusinessSpan">{{data.contractBusiness}}</span></div></el-col>
             </el-row>
-            <el-row  v-if="data.contractBusiness != null && data.footerShow" class="table_row">
-              <el-col :span="16"><div class="group-header">合计{{data.projectSum}}个项目</div></el-col>
-              <el-col :span="2"><div class="group-header"><span class="ContractCountSpan">{{data.projectShould}}</span></div></el-col>
-              <el-col :span="2"><div class="group-header"><span class="ContractCountSpan">{{data.projectAct}}</span></div></el-col>
-              <el-col :span="2"><div class="group-header"><span class="ContractCountSpan">{{data.projectNot}}</span></div></el-col>
-            </el-row>
+           
           </div>
           <el-row  class="table_row item_footer">
             <el-col :span="16"><div class="group-header">总共合计{{totalProjectSum}}个项目</div></el-col>
@@ -129,12 +121,12 @@
         })
       },
 
-      // 表格初始化
+        // 表格初始化
       tableDataInit (datalist) {
-        this.Should = 0, // 统计实收
-          this.Act = 0, //统计实收
-          this.Not = 0, //统计未收
-          this.totalProjectSum = 0 //项目总和
+         this.Should = 0, // 统计实收
+         this.Act = 0, //统计实收
+         this.Not = 0, //统计未收
+        this.totalProjectSum = 0 //项目总和
         this.totalProjectShould = 0
         this.totalProjectAct = 0
         this.totalProjectNot = 0
@@ -146,11 +138,11 @@
           item.footerShow = false
           this.totalProjectSum += 1
           let outputtemp = parseFloat((item.projectActuallyOutput == null ? 0 : item.projectActuallyOutput).toFixed(2))
-
+          
         })
-        console.log(this.totalOutPut)
+        
         //统计结算
-        datalist.forEach((item, index) => {
+          datalist.forEach((item, index) => {
           if (contractBusiness !== item.contractBusiness) {
             item.BusinessShow = true
             contractBusiness = item.contractBusiness
@@ -161,19 +153,19 @@
 
             for (let i = index; i < datalist.length; i++) {
               if (datalist[i].contractBusiness === contractBusiness) {
-                projectSum += 1
-
+               projectSum += 1
+               
                 projectShould +=  datalist[i].contractMoney
                 projectAct += datalist[i].projectActuallyReceipts
                 projectNot +=datalist[i].projectNotReceipts
 
                 //总的合计
-                this.totalProjectShould += datalist[i].contractMoney
-                this.totalProjectAct += datalist[i].projectActuallyReceipts
-                this.totalProjectNot += datalist[i].projectNotReceipts
+               this.totalProjectShould += datalist[i].contractMoney
+               this.totalProjectAct += datalist[i].projectActuallyReceipts
+               this.totalProjectNot += datalist[i].projectNotReceipts
                 //项目数量
                 datalist[i].projectSum = projectSum
-                //应收
+               //应收
                 datalist[i].projectShould = parseFloat(projectShould.toFixed(2))
                 //实收
                 datalist[i].projectAct = parseFloat(projectAct.toFixed(2))
@@ -185,11 +177,10 @@
                 break
               }
             }
-            this.totalProjectShould += Number(this.totalProjectShould.toFixed(2))
-            this.totalProjectAct += Number(this.totalProjectAct.toFixed(2))
-            this.totalProjectNot += Number(this.totalProjectNot.toFixed(2))
+             
           }
         })
+         
         this.dataList = datalist
         console.log(this.datalist)
       },
@@ -269,10 +260,7 @@
   .table_class .item_row{
     border-bottom: 1px solid #6f7180;
   }
-  .table_class .item_row:hover{
-    cursor: pointer;
-    background-color: rgba(0, 183, 238, 0.59);
-  }
+
   .table_class .table_row .grid-header{
     font-weight: 700;
     font-size: 16px;
@@ -282,9 +270,7 @@
     font-weight: 700;
     font-size: 15px;
   }
-  .table_class .item_footer{
-    color: #00b7ee;
-  }
+
   .ContractNameSpan{
     float:left;
     margin-right:15px;
