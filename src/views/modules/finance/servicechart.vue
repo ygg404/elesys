@@ -4,13 +4,13 @@
   <div class="mod-config">
     <el-card>
       <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-        <el-form-item label="开始时间:">
-          <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="起始月份" class="date_type" @change=" getServiceChart"></el-date-picker>至
-          <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束月份" class="date_type" @change=" getServiceChart"></el-date-picker>
+        <el-form-item label="">
+          <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="起始时间" class="date_type" @change=" getServiceChart"></el-date-picker>至
+          <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束时间" class="date_type" @change=" getServiceChart"></el-date-picker>
         </el-form-item>
         <el-form-item label="业务负责人:" >
           <el-select v-model="dataForm.business" placeholder="全部" clearable  style="width: 150px;" @change=" getServiceChart">
-            <el-option v-for="item in ContractBusinessList" :key="item" :label="item" :value="item"></el-option>
+            <el-option v-for="item in contractBusinessList" :key="item" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -23,13 +23,13 @@
       </div>
       <div class="table_class">
         <el-row class="table_row">
-          
+
           <el-col :span="12"><div class="grid-header"><span><el-dropdown-item  @click.native="changeOrder()" class="el-icon-top">业务员</el-dropdown-item></span></div></el-col>
-          
+
           <el-col :span="4"><div class="grid-header"><span class="ServiceChartTitlecentershow">应收</span></div></el-col>
           <el-col :span="4"><div class="grid-header"><span class="ServiceChartTitlecentershow">实收</span></div></el-col>
           <el-col :span="4"><div class="grid-header"><span class="ServiceChartTitlecentershow">未收</span></div></el-col>
-          
+
         </el-row>
         <div v-for="(data, index) in dataList">
           <el-row v-if="data.BusinessShow" class="table_row">
@@ -39,8 +39,8 @@
           <el-row  v-if="data.contractBusiness != null" class="item_row">
             <el-col :span="12"><div>{{data.contractName}}</div></el-col>
             <el-col :span="4"><div ><span class="ServiceChartcentershow">{{data.contractMoney}}</span></div></el-col>
-             <el-col :span="4"><div ><span class="ServiceChartcentershow">{{data.projectActuallyReceipts}}</span></div></el-col>
-              <el-col :span="4"><div ><span class="ServiceChartcentershow">{{data.projectNotReceipts}}</span></div></el-col>
+            <el-col :span="4"><div ><span class="ServiceChartcentershow">{{data.projectActuallyReceipts}}</span></div></el-col>
+            <el-col :span="4"><div ><span class="ServiceChartcentershow">{{data.projectNotReceipts}}</span></div></el-col>
 
           </el-row>
           <el-row  v-if="data.contractBusiness != null && data.footerShow" class="table_row">
@@ -70,9 +70,9 @@
       return {
         dataForm: {
           key:'',
-        //业务负责人
-         business: '',
-         //类型选择
+          //业务负责人
+          business: '',
+          //类型选择
           projecttype: '',
           startDate: '',
           endDate: '',
@@ -80,46 +80,46 @@
         },
         monthTitle: '', // 月份标题
         //业务负责人列表
-        ContractBusinessList: [],
+        contractBusinessList: [],
         totalProjectSum: 0,  // 项目合计数
-         totalProjectShould: 0, // 统计实收
-         totalProjectAct: 0, //统计实收
-         totalProjectNot:0, //统计未收
+        totalProjectShould: 0, // 统计实收
+        totalProjectAct: 0, //统计实收
+        totalProjectNot:0, //统计未收
         dataListLoading: false,
         dataList:[]
       }
     },
     activated () {
       //this.dataForm.startDate = this.dataForm.endDate = new Date()
-    this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
+      this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
       //业务负责人选项
       this.getContractBusinessDataListFromApi()
       this.getServiceChart()
     },
     methods: {
 
-       changeOrder(){
-      if(this.dataForm.order == 'asc')
-      {
-        this.dataForm.order = 'desc'
-      }
-      else{
-        this.dataForm.order = 'asc'
-      }
-      this.getServiceChart()
-    },
+      changeOrder(){
+        if(this.dataForm.order == 'asc')
+        {
+          this.dataForm.order = 'desc'
+        }
+        else{
+          this.dataForm.order = 'asc'
+        }
+        this.getServiceChart()
+      },
 
       // 获取数据列表
       getServiceChart () {
         // 月份标题
-            if (this.dataForm.startDate === this.dataForm.endDate ||this.dataForm.endDate == '') {
-             //new Date(this.dataForm.startDate)
+        if (this.dataForm.startDate === this.dataForm.endDate ||this.dataForm.endDate == '') {
+          //new Date(this.dataForm.startDate)
           this.monthTitle = new Date(this.dataForm.startDate).getFullYear() + '年' + (new Date(this.dataForm.startDate).getMonth() + 1) + '月至今'
         } else {
           this.monthTitle = new Date(this.dataForm.startDate).getFullYear() + '年' + (new Date(this.dataForm.startDate).getMonth() + 1) + '月至'
             + new Date(this.dataForm.endDate).getFullYear() + '年' + (new Date(this.dataForm.endDate).getMonth() + 1) + '月'
         }
-            // 时间判断 （结束时间大于开始时间 ，则清空结束时间）
+        // 时间判断 （结束时间大于开始时间 ，则清空结束时间）
         if (new Date(this.dataForm.startDate) >= new Date(this.dataForm.endDate)) {
           this.dataForm.endDate = null
         }
@@ -146,10 +146,10 @@
 
       // 表格初始化
       tableDataInit (datalist) {
-         this.Should = 0, // 统计实收
-         this.Act = 0, //统计实收
-         this.Not = 0, //统计未收
-        this.totalProjectSum = 0 //项目总和
+        this.Should = 0, // 统计实收
+          this.Act = 0, //统计实收
+          this.Not = 0, //统计未收
+          this.totalProjectSum = 0 //项目总和
         this.totalProjectShould = 0
         this.totalProjectAct = 0
         this.totalProjectNot = 0
@@ -161,11 +161,11 @@
           item.footerShow = false
           this.totalProjectSum += 1
           let outputtemp = parseFloat((item.projectActuallyOutput == null ? 0 : item.projectActuallyOutput).toFixed(2))
-          
+
         })
-        
+
         //统计结算
-          datalist.forEach((item, index) => {
+        datalist.forEach((item, index) => {
           if (contractBusiness !== item.contractBusiness) {
             item.BusinessShow = true
             contractBusiness = item.contractBusiness
@@ -176,19 +176,19 @@
 
             for (let i = index; i < datalist.length; i++) {
               if (datalist[i].contractBusiness === contractBusiness) {
-               projectSum += 1
-               
+                projectSum += 1
+
                 projectShould +=  datalist[i].contractMoney
                 projectAct += datalist[i].projectActuallyReceipts
                 projectNot +=datalist[i].projectNotReceipts
 
                 //总的合计
-               this.totalProjectShould += datalist[i].contractMoney
-               this.totalProjectAct += datalist[i].projectActuallyReceipts
-               this.totalProjectNot += datalist[i].projectNotReceipts
+                this.totalProjectShould += datalist[i].contractMoney
+                this.totalProjectAct += datalist[i].projectActuallyReceipts
+                this.totalProjectNot += datalist[i].projectNotReceipts
                 //项目数量
                 datalist[i].projectSum = projectSum
-               //应收
+                //应收
                 datalist[i].projectShould = parseFloat(projectShould.toFixed(2))
                 //实收
                 datalist[i].projectAct = parseFloat(projectAct.toFixed(2))
@@ -200,17 +200,17 @@
                 break
               }
             }
-              this.totalProjectShould += Number(this.totalProjectShould.toFixed(2))
-               this.totalProjectAct += Number(this.totalProjectAct.toFixed(2))
-               this.totalProjectNot += Number(this.totalProjectNot.toFixed(2))
+            this.totalProjectShould += Number(this.totalProjectShould.toFixed(2))
+            this.totalProjectAct += Number(this.totalProjectAct.toFixed(2))
+            this.totalProjectNot += Number(this.totalProjectNot.toFixed(2))
           }
         })
-         
+
         this.dataList = datalist
         console.log(this.datalist)
       },
 
-     // 从后台获得业务负责人数据列表内容  填充至选项
+      // 从后台获得业务负责人数据列表内容  填充至选项
       getContractBusinessDataListFromApi () {
         return new Promise((resolve, reject) => {
           this.$http({
@@ -218,20 +218,20 @@
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.ContractBusinessList = data.list
+              this.contractBusinessList = data.list
               resolve(data.list)
             } else {
-              this.ContractBusinessList = []
+              this.contractBusinessList = []
             }
           })
         })
       }
 
-     
-      
+
+
     }
 
-   
+
   }
 </script>
 
@@ -281,7 +281,7 @@
     margin-left:16px;
   }
   .ServiceChartTitlecentershow{
-     
+
     margin-left:12px;
     text-align: center;
   }
