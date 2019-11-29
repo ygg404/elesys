@@ -13,10 +13,11 @@
             <el-option v-for="item in contractBusinessList" :key="item" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item>
-          <el-button icon="el-icon-printer" type="primary">打印</el-button>
+         <el-form-item>
+          <el-button icon="el-icon-printer" type="primary" @click="printChart">打印</el-button>
         </el-form-item>
       </el-form>
+      <div id="serviceId">
       <div class="chart_title">
         <div>业务员统计表</div>
         <div class="date_title">{{monthTitle}}</div>
@@ -57,6 +58,7 @@
           <el-col :span="4"><div class="group-header">未收:{{totalProjectNot}}</div></el-col>
         </el-row>
       </div>
+      </div>
     </el-card>
   </div>
 </template>
@@ -90,8 +92,8 @@
       }
     },
     activated () {
-      //this.dataForm.startDate = this.dataForm.endDate = new Date()
-      this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
+       this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+      this.changeEnd()
       //业务负责人选项
       this.getContractBusinessDataListFromApi()
       this.getServiceChart()
@@ -223,6 +225,37 @@
             }
           })
         })
+      },
+
+ // 打印报表
+      printChart () {
+        const print = document.getElementById('serviceId').innerHTML
+        // 把当前页面替换成要打印的内容
+        document.body.innerHTML = print
+        // 打印
+        window.print()
+        // 刷新页面
+        window.location.reload()
+      },
+        // 开始时间改变
+      changeStart () {
+        this.pickerOptionsStart = Object.assign({}, this.pickerOptionsStart, {
+          disabledDate: (time) => {
+            return time.getTime() > this.dataForm.endDate
+          }
+        })
+        this.pageIndex = 1
+        this. getServiceChart()
+      },
+      // 结束时间改变
+      changeEnd () {
+        this.pickerOptionsEnd = Object.assign({}, this.pickerOptionsEnd, {
+          disabledDate: (time) => {
+            return time.getTime() < this.dataForm.startDate
+          }
+        })
+        this.pageIndex = 1
+        this. getServiceChart()
       }
 
 

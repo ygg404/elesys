@@ -83,7 +83,7 @@
           startDate: '',
           endDate: '',
           order: 'asc',
-          sidx: ''
+          sidx: 'id'
         },
         monthTitle: '', // 月份标题
         //业务负责人列表
@@ -163,7 +163,7 @@
           default:
             this.dataForm.order = 'desc'
         }
-        this.dataForm.sidx = val.prop
+        // this.dataForm.sidx = val.prop
         this.getFinance()
       },
 
