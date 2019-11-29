@@ -128,17 +128,21 @@
               <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini" icon="el-icon-refresh-left" @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list')">
               </el-button>
             </el-tooltip>
-            <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.backId != null">
+            <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.submitNote == null && scope.row.backId != null">
               <el-button type="warning" size="mini" icon="el-icon-s-tools" @click="setBackworkHandle(scope.row)" >
               </el-button>
             </el-tooltip>
           </template>
         </el-table-column>
         <!--质量检查按钮-->
-        <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==3">
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="128" label="操作" v-if="roleradio==3">
           <template slot-scope="scope">
             <el-tooltip class="item"  content="编辑质检" placement="left">
               <el-button class="quality_btn" size="mini" icon="el-icon-edit-outline" @click="editQualityHandle(scope.row)" v-if="isAuth('project:quality:update')"></el-button>
+            </el-tooltip>
+            <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.backId != null">
+              <el-button class="quality_btn" size="mini" icon="el-icon-s-tools" @click="getBackworkHandle(scope.row)" >
+              </el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -186,6 +190,19 @@
         <el-button @click="scheduleDialogVisible = false" type="primary" plain>返回</el-button>
       </span>
       </el-dialog>
+
+      <!--返修内容表-->
+      <el-dialog :title="backTip" :visible.sync="backDialogVisible">
+        <el-table :data="backWorkList">
+          <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
+          <el-table-column prop="backNote" header-align="center" align="center" label="返修内容" ></el-table-column>
+          <el-table-column prop="submitNote" header-align="center" align="center" label="提交内容"></el-table-column>
+        </el-table>
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="backDialogVisible = false" type="primary" plain>返回</el-button>
+      </span>
+      </el-dialog>
+
     </el-card>
     <!-- 弹窗, 新增 / 修改  项目组-->
     <projectschedule-add-or-update v-if="projectscheduleVisible" ref="projectscheduleAddOrUpdate"
@@ -209,7 +226,10 @@
         pickerOptionsEnd: {},
         projectscheduleVisible: false,
         backworkVisible: false,
+        backTip: '',
+        backDialogVisible: false,
         dateItemList: [], // 时间类型列表
+        backWorkList: [], // 返修列表
         dataForm: {
           dateItemId: 0,
           key: '',
@@ -352,6 +372,25 @@
             this.scheduleList = data.list
           } else {
             this.scheduleList = []
+          }
+          this.dataListLoading = false
+        })
+      },
+      // 获取返修内容列表
+      getBackworkHandle (item) {
+        let projectNo = item.projectNo
+        this.backDialogVisible = true
+        this.backTip = '返修内容表（编号：' + projectNo + ')'
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl(`/project/backwork/list/${projectNo}`),
+          method: 'get',
+          params: this.$http.adornParams({})
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.backWorkList = data.list
+          } else {
+            this.backWorkList = []
           }
           this.dataListLoading = false
         })
