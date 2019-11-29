@@ -14,7 +14,8 @@
       :visible.sync="AccountaddVisible"
       append-to-body>
 
-      <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+      <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+               label-width="80px">
         <el-form-item label="金额" prop="accountNum">
           <el-input v-model="dataForm.accountNum" placeholder="金额"></el-input>
         </el-form-item>
@@ -27,8 +28,9 @@
         <el-form-item label="备注" prop="accountNote">
           <el-input v-model="dataForm.accountNote" placeholder="收支内容"></el-input>
         </el-form-item>
-        <el-form-item label="选择添加时间" prop="accountAddDateTime">
-          <el-date-picker v-model="dataForm.accountAddDateTime" type="date" value-format="yyyy-MM-dd" placeholder="合同签订时间" style="width: 200px;"></el-date-picker>
+        <el-form-item label="时间" prop="accountAddDateTime">
+          <el-date-picker v-model="dataForm.accountAddDateTime" type="date" value-format="yyyy-MM-dd" placeholder="添加时间"
+                          style="width: 200px;"></el-date-picker>
         </el-form-item>
 
       </el-form>
@@ -38,84 +40,127 @@
     </span>
     </el-dialog>
 
-    <el-collapse v-model="activeNames" >
-      <el-collapse-item title="项目基本信息" name="1">
-        <el-card class="box-card">
-          <div class="text item">
-            <p>项目名称: {{this.project.projectName}}</p>
-            <p>项目编码: {{this.project.projectNo}}</p>
-            <p>委托单位: {{this.project.projectAuthorize}}</p>
-            <p>项目阶段: {{this.project.projectStage}}</p>
-            <p>项目类型: {{this.project.projectType}}</p>
-            <p>项目金额: {{this.project.projectMoney}}</p>
-            <p>联系人: {{this.project.projectUser}}</p>
-            <p>联系电话: {{this.project.projectPhone}}</p>
+    <el-collapse v-model="activeNames">
+      <el-collapse-item title="合同基本信息" name="1" class="span_title">
+
+        <el-card>
+
+          <div>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同编码：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.contractNo}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同名称：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.contractName}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同金额：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.contractMoney}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同状态：</span></el-col>
+              <el-col :span="16"><span>{{this.contractstageName}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同类型：</span></el-col>
+              <el-col :span="16"><span>{{this.contracttypeName}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同委托单位：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.contractAuthorize}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>业务负责人：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.contractBusiness}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>联系人：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.userName}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>联系电话：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.userPhone}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同添加时间：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.contractAddTime}}</span></el-col>
+            </el-row>
+            <el-row :gutter="12">
+              <el-col :span="4"><span>合同创建时间：</span></el-col>
+              <el-col :span="16"><span>{{this.ContractInfo.contractCreateTime}}</span></el-col>
+            </el-row>
           </div>
         </el-card>
       </el-collapse-item>
 
       <el-collapse-item title="收支信息" name="2">
-        <!--表格-->
-        <template>
+        <el-card>
+          <div>
+            <el-col :span="6">
+              <div class="grid-header"> 项目应收: {{this.settlementmoney.Receivable}}</div>
+            </el-col>
+            <el-col :span="6">
+              <div class="grid-header"> 未收款项: {{this.settlementmoney.NotReceipts}}</div>
+            </el-col>
+            <el-col :span="6">
+              <div class="grid-header">已收款项: {{this.settlementmoney.ActuallyReceipts}}</div>
+            </el-col>
+            <el-col :span="6">
+              <div class="grid-header">支出款项: {{this.settlementmoney.Expenditure}}</div>
+            </el-col>
 
-          <el-container>
-            <el-header>
-              项目应收: {{this.settlementmoney.Receivable}}
-              未收款项: {{this.settlementmoney.NotReceipts}}
-              已收款项: {{this.settlementmoney.ActuallyReceipts}}
-              支出款项: {{this.settlementmoney.Expenditure}}
-            </el-header>
-            <el-main>
-              <div class="mod-config">
-                <el-table :data="AccountList" border v-loading="dataListLoading" @sort-change="changeSort" >
-                  <el-table-column prop="accountAddDateTime" header-align="center" align="center" label="日期"></el-table-column>
-                  <el-table-column prop="accountTypeName" header-align="center" align="center" label="收支"></el-table-column>
-                  <el-table-column prop="accountNum" header-align="center" align="center" label="金额"></el-table-column>
-                  <el-table-column prop="accountNote" header-align="center" align="center" label="备注"></el-table-column>
-                  <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
-                    <template slot-scope="scope">
-                      <el-button type="danger" icon="el-icon-delete" circle @click="DeleteOneAccount(scope.row.id)"></el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
-                <el-pagination
-                  @size-change="sizeChangeHandle"
-                  @current-change="currentChangeHandle"
-                  :current-page="pageIndex"
-                  :page-sizes="[25, 50, 100]"
-                  :page-size="pageSize"
-                  :total="totalPage"
-                  layout="total, sizes, prev, pager, next, jumper">
-                </el-pagination>
-
-              </div>
-            </el-main>
-            <el-footer>
-              <el-button type="success" @click="AddAcountInfoHandle()">新增</el-button>
-              <el-button type="danger" @click="CloseThisDialog()">返回</el-button>
-
-            </el-footer>
-          </el-container>
-
-        </template>
+          </div>
+        </el-card>
       </el-collapse-item>
+
+      <template>
+        <div class="mod-config">
+          <el-card>
+            <div class="table_class">
+              <el-table :data="AccountList" border v-loading="dataListLoading" @sort-change="changeSort"
+                        style="width: 100%;">
+                <el-table-column prop="accountAddDateTime" header-align="center" align="center"
+                                 label="日期"></el-table-column>
+                <el-table-column prop="accountTypeName" header-align="center" align="center"
+                                 label="收支"></el-table-column>
+                <el-table-column prop="accountNum" header-align="center" align="center" label="金额"></el-table-column>
+                <el-table-column prop="accountNote" header-align="center" align="center" label="备注"></el-table-column>
+                <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+                  <template slot-scope="scope">
+                    <el-button type="danger" icon="el-icon-delete" circle
+                               @click="DeleteOneAccount(scope.row.id)"></el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <div class="bottom_btn">
+                <el-button type="success" @click="AddAcountInfoHandle()" class="AddBtn">新增</el-button>
+                <el-button type="danger" @click="CloseThisDialog()" class="ReturnBtn">返回</el-button>
+              </div>
+
+            </div>
+          </el-card>
+        </div>
+      </template>
+
     </el-collapse>
 
   </el-dialog>
 </template>
 
-<<script>
+<
+<script>
 
   export default {
-    data:()=>({
+    data: () => ({
       //表单
-      dataForm:{
+      dataForm: {
         //合同编号
         // contractNo:'',
-        accountNum:'',
-        accountType:'',
-        accountNote:'',
-        accountAddDateTime:''
+        accountNum: '',
+        accountType: '',
+        accountNote: '',
+        accountAddDateTime: ''
       },
       dataRule: {
         accountNum: [
@@ -132,76 +177,80 @@
       activeNames: ['2'],
       //当前对话框
       visible: false,
-      ProjectInfoPanel:[false],
-      accountPanel:[true],
-      addAccountDialog:false,
-      dateMenu:false,
-      chooseType:'0',
-      accountMoney:0,
-      accountNote:'',
-      accountType:'',
-      startDateTime:new Date().toISOString().substr(0, 10),
-      projectNo:'',
-      projectNot:0,
-      projectGet:0,
-      projectOut:0,
+      ProjectInfoPanel: [false],
+      accountPanel: [true],
+      addAccountDialog: false,
+      dateMenu: false,
+      chooseType: '0',
+      accountMoney: 0,
+      accountNote: '',
+      accountType: '',
+      startDateTime: new Date().toISOString().substr(0, 10),
+      projectNo: '',
+      projectNot: 0,
+      projectGet: 0,
+      projectOut: 0,
 
       //新建对话框 弹窗
-      AccountaddVisible:false,
+      AccountaddVisible: false,
       //给添加财务操作使用的
-      OpercontractNo:'',
+      OpercontractNo: '',
+
       //项目信息
-      project:{
-        //单位
-        projectAuthorize:'',
-        //负责人
-        projectBusiness: '',
-        projectMoney:'',
-        projectName:'',
-        projectOutPut:0,
-        //阶段
-        projectStage:'',
-        //项目类型
-        projectType:'',
-        projectUser:'',
-        projectPhone:''
+      ContractInfo: {
+        contractAddTime: '',
+        contractAuthorize: '',
+        contractBusiness: '',
+        contractCreateTime: '',
+        contractMoney: '',
+        contractName: '',
+        contractNo: '',
+        contractNote: '',
+        contractStage: '',
+        contractType: '',
+        userName: '',
+        userPhone: ''
       },
+
+      //将标识符转换成 文字信息
+      //合同类型: 0.合同委托 1.一般委托
+      contracttypeName: '',
+      //合同状态: 1.正常2.回收站
+      contractstageName: '',
+
       //结算信息
-      settlementmoney:{
-        Receivable:'',
-        ActuallyReceipts:'',
-        NotReceipts:'',
-        Expenditure:''
+      settlementmoney: {
+        Receivable: '',
+        ActuallyReceipts: '',
+        NotReceipts: '',
+        Expenditure: ''
       },
-      AccountList:[],
+      AccountList: [],
       dataListLoading: false,
       pageIndex: 1,
       pageSize: 25,
       totalPage: 0,
-      snackbar:false,
-      snackbarColor:'',
-      snackbarText:'',
-      snackbarTimeout:2000
+      snackbar: false,
+      snackbarColor: '',
+      snackbarText: '',
+      snackbarTimeout: 2000
     }),
-    methods:{
+    methods: {
       //初始化
-      init(contractNo){
+      init (contractNo) {
         this.visible = true
         //1.获得合同编号对应的项目信息
-        this.getProjectInfoByContractNo(contractNo)
+        this.getContractInfoByContractNo(contractNo)
         //2 .获得合同编号对应的财务操作 数据
         this.getAccountListByContractNo(contractNo)
         //3 . 获取 项目应收 未收款项 已收款项 支出款项
         this.getSettlementMoneyByContractNo(contractNo)
         //设置 对话框的合同编号
         this.OpercontractNo = contractNo
-
-
-
       },
 
-// 财务操作列表
-      getAccountListByContractNo(contractNo){
+      // 财务操作列表
+      getAccountListByContractNo (contractNo) {
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl(`/finance/account/GetAccountListByContract/` + contractNo),
@@ -216,29 +265,40 @@
         })
       },
 
-      //合同编号对应的项目信息
-      getProjectInfoByContractNo(contractNo) {
+      //合同编号对应的合同信息
+      getContractInfoByContractNo (contractNo) {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl(`/project/project/GetProjectInfoByContractNo/` + contractNo),
+          //这里错了
+          url: this.$http.adornUrl(`/finance/account/getContractByContractNo/` + contractNo),
           method: 'get',
           params: this.$http.adornParams()
         }).then(({data}) => {
           if (data && data.code === 0) {
-            //数据先不填
-            //单位
-            this.project.projectAuthorize = data.project.projectAuthorize
-            //负责人
-            this.project.projectBusiness = data.project.projectBusiness
-            this.project.projectMoney = data.project.projectMoney
-            this.project.projectName =data.project.projectName
-            this.project.projectOutPut = data.project.projectOutPut
-            //阶段
-            this.project.projectStage = data.project.projectStage
-            //项目类型
-            this.project.projectType = data.project.projectType
-            this.project.projectUser = data.project.projectUser
-            this.project.projectPhone = data.project.projectPhone
+            this.ContractInfo.contractAddTime = data.ContractInfo.contractAddTime
+            this.ContractInfo.contractAuthorize = data.ContractInfo.contractAuthorize
+            this.ContractInfo.contractBusiness = data.ContractInfo.contractBusiness
+            this.ContractInfo.contractCreateTime = data.ContractInfo.contractCreateTime
+            this.ContractInfo.contractMoney = data.ContractInfo.contractMoney
+            this.ContractInfo.contractName = data.ContractInfo.contractName
+            this.ContractInfo.contractNo = data.ContractInfo.contractNo
+            this.ContractInfo.contractNote = data.ContractInfo.contractNote
+            this.ContractInfo.contractStage = data.ContractInfo.contractStage
+            this.ContractInfo.contractType = data.ContractInfo.contractType
+            this.ContractInfo.userName = data.ContractInfo.userName
+            this.ContractInfo.userPhone = data.ContractInfo.userPhone
+            if (this.ContractInfo.contractStage == 0) {
+              this.contractstageName = '正常'
+            }
+            if (this.ContractInfo.contractStage == 1) {
+              this.contractstageName = '回收站'
+            }
+            if (this.ContractInfo.contractType == 0) {
+              this.contracttypeName = '合同委托'
+            }
+            if (this.ContractInfo.contractType == 1) {
+              this.contracttypeName = '一般委托'
+            }
           } else {
 
           }
@@ -246,8 +306,8 @@
         })
       },
 
-//通过合同编号获得相应的结算
-      getSettlementMoneyByContractNo(contractNo){
+      //通过合同编号获得相应的结算
+      getSettlementMoneyByContractNo (contractNo) {
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl(`/finance/account/GetSettlementMoneyByContractNo/` + contractNo),
@@ -258,7 +318,7 @@
             this.settlementmoney.Receivable = data.settlementMoneyVoEntity.receivable
             this.settlementmoney.ActuallyReceipts = data.settlementMoneyVoEntity.actuallyReceipts
             this.settlementmoney.NotReceipts = data.settlementMoneyVoEntity.notReceipts
-            this.settlementmoney.Expenditure =  data.settlementMoneyVoEntity.expenditure
+            this.settlementmoney.Expenditure = data.settlementMoneyVoEntity.expenditure
           } else {
 
           }
@@ -267,12 +327,13 @@
       },
 
 //返回按钮点击事件
-      CloseThisDialog(){
+      CloseThisDialog () {
+        this.$emit('refreshDataList')
         this.visible = false
       },
 
 //新增按钮点击事件
-      AddAcountInfoHandle(){
+      AddAcountInfoHandle () {
         this.AccountaddVisible = true
       },
       // 排序字段改变
@@ -310,11 +371,11 @@
               url: this.$http.adornUrl(`/finance/account/save`),
               method: 'post',
               data: this.$http.adornData({
-                'contractNo':this.OpercontractNo,
+                'contractNo': this.OpercontractNo,
                 'accountNote': this.dataForm.accountNote,
                 'accountNum': this.dataForm.accountNum,
-                'accountType':this.dataForm.accountType,
-                'accountAddDateTime':this.dataForm.accountAddDateTime
+                'accountType': this.dataForm.accountType,
+                'accountAddDateTime': this.dataForm.accountAddDateTime
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
@@ -327,18 +388,15 @@
                 this.$message.error(data.msg)
               }
 
-
-
               //  设置为空
               this.dataForm.accountNote = null
               this.dataForm.accountNum = null
               this.dataForm.accountType = null
               this.dataForm.accountAddDateTime = null
-
               this.AccountaddVisible = false
 
               //刷新
-              this.getProjectInfoByContractNo(this.OpercontractNo)
+              this.getContractInfoByContractNo(this.OpercontractNo)
               //2 .获得合同编号对应的财务操作 数据
               this.getAccountListByContractNo(this.OpercontractNo)
               //3 . 获取 项目应收 未收款项 已收款项 支出款项
@@ -349,10 +407,8 @@
         })
       },
 
-
-
       // 删除
-      DeleteOneAccount(id) {
+      DeleteOneAccount (id) {
         let tip = '此操作将永久删除编号为[' + id + ']的财务操作记录, 是否继续?'
         this.$confirm(tip, '提示', {
           confirmButtonText: '确定',
@@ -374,7 +430,7 @@
 
               })
               //
-              this.getProjectInfoByContractNo(this.OpercontractNo)
+              this.getContractInfoByContractNo(this.OpercontractNo)
               //2 .获得合同编号对应的财务操作 数据
               this.getAccountListByContractNo(this.OpercontractNo)
               //3 . 获取 项目应收 未收款项 已收款项 支出款项
@@ -388,15 +444,23 @@
       },
 
     },
-    mounted(){
+    mounted () {
       // this.getProjectsFromApi().then(success=>{}).catch(error=>{})
     }
-
-
 
   }
 </script>
 
 <style>
 
+
+  .bottom_btn {
+    margin: 20px;
+    width: 100%;
+    text-align: center;
+  }
+
+
 </style>
+
+
