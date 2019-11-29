@@ -4,9 +4,9 @@
   <div class="mod-config">
     <el-card>
       <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-        <el-form-item label="">
-          <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="起始时间" class="date_type" @change=" getServiceChart"></el-date-picker>至
-          <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束时间" class="date_type" @change=" getServiceChart"></el-date-picker>
+        <el-form-item style="margin-left: 20px;">
+          <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
+          <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
         </el-form-item>
         <el-form-item label="业务负责人:" >
           <el-select v-model="dataForm.business" placeholder="全部" clearable  style="width: 150px;" @change=" getServiceChart">
@@ -277,6 +277,9 @@
 
     margin-left:12px;
     text-align: center;
+  }
+  .table_class .item_footer{
+    color: #00b7ee;
   }
 </style>
 

@@ -3,7 +3,7 @@
   <div class="mod-config">
     <el-card>
       <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-        <el-form-item label="">
+        <el-form-item style="margin-left: 20px;">
           <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
           <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
         </el-form-item>
@@ -286,6 +286,9 @@
   .ContractCountSpan{
     float:left;
     margin-left:10px;
+  }
+  .table_class .item_footer{
+    color: #00b7ee;
   }
 </style>
 
