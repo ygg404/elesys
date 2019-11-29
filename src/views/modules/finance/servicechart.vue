@@ -21,7 +21,7 @@
         <div>业务员统计表</div>
         <div class="date_title">{{monthTitle}}</div>
       </div>
-      <div class="table_class">
+      <div class="table_class" v-loading="dataListLoading">
         <el-row class="table_row">
 
           <el-col :span="12"><div class="grid-header"><span><el-dropdown-item  @click.native="changeOrder()" class="el-icon-top">业务员</el-dropdown-item></span></div></el-col>
@@ -200,9 +200,7 @@
                 break
               }
             }
-            this.totalProjectShould += Number(this.totalProjectShould.toFixed(2))
-            this.totalProjectAct += Number(this.totalProjectAct.toFixed(2))
-            this.totalProjectNot += Number(this.totalProjectNot.toFixed(2))
+         
           }
         })
 
@@ -260,10 +258,7 @@
   .table_class .item_row{
     border-bottom: 1px solid #6f7180;
   }
-  .table_class .item_row:hover{
-    cursor: pointer;
-    background-color: rgba(0, 183, 238, 0.59);
-  }
+
   .table_class .table_row .grid-header{
     font-weight: 700;
     font-size: 16px;
@@ -273,9 +268,7 @@
     font-weight: 700;
     font-size: 15px;
   }
-  .table_class .item_footer{
-    color: #00b7ee;
-  }
+ 
   .ServiceChartcentershow{
     float:left;
     margin-left:16px;
