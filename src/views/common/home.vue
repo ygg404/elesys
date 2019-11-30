@@ -1,26 +1,79 @@
 <template>
   <div class="mod-home">
-    <h3>个人中心</h3>
-    <ul>
-      <li>未完！待续！</li>
-      <!--<li>基于vue、element-ui构建开发后台管理前端功能，提供一套更优的前端解决方案</li>-->
-      <!--<li>前后端分离，通过token进行数据交互，可独立部署</li>-->
-      <!--<li>主题定制，通过scss变量统一一站式定制</li>-->
-      <!--<li>动态菜单，通过菜单管理统一管理访问路由</li>-->
-      <!--<li>数据切换，通过mock配置对接口数据／mock模拟数据进行切换</li>-->
-    </ul>
+    <el-card>
+      <h1>个人中心</h1>
+      <el-row :gutter="20">
+        <el-col :span="18">
+          <el-row :gutter="20"><el-col :span="4"><span class="span_row">账号：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.useraccount}}</span></el-col></el-row>
+          <el-row :gutter="20"><el-col :span="4"><span class="span_row">姓名：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.username}}</span></el-col></el-row>
+          <el-row :gutter="20">
+            <el-col :span="4"><span class="span_row">所属角色：</span></el-col>
+            <el-col :span="8"><span><el-tag v-for="(item,index) in userDetail.roleList" :key="index" style="margin-left: 5px;">{{item}}</el-tag></span></el-col>
+          </el-row>
+          <el-row :gutter="20"><el-col :span="4">
+            <span class="span_row">所属工作组：</span></el-col>
+            <el-col :span="8"><span><el-tag v-for="(item,index) in userDetail.groupList" :key="index" style="margin-left: 5px;">{{item}}</el-tag></span></el-col>
+          </el-row>
+          <el-row :gutter="20"><el-col :span="4">
+            <span class="span_row">登录时间：</span></el-col>
+            <el-col :span="8"><span class="font_span">{{loadTime}}</span></el-col>
+          </el-row>
+          <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">生日：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.birthday}}</span></el-col></el-row>-->
+          <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">最高学历：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.education}}</span></el-col></el-row>-->
+          <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">毕业院校：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.graduateSchool}}</span></el-col></el-row>-->
+          <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">职称：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.professionalTitle}}</span></el-col></el-row>-->
+          <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">联系电话：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.mobile}}</span></el-col></el-row>-->
+        </el-col>
+        <el-col :span="6"><img src="~@/assets/img/avatar.png"  style="height:250px;"/></el-col>
+      </el-row>
+    </el-card>
+
+
 
   </div>
 </template>
 
 <script>
+  import momnet from 'moment'
+
   export default {
+    data () {
+      return {
+        userDetail: '',
+        loadTime: momnet(new Date()).format('YYYY-MM-DD hh:mm:ss')
+      }
+    },
+    activated () {
+      this.getUserDetailFromApi()
+    },
+    methods: {
+      getUserDetailFromApi () {
+        this.$http({
+          url: this.$http.adornUrl('/sys/userdetail/info'),
+          method: 'get',
+          params: this.$http.adornParams({})
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.userDetail = data.userDetailVo
+          } else {
+
+          }
+        })
+      }
+    }
   }
 </script>
 
 <style>
   .mod-home {
     line-height: 1.5;
+  }
+  .span_row{
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .font_span{
+    color: #3787ee;
   }
 </style>
 

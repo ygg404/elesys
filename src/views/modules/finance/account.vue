@@ -40,7 +40,7 @@
           <el-table-column prop="projectActuallyReceipts" header-align="center" align="center" label="实收" width="90"></el-table-column>
           <el-table-column prop="projectNotReceipts" header-align="center" align="center" label="未收" width="90"></el-table-column>
           <el-table-column prop="projectExpenditure" header-align="center" align="center" label="支出" width="90"></el-table-column>
-          <el-table-column fixed="right" header-align="center" align="center" width="90" label="操作">
+          <el-table-column  header-align="center" align="center" width="100" label="操作">
             <template slot-scope="scope">
               <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.contractNo)">编辑</el-button>
             </template>
