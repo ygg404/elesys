@@ -33,7 +33,7 @@
             <el-col :span="2"><div class="grid-header">业务负责人</div></el-col>
           </el-row>
           <div v-for="(data, index) in dataList">
-           
+
             <el-row  v-if="data.contractBusiness != null" class="item_row">
               <el-col :span="7"><div style="min-height:1px;"><span class="ContractNameSpan">{{data.contractName}}</span></div></el-col>
               <el-col :span="4"><div style="min-height:1px;"><span class="ContractNameSpan">{{data.contractAuthorize}}</span></div></el-col>
@@ -44,7 +44,7 @@
               <el-col :span="2"><div style="min-height:1px;"><span class="ContractCountSpan">{{data.projectNotReceipts}}</span></div></el-col>
               <el-col :span="2"><div style="min-height:1px;"><span class="ContractBusinessSpan">{{data.contractBusiness}}</span></div></el-col>
             </el-row>
-           
+
           </div>
           <el-row  class="table_row item_footer">
             <el-col :span="16"><div class="group-header">总共合计{{totalProjectSum}}个项目</div></el-col>
@@ -90,12 +90,12 @@
       }
     },
     activated () {
-        this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+      this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
       this.changeEnd()
       // 业务负责人选项
       this.getContractBusinessDataListFromApi()
       this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
-     
+
     },
     methods: {
       // 获取数据列表
@@ -123,12 +123,12 @@
         })
       },
 
-        // 表格初始化
+      // 表格初始化
       tableDataInit (datalist) {
-         this.Should = 0, // 统计实收
-         this.Act = 0, //统计实收
-         this.Not = 0, //统计未收
-        this.totalProjectSum = 0 //项目总和
+        this.Should = 0, // 统计实收
+          this.Act = 0, //统计实收
+          this.Not = 0, //统计未收
+          this.totalProjectSum = 0 //项目总和
         this.totalProjectShould = 0
         this.totalProjectAct = 0
         this.totalProjectNot = 0
@@ -140,11 +140,11 @@
           item.footerShow = false
           this.totalProjectSum += 1
           let outputtemp = parseFloat((item.projectActuallyOutput == null ? 0 : item.projectActuallyOutput).toFixed(2))
-          
+
         })
-        
+
         //统计结算
-          datalist.forEach((item, index) => {
+        datalist.forEach((item, index) => {
           if (contractBusiness !== item.contractBusiness) {
             item.BusinessShow = true
             contractBusiness = item.contractBusiness
@@ -155,19 +155,19 @@
 
             for (let i = index; i < datalist.length; i++) {
               if (datalist[i].contractBusiness === contractBusiness) {
-               projectSum += 1
-               
+                projectSum += 1
+
                 projectShould +=  datalist[i].contractMoney
                 projectAct += datalist[i].projectActuallyReceipts
                 projectNot +=datalist[i].projectNotReceipts
 
                 //总的合计
-               this.totalProjectShould += datalist[i].contractMoney
-               this.totalProjectAct += datalist[i].projectActuallyReceipts
-               this.totalProjectNot += datalist[i].projectNotReceipts
+                this.totalProjectShould += datalist[i].contractMoney
+                this.totalProjectAct += datalist[i].projectActuallyReceipts
+                this.totalProjectNot += datalist[i].projectNotReceipts
                 //项目数量
                 datalist[i].projectSum = projectSum
-               //应收
+                //应收
                 datalist[i].projectShould = parseFloat(projectShould.toFixed(2))
                 //实收
                 datalist[i].projectAct = parseFloat(projectAct.toFixed(2))
@@ -179,10 +179,10 @@
                 break
               }
             }
-             
+
           }
         })
-         
+
         this.dataList = datalist
         console.log(this.datalist)
       },

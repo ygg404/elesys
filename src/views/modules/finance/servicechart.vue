@@ -78,7 +78,8 @@
           projecttype: '',
           startDate: '',
           endDate: '',
-          order:'asc'
+          order:'asc',
+          sidx: 'contract_business'
         },
         monthTitle: '', // 月份标题
         //业务负责人列表
@@ -134,7 +135,8 @@
             'business': this.dataForm.business,
             'startDate': this.dataForm.startDate,
             'endDate': this.dataForm.endDate,
-            'order':this.dataForm.order
+            'order':this.dataForm.order,
+            'sidx': this.dataForm.sidx
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -202,7 +204,7 @@
                 break
               }
             }
-         
+
           }
         })
 
@@ -301,7 +303,7 @@
     font-weight: 700;
     font-size: 15px;
   }
- 
+
   .ServiceChartcentershow{
     float:left;
     margin-left:16px;
