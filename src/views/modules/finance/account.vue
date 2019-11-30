@@ -31,11 +31,7 @@
           <el-table-column prop="contractName" header-align="center" align="center" label="合同名称" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="contractAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="contractBusiness" header-align="center" align="center" label="业务负责人" width="120"></el-table-column>
-          <el-table-column label="启动时间" prop="contractCreateTime" header-align="center" align="center" width="120">
-            <template slot-scope="scope">{{scope.row.contractCreateTime != null?
-              scope.row.contractCreateTime.substring(0,10) : ''}}
-            </template>
-          </el-table-column>
+          <el-table-column label="签订时间" prop="contractAddTime" header-align="center" align="center" width="120"></el-table-column>
           <el-table-column prop="contractMoney" header-align="center" align="center" label="应收" width="90"></el-table-column>
           <el-table-column prop="projectActuallyReceipts" header-align="center" align="center" label="实收" width="90"></el-table-column>
           <el-table-column prop="projectNotReceipts" header-align="center" align="center" label="未收" width="90"></el-table-column>

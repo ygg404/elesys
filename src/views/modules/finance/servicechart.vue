@@ -204,7 +204,8 @@
                 break
               }
             }
-
+            this.totalProjectAct = parseFloat(this.totalProjectAct).toFixed(2)
+            this.totalProjectNot = parseFloat(this.totalProjectNot).toFixed(2)
           }
         })
 

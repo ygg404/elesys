@@ -75,7 +75,7 @@
           projecttype: '',
           startDate: '',
           endDate: '',
-          sidx: 'contract_business',
+          sidx: '',
           order: 'asc'
         },
         dateTitle: '', // 日期标题
@@ -179,7 +179,8 @@
                 break
               }
             }
-
+            this.totalProjectAct = parseFloat(this.totalProjectAct).toFixed(2)
+            this.totalProjectNot = parseFloat(this.totalProjectNot).toFixed(2)
           }
         })
 
