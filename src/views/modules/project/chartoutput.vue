@@ -24,7 +24,7 @@
           <el-row class="table_row">
             <el-col :span="12"><div class="grid-header">项目名称</div></el-col>
             <el-col :span="4"><div class="grid-header">项目启动时间</div></el-col>
-            <el-col :span="4"><div class="grid-header">作业完成时间</div></el-col>
+            <el-col :span="4"><div class="grid-header">完成时间</div></el-col>
             <el-col :span="4"><div class="grid-header">实际产值</div></el-col>
           </el-row>
           <div v-for="(data, index) in dataList">
@@ -35,7 +35,7 @@
             <el-row  v-if="data.groupName != null" class="item_row">
               <el-col :span="12"><div>{{data.projectName}}</div></el-col>
               <el-col :span="4"><div >{{data.projectStartDateTime === null? '&ensp; ':data.projectStartDateTime}}</div></el-col>
-              <el-col :span="4"><div >{{data.wFinishDateTime === null? '&ensp; ':data.wFinishDateTime}}</div></el-col>
+              <el-col :span="4"><div >{{data.qFinishDateTime === null? '&ensp; ':data.qFinishDateTime}}</div></el-col>
               <el-col :span="4"><div >{{data.projectActuallyOutput}}</div></el-col>
             </el-row>
             <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
@@ -77,7 +77,8 @@
       }
     },
     activated () {
-      this.dataForm.startDate = this.dataForm.endDate = new Date()
+      let datenow = new Date()
+      this.dataForm.startDate = this.dataForm.endDate = new Date(datenow.getFullYear(), datenow.getMonth() - 1, 1)
       this.getWorkGroupDataListFromApi()
       this.getOutputChart()
     },

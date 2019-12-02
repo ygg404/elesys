@@ -1,8 +1,8 @@
 <template>
 
   <el-dialog
-    width="60%"
-    title=""
+    width="70%"
+    title="财务操作"
     :close-on-click-modal="false"
     :visible.sync="visible"
     append-to-body>
@@ -59,10 +59,6 @@
               <el-col :span="16"><span>{{this.ContractInfo.contractMoney}}</span></el-col>
             </el-row>
             <el-row :gutter="12">
-              <el-col :span="4"><span>合同状态：</span></el-col>
-              <el-col :span="16"><span>{{this.contractstageName}}</span></el-col>
-            </el-row>
-            <el-row :gutter="12">
               <el-col :span="4"><span>合同类型：</span></el-col>
               <el-col :span="16"><span>{{this.contracttypeName}}</span></el-col>
             </el-row>
@@ -83,12 +79,8 @@
               <el-col :span="16"><span>{{this.ContractInfo.userPhone}}</span></el-col>
             </el-row>
             <el-row :gutter="12">
-              <el-col :span="4"><span>合同添加时间：</span></el-col>
+              <el-col :span="4"><span>合同签订时间：</span></el-col>
               <el-col :span="16"><span>{{this.ContractInfo.contractAddTime}}</span></el-col>
-            </el-row>
-            <el-row :gutter="12">
-              <el-col :span="4"><span>合同创建时间：</span></el-col>
-              <el-col :span="16"><span>{{this.ContractInfo.contractCreateTime}}</span></el-col>
             </el-row>
           </div>
         </el-card>

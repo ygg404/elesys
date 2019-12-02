@@ -14,10 +14,10 @@
             <span class="span_row">所属工作组：</span></el-col>
             <el-col :span="8"><span><el-tag v-for="(item,index) in userDetail.groupList" :key="index" style="margin-left: 5px;">{{item}}</el-tag></span></el-col>
           </el-row>
-          <el-row :gutter="20"><el-col :span="4">
-            <span class="span_row">登录时间：</span></el-col>
-            <el-col :span="8"><span class="font_span">{{loadTime}}</span></el-col>
-          </el-row>
+          <!--<el-row :gutter="20"><el-col :span="4">-->
+            <!--<span class="span_row">登录时间：</span></el-col>-->
+            <!--<el-col :span="8"><span class="font_span">{{loadTime}}</span></el-col>-->
+          <!--</el-row>-->
           <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">生日：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.birthday}}</span></el-col></el-row>-->
           <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">最高学历：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.education}}</span></el-col></el-row>-->
           <!--<el-row :gutter="20"><el-col :span="4"><span class="span_row">毕业院校：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.graduateSchool}}</span></el-col></el-row>-->
