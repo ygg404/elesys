@@ -266,7 +266,7 @@
       getInfoByProjectNo (projectNo) {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl(`/project/projectInfo/info/${projectNo}`),
+            url: this.$http.adornUrl(`/project/projectInfo/print/${projectNo}`),
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {

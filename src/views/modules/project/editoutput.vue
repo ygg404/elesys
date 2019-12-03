@@ -298,6 +298,7 @@
       },
       // 保存产值核算
       postOutputToApi () {
+        this.loading = true
         this.$http({
           url: this.$http.adornUrl(`/project/checkoutput/save`),
           method: 'post',
@@ -307,6 +308,7 @@
             'projectActuallyOutput': this.totalOutPut
           })
         }).then(({data}) => {
+          this.loading = false
           if (data && data.code === 0) {
             this.$message({
               message: '操作成功',

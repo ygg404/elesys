@@ -2,8 +2,8 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item style="margin-left: 20px;">
-        <el-date-picker v-model="dataForm.startDate" type="date" value-format="yyyy-MM-dd" placeholder="开始日期" style="width: 150px;" @change="getDataList"></el-date-picker> 至
-        <el-date-picker v-model="dataForm.endDate" type="date" value-format="yyyy-MM-dd" placeholder="结束日期" style="width: 150px;" @change="getDataList"></el-date-picker>
+        <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
+        <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
       </el-form-item>
       <el-form-item style="margin-left: 20px;">
         <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable @change="getDataList"></el-input>
@@ -49,6 +49,8 @@
   export default {
     data () {
       return {
+        pickerOptionsStart: {},
+        pickerOptionsEnd: {},
         dataForm: {
           key: '',
           sidx: 'id',
@@ -84,6 +86,26 @@
             this.dataForm.order = 'desc'
         }
         this.dataForm.sidx = val.prop
+        this.getDataList()
+      },
+      // 开始时间改变
+      changeStart () {
+        this.pickerOptionsStart = Object.assign({}, this.pickerOptionsStart, {
+          disabledDate: (time) => {
+            return time.getTime() > this.dataForm.endDate
+          }
+        })
+        this.pageIndex = 1
+        this.getDataList()
+      },
+      // 结束时间改变
+      changeEnd () {
+        this.pickerOptionsEnd = Object.assign({}, this.pickerOptionsEnd, {
+          disabledDate: (time) => {
+            return time.getTime() < this.dataForm.startDate
+          }
+        })
+        this.pageIndex = 1
         this.getDataList()
       },
       // 获取数据列表
@@ -136,6 +158,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          this.dataListLoading = true
           this.$http({
             url: this.$http.adornUrl('/project/recycle/delete'),
             method: 'post',
