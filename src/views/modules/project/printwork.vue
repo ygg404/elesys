@@ -161,7 +161,7 @@
             </td>
             <td width="322" valign="center" colspan="4" style="width:241.5000pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:1.0000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
               <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
-                <span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.gName}}</span>
+                <span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.groupName}}</span>
                 <span style="font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>
               </p>
             </td>

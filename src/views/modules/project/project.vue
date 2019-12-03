@@ -81,7 +81,7 @@
         <el-table-column prop="scheduleRate" header-align="center" align="center" width="120" label="项目进度">
           <template slot-scope="scope">
             <!--是作业人员则添加 进度-->
-            <div v-if="roleradio==2" @click="setScheduleHandle(scope.row)">
+            <div v-if="roleradio==2 && scope.row.isCharge == 1" @click="setScheduleHandle(scope.row)">
               <el-progress class="proclass" :text-inside="true" :stroke-width="22"
                            :percentage="scope.row.scheduleRate != null? scope.row.scheduleRate : 0">
               </el-progress>
@@ -118,13 +118,13 @@
         <!--项目作业按钮-->
         <el-table-column :key="Math.random()"  header-align="center" align="center" width="240" label="操作" v-if="roleradio==2">
           <template slot-scope="scope">
-            <el-tooltip class="item"  content="编辑工作" placement="left-start" >
+            <el-tooltip class="item"  content="编辑工作" placement="left-start" v-if="scope.row.isCharge === 1">
               <el-button type="success" size="mini" icon="el-icon-edit" @click="editWorkHandle(scope.row)" v-if="isAuth('project:work:update')"></el-button>
             </el-tooltip>
             <el-tooltip class="item"  content="任务单打印" placement="left-start">
               <el-button type="success" size="mini" icon="el-icon-printer" @click="printWorkHandle(scope.row)" v-if="isAuth('project:work:print')"></el-button>
             </el-tooltip>
-            <el-tooltip class="item"  :content="scope.row.projectStatus === 0? '暂停项目' : '启动项目'" placement="left-start">
+            <el-tooltip class="item"  :content="scope.row.projectStatus === 0? '暂停项目' : '启动项目'" placement="left-start" v-if="scope.row.isCharge === 1">
               <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini" icon="el-icon-refresh-left" @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list')">
               </el-button>
             </el-tooltip>
@@ -432,7 +432,17 @@
       },
       // 编辑质量检查
       editQualityHandle (item) {
-        this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
+        if (item.scheduleRate < 90) {
+          this.$confirm('当前项目作业未完成, 是否继续质检?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
+          })
+        } else {
+          this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
+        }
       },
       // 产值核算
       editOutputHandle (item) {

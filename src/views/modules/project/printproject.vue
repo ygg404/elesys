@@ -147,7 +147,7 @@
               <p class="MsoNormal" align="center" style="text-align:center"><span style="font-size:9.0pt;font-family:黑体">作业部门</span></p>
             </td>
             <td colspan="3" style="border-top:none;border-left:none;border-bottom:solid black 1.0pt;border-right:solid black 1.0pt;padding:5pt 8pt;">
-              <p class="MsoNormal"><span lang="EN-US"> {{projectInfo.gName}}</span></p>
+              <p class="MsoNormal"><span lang="EN-US"> {{projectInfo.groupName}}</span></p>
             </td>
             <td colspan="1" style="border-top:none;border-left:none;border-bottom:solid black 1.0pt;border-right:solid windowtext 1.0pt;padding:5pt 8pt;">
               <p class="MsoNormal" align="center" style="text-align:center"><span style="font-size:9.0pt;font-family:黑体">项目负责人</span></p>
