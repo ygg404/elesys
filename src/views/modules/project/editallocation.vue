@@ -126,6 +126,7 @@
 <script>
   import projectgroupAddOrUpdate from './projectgroup-add-or-update'
   import {closeTab} from '@/utils/tabs'
+  import moment from 'moment'
 
   export default {
     data () {
@@ -202,6 +203,7 @@
         this.getProjectDataCoe()
         this.getInfoByProjectNo(this.projectNo)  // 获取项目基本信息
         this.getGroupByProjectNo(this.projectNo) // 获取项目分组情况
+        this.dataForm.projectBegunDateTime = moment(new Date()).format('YYYY-MM-DD')
         // this.getProjectCharge(this.projectNo)  // 获取项目负责人
       },
       // 工作日期

@@ -139,7 +139,7 @@
       },
       addRate (item) {
         console.log(item)
-        item.projectOutput = (item.outputRate * this.totalOutPut / 100).toFixed(2)
+        item.projectOutput = parseFloat(item.outputRate * this.totalOutPut / 100).toFixed(2)
         var shortNum = item.projectOutput * 0.7 / 2400 - parseInt(item.projectOutput * 0.7 / 2400)
 
         if (shortNum === 0) {
@@ -159,12 +159,12 @@
         } else {
           item.lastDateTime = Math.round(item.projectOutput * 1.3 / 2400)
         }
-        item.projectOutput = Math.round(item.projectOutput,2)
+        item.projectOutput = parseFloat(item.projectOutput)
         this.getSum()
       },
       addOutPut (item) {
         // console.log(this.project_output)
-        item.outputRate = (item.projectOutput * 100 / this.totalOutPut).toFixed(2)
+        item.outputRate = parseFloat(item.projectOutput * 100 / this.totalOutPut).toFixed(2)
         var shortNum = Math.round(item.projectOutput * 0.7 / 2400 - parseInt(item.projectOutput * 0.7 / 2400))
         console.log('short:' + shortNum)
         if (0 < shortNum < 0.5) {
@@ -179,7 +179,7 @@
         } else {
           item.lastDateTime = Math.round(item.projectOutput / 2400 * 1.3)
         }
-        item.outputRate = Math.round(item.outputRate , 2)
+        item.outputRate = parseFloat(item.outputRate)
         this.getSum()
       },
       // 运算总和
@@ -188,10 +188,11 @@
         this.tOutPut = 0
         for (let group of this.groupList) {
           if (group.checked) {
-            this.tOutPut += Math.round(group.projectOutput, 2)
+            this.tOutPut += parseFloat(group.projectOutput)
             this.tRate += Math.round(group.outputRate, 2)
           }
         }
+        this.tOutPut = parseFloat(this.tOutPut.toFixed(2))
       },
       // 获取项目负责人
       getProjectCharge (projectNo) {
