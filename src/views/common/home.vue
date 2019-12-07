@@ -28,20 +28,31 @@
       </el-row>
     </el-card>
 
-
-
+    <div class="bottom_btn">
+      <el-button type="primary" size="large" @click="updatePasswordHandle">修改密码</el-button>
+      <el-button type="danger" size="large" @click="logoutHandle">退出</el-button>
+    </div>
+    <!-- 弹窗, 修改密码 -->
+    <update-password v-if="updatePassowrdVisible" ref="updatePassowrd"></update-password>
   </div>
 </template>
 
 <script>
+  import UpdatePassword from '../main-navbar-update-password'
   import momnet from 'moment'
+  import { clearLoginInfo } from '@/utils'
+
 
   export default {
     data () {
       return {
+        updatePassowrdVisible: false,
         userDetail: '',
         loadTime: momnet(new Date()).format('YYYY-MM-DD hh:mm:ss')
       }
+    },
+    components: {
+      UpdatePassword
     },
     activated () {
       this.getUserDetailFromApi()
@@ -59,6 +70,32 @@
 
           }
         })
+      },
+      // 修改密码
+      updatePasswordHandle () {
+        this.updatePassowrdVisible = true
+        this.$nextTick(() => {
+          this.$refs.updatePassowrd.init()
+        })
+      },
+      // 退出
+      logoutHandle () {
+        this.$confirm(`确定进行[退出]操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$router.push({ name: 'login' })
+          this.$http({
+            url: this.$http.adornUrl('/sys/logout'),
+            method: 'post',
+            data: this.$http.adornData()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              clearLoginInfo()
+            }
+          })
+        }).catch(() => {})
       }
     }
   }
@@ -74,6 +111,11 @@
   }
   .font_span{
     color: #3787ee;
+  }
+  .bottom_btn{
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
   }
 </style>
 
