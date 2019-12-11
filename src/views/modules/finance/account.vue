@@ -78,7 +78,7 @@
           projectType: '',
           startDate: '',
           endDate: '',
-          order: 'asc',
+          order: 'desc',
           sidx: 'id'
         },
         monthTitle: '', // 月份标题

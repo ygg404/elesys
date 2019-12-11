@@ -294,7 +294,10 @@
   .table_class .item_row{
     border-bottom: 1px solid #6f7180;
   }
-
+  .table_class .item_row:hover{
+    cursor: pointer;
+    background-color: rgba(0, 183, 238, 0.59);
+  }
   .table_class .table_row .grid-header{
     font-weight: 700;
     font-size: 16px;
