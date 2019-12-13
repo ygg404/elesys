@@ -60,10 +60,12 @@
             <el-tag v-else size="small" type="info">未作业</el-tag>
           </template>
         </el-table-column>
-        <el-table-column :key="Math.random()"  prop="isCheck" header-align="center" align="center" label="质检情况" width="85" v-if="roleradio===3">
+        <el-table-column :key="Math.random()"  prop="isCheck" header-align="center" align="center" label="质检情况" width="90" v-if="roleradio===3">
           <template slot-scope="scope" >
             <el-tag v-if="scope.row.isCheck == 1" size="small" type="success">已质检</el-tag>
-            <el-tag v-if="scope.row.isCheck != 1" size="small" type="info">未质检</el-tag>
+            <el-tag v-else-if="scope.row.isCheck === 2" size="small" type="danger">返修中</el-tag>
+            <el-tag v-else-if="scope.row.isCheck === 3" size="small" type="primary">返修完成</el-tag>
+            <el-tag v-else size="small" type="info">未质检</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="isOutput" header-align="center" align="center" label="核算情况" width="85" v-if="roleradio===4">
@@ -135,10 +137,13 @@
           </template>
         </el-table-column>
         <!--质量检查按钮-->
-        <el-table-column :key="Math.random()"  header-align="center" align="center" width="128" label="操作" v-if="roleradio==3">
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="188" label="操作" v-if="roleradio==3">
           <template slot-scope="scope">
             <el-tooltip class="item"  content="编辑质检" placement="left">
               <el-button class="quality_btn" size="mini" icon="el-icon-edit-outline" @click="editQualityHandle(scope.row)" v-if="isAuth('project:quality:update')"></el-button>
+            </el-tooltip>
+            <el-tooltip class="item"  content="质检单打印" placement="left">
+              <el-button class="quality_btn" size="mini" icon="el-icon-printer" @click="printCheckHandle(scope.row)" v-if="isAuth('project:check:print')"></el-button>
             </el-tooltip>
             <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.backId != null">
               <el-button class="quality_btn" size="mini" icon="el-icon-s-tools" @click="getBackworkHandle(scope.row)" >
@@ -195,8 +200,8 @@
       <el-dialog :title="backTip" :visible.sync="backDialogVisible">
         <el-table :data="backWorkList">
           <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
-          <el-table-column prop="backNote" header-align="center" align="center" label="返修内容" ></el-table-column>
-          <el-table-column prop="submitNote" header-align="center" align="center" label="提交内容"></el-table-column>
+          <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" ></el-table-column>
+          <el-table-column prop="submitNote" header-align="center" align="center" label="修改说明"></el-table-column>
         </el-table>
         <span slot="footer" class="dialog-footer">
         <el-button @click="backDialogVisible = false" type="primary" plain>返回</el-button>
@@ -380,7 +385,7 @@
       getBackworkHandle (item) {
         let projectNo = item.projectNo
         this.backDialogVisible = true
-        this.backTip = '返修内容表（编号：' + projectNo + ')'
+        this.backTip = '返修内容表（项目编号：' + projectNo + ')'
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl(`/project/backwork/list/${projectNo}`),
@@ -397,6 +402,11 @@
       },
       // 提交进度
       setScheduleHandle (item) {
+        // 项目作业已提交，就无法提交进度
+        if (item.isWork === 1) {
+          this.$message.error('当前项目已作业完成，无法添加进度！')
+          return
+        }
         this.projectscheduleVisible = true
         this.$nextTick(() => {
           this.$refs.projectscheduleAddOrUpdate.init(item)
@@ -425,6 +435,10 @@
       // 作业任务单打印
       printWorkHandle (item) {
         this.$router.push({path: '/project-printwork', query: {projectNo: item.projectNo}})
+      },
+      // 任务流程单打印
+      printCheckHandle (item) {
+        this.$router.push({path: '/project-printcheck', query: {projectNo: item.projectNo}})
       },
       // 任务流程单打印
       printProjectHandle (item) {

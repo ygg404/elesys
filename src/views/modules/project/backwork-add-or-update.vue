@@ -2,8 +2,8 @@
   <el-dialog title="项目返修内容" :close-on-click-modal="false" :visible.sync="visible">
     <el-table :data="dataList">
       <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
-      <el-table-column prop="backNote" header-align="center" align="center" label="返修内容" ></el-table-column>
-      <el-table-column prop="submitNote" header-align="center" align="center" label="提交内容"></el-table-column>
+      <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" ></el-table-column>
+      <el-table-column prop="submitNote" header-align="center" align="center" label="修改说明"></el-table-column>
       <el-table-column header-align="center" align="center"  label="操作" >
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="addNoteHandle(scope.row)" v-if="scope.row.submitNote == null">编辑</el-button>
@@ -91,7 +91,8 @@
               data: this.$http.adornData({
                 'id': this.dataForm.id,
                 'projectNo': this.dataForm.projectNo,
-                'submitNote': this.dataForm.submitNote
+                'submitNote': this.dataForm.submitNote,
+                'backStage': 1
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
