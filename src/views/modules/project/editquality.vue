@@ -21,9 +21,11 @@
         <template slot="title">
           <span class="span_title">返修记录信息</span>
         </template>
-        <div style="background-color: #f0f0f0">
-          返修意见：
-        </div>
+        <el-table :data="backWorkList">
+          <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
+          <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" ></el-table-column>
+          <el-table-column prop="submitNote" header-align="center" align="center" label="修改说明"></el-table-column>
+        </el-table>
       </el-collapse-item>
     </el-collapse>
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" class="form_class">
@@ -70,7 +72,7 @@
     </el-dialog>
 
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
-    <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="init"></qualityscore-add-or-update>
+    <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="setQualityScore"></qualityscore-add-or-update>
   </div>
 </template>
 
@@ -87,6 +89,7 @@
         qualityNoteValue: '',
         qualityScoreVisible: false,
         repairVisible: false,
+        backWorkList: [],
         dataForm: {
           id: '',
           qualityNote: '',
@@ -123,6 +126,7 @@
         this.projectNo = this.$route.query.projectNo
         this.getInfoByProjectNo(this.projectNo)
         this.getQualityByProjectNo(this.projectNo)
+        this.getBackworkHandle(this.projectNo)
         this.getQualityNotelist()
         this.getRepairNotelist()
       },
@@ -193,6 +197,20 @@
               reject(data.msg)
             }
           })
+        })
+      },
+      // 获取返修内容列表
+      getBackworkHandle (projectNo) {
+        this.$http({
+          url: this.$http.adornUrl(`/project/backwork/list/${projectNo}`),
+          method: 'get',
+          params: this.$http.adornParams({})
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.backWorkList = data.list
+          } else {
+            this.backWorkList = []
+          }
         })
       },
       // 获取质量综述列表
@@ -283,6 +301,10 @@
         this.$nextTick(() => {
           this.$refs.qualityscoreAddOrUpdate.init(this.projectNo)
         })
+      },
+      // 质量评分设置
+      setQualityScore (score) {
+        this.dataForm.qualityScore = score
       },
       // 返回
       goBack () {

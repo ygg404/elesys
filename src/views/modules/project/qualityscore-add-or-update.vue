@@ -172,7 +172,7 @@
               duration: 1500
             })
             this.visible = false
-            this.$emit('refreshDataList')
+            this.$emit('refreshDataList', this.allScore)
           } else {
             this.$message.error(data.msg)
           }
