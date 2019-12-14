@@ -294,7 +294,7 @@
           default:
             this.dataForm.order = 'desc'
         }
-        this.dataForm.sidx = val.prop
+        this.dataForm.sidx = 'id'
         this.getDataList()
       },
       // 获取数据列表

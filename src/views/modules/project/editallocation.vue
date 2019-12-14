@@ -244,7 +244,7 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
-              url: this.$http.adornUrl(`/project/plan/${!this.dataForm.id ? 'save' : 'update'}`),
+              url: this.$http.adornUrl(`/project/plan/save`),
               method: 'post',
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,
@@ -542,5 +542,9 @@
 
   .rate_info{
     margin-top: 10px;
+  }
+
+  .el-select-dropdown{
+    max-width: 243px;
   }
 </style>
