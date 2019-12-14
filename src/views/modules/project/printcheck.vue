@@ -2,105 +2,112 @@
   <div class="mod-config">
     <div align="center" id="printId" >
       <p class="MsoNormal" align="center" style="text-align:center"><span style="font-size:16.0pt;font-family:黑体">质量审核单</span></p>
-      <td align="center" >
-        <table class="MsoNormalTable" border="1" cellspacing="0" style="border-collapse:collapse;width:590.9000pt;margin-left:4.6500pt;border:none;mso-padding-alt:1.0000pt 1.0000pt 1.0000pt 1.0000pt ;padding: 1px;">
-          <el-row >
-            <el-col :span="3"><div class="tdborder tdthead"> 项目名称</div></el-col>
-            <el-col :span="12"><div class="tdborder tdline">{{projectInfo.projectName}}</div></el-col>
-            <el-col :span="3"><div class="tdborder tdthead">项目编号</div></el-col>
-            <el-col :span="6"><div class="tdborder_end tdline">{{projectInfo.projectNo}}</div></el-col>
+      <div class="tablecss">
+        <div class="block">
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;">项目名称</div>
+          <div class="tdstyle" style="width: 300pt;border-right: 1px solid black;">{{projectInfo.projectName}}</div>
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;">项目编号</div>
+          <div class="tdstyle" style="width: 128pt;" >{{projectInfo.projectNo}}</div>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">委托单位</div>
+          <div class="tdstyle" style="width: 300pt;border-right: 1px solid black;border-top: 1px solid black;">{{projectInfo.projectAuthorize}}</div>
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">项目类型</div>
+          <div class="tdstyle" style="width: 128pt;border-top: 1px solid black;" >{{projectInfo.projectType}}</div>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">技术要求</div>
+          <div class="tdstyle" style="width: 510pt;border-top: 1px solid black;min-height: 25pt;">{{projectInfo.workRequire}}</div>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 590pt;border-top: 1px solid black;text-align: left;">返修记录：</div>
+        </div>
+        <div class="block" >
+          <el-row v-if="backWorkList.length === 0" style="width: 590pt;">
+            <el-col :span="2" >&nbsp;</el-col>
+            <el-col :span="20" style="text-align: left;">无</el-col>
+            <el-col :span="2" >&nbsp;</el-col>
           </el-row>
-          <el-row >
-            <el-col :span="3"><div class="tdborder tdthead"> 委托单位</div></el-col>
-            <el-col :span="12"><div class="tdborder tdline">{{projectInfo.projectAuthorize}}</div></el-col>
-            <el-col :span="3"><div class="tdborder tdthead">项目类型</div></el-col>
-            <el-col :span="6"><div class="tdborder_end tdline">{{projectInfo.projectType}}</div></el-col>
+        </div>
+        <div class="block" v-if="backWorkList.length !== 0">
+          <el-row style="width: 590pt;">
+            <el-col :span="1" >&nbsp;</el-col>
+            <el-col :span="5"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修日期</div></el-col>
+            <el-col :span="8"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修要求</div></el-col>
+            <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 修改说明</div></el-col>
+            <el-col :span="1">&nbsp;</el-col>
           </el-row>
-          <el-row >
-            <el-col :span="3"><div class="tdborder tdthead" style="min-height: 21.7500pt;line-height: 200%;"> 技术要求</div></el-col>
-            <el-col :span="21"><div class="tdborder_end tdline" style="min-height: 21.7500pt;line-height: 200%;">{{projectInfo.workRequire}}</div></el-col>
+        </div>
+        <div class="block" v-for="(item, index) in backWorkList" :key ="item.id">
+          <el-row  style="width: 590pt;">
+            <el-col :span="1" >&nbsp;</el-col>
+            <el-col :span="5"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backCreateTime}}</div></el-col>
+            <el-col :span="8"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backNote}}</div></el-col>
+            <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.submitNote}}</div></el-col>
+            <el-col :span="1" >&nbsp;</el-col>
           </el-row>
-          <el-row ><el-col :span="24"><div class="tdborder_end tdthead" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修记录：</div></el-col></el-row>
-          <el-row v-if="backWorkList.length === 0">
-            <el-col :span="2" style="border-left: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
-            <el-col :span="20">无</el-col>
-            <el-col :span="2" style="border-right: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
+        </div>
+        <div class="block" v-if="backWorkList.length !== 0">
+          <el-row  style="width: 590pt;">
+            <el-col :span="1" >&nbsp;</el-col>
+            <el-col :span="22"><div  style="border-top:1.0000pt solid #8c939d;min-height: 21.7500pt;line-height: 150%;text-align: left;">&nbsp;</div></el-col>
+            <el-col :span="1" >&nbsp;</el-col>
           </el-row>
-          <tr v-if="backWorkList.length !== 0">
-            <el-row >
-              <el-col :span="2" style="border-left: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
-              <el-col :span="20">
-                <el-row>
-                  <el-col :span="6"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修日期</div></el-col>
-                  <el-col :span="9"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修要求</div></el-col>
-                  <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 修改说明</div></el-col>
-                </el-row>
-              </el-col>
-              <el-col :span="2" style="border-right: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
-            </el-row>
-            <el-row v-for="(item, index) in backWorkList" :key ="item.id" >
-              <el-col :span="2" style="border-left: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
-              <el-col :span="20">
-                <el-row>
-                  <el-col :span="6"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backCreateTime}}</div></el-col>
-                  <el-col :span="9"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backNote}}</div></el-col>
-                  <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.submitNote}}</div></el-col>
-                </el-row>
-              </el-col>
-              <el-col :span="2" style="border-right: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
-            </el-row>
-            <el-row >
-              <el-col :span="2" style="border-left: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
-              <el-col :span="20" style="border-top:1px solid #8c939d">&nbsp;</el-col>
-              <el-col :span="2" style="border-right: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;">&nbsp;</el-col>
-            </el-row>
-          </tr>
-          <el-row class="tdborder_end" ><div class="tdthead" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 质量评分明细：</div></el-row>
-          <el-row  style="text-align: center;border-left: 1px solid windowtext;border-right: 1px solid windowtext;">
+        </div>
+        <div class="block">
+          <el-row  style="width: 590pt;">&nbsp;</el-row>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 590pt;border-top: 1px solid black;text-align: left;">质量评分明细：</div>
+        </div>
+        <div class="block">
+          <el-row  style="width: 590pt;">
             <el-col :span="1">&nbsp;</el-col>
             <el-col :span="22">
-            <table style="width:100%;margin:0 auto" border="1" cellspacing="0">
-              <tr><th>检查内容</th><th>检查类型</th><th>检查结果</th><th>错漏数量A类</th><th>错漏数量B类</th><th>错漏数量C类</th><th>错漏数量D类</th><th>检查项扣分</th></tr>
-              <tr><td colspan="8">空间基准质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></td></tr>
-              <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 0 & item.typeId < 4">
-                <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
-              </tr>
-              <tr><td colspan="8">采集、定处理质量(权:0.4) <span class="from_span">质量元素扣分: <span style="color: red">{{cjScore}}</span></span></td></tr>
-              <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 4 & item.typeId < 10">
-                <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
-              </tr>
-              <tr><td colspan="8">成果质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{cgScore}}</span></span></td></tr>
-              <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 10">
-                <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
-              </tr>
-            </table>
+              <table style="width:100%;margin:0 auto" border="1" cellspacing="0">
+                <tr><th>检查内容</th><th>检查类型</th><th>检查结果</th><th>错漏数量A类</th><th>错漏数量B类</th><th>错漏数量C类</th><th>错漏数量D类</th><th>检查项扣分</th></tr>
+                <tr><td colspan="8">空间基准质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></td></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 0 & item.typeId < 4">
+                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                </tr>
+                <tr><td colspan="8">采集、定处理质量(权:0.4) <span class="from_span">质量元素扣分: <span style="color: red">{{cjScore}}</span></span></td></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 4 & item.typeId < 10">
+                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                </tr>
+                <tr><td colspan="8">成果质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{cgScore}}</span></span></td></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 10">
+                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                </tr>
+              </table>
             </el-col>
-
           </el-row>
-          <el-row style="border-left: 1px solid black;border-right: 1px solid black;">&nbsp;</el-row>
-          <el-row class="tdborder_end">
-            <el-col :span="6" style="border-right: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;" class="tdthead">质量得分</el-col>
-            <el-col :span="6" style="border-right:1px solid windowtext;line-height: 150%;min-height: 21.7500pt;" >{{projectInfo.qualityScore}}</el-col>
-            <el-col :span="6" style="border-right: 1px solid windowtext;line-height: 150%;min-height: 21.7500pt;" class="tdthead">质量等级</el-col>
-            <el-col :span="6" style="line-height: 150%;min-height: 21.7500pt;">{{projectInfo.qualityLevel}}</el-col>
-          </el-row>
-          <el-row  class="tdborder_end tdthead" style="text-align: left">质量综述：</el-row>
-          <el-row style="border-left: 1px solid black;border-right: 1px solid black;min-height: 40pt;">
-              {{projectInfo.qualityNote}}
-          </el-row>
-          <el-row style="border-left: 1px solid black;border-right: 1px solid black;">&nbsp;</el-row>
-
-          <el-row class=" tdborder_end tdthead" style="text-align: left;min-height: 60pt;">
-            <el-col :span="8" style="border-right:1px solid windowtext;line-height: 150%;min-height: 60pt;">项目负责人签名：</el-col>
-            <el-col :span="8" style="border-right:1px solid windowtext;line-height: 150%;min-height: 60pt;">质检员签名：</el-col>
-            <el-col :span="8" style="min-height: 60pt;">质量审核人签名：</el-col>
-          </el-row>
-          <el-row class=" tdborder_end tdthead" style="text-align: left;min-height: 25pt;">备注：</el-row>
-          <el-row  style="border-top: 1px solid black;">&nbsp;</el-row>
-        </table>
-      </td>
+        </div>
+        <div class="block">
+          <el-row  style="width: 590pt;">&nbsp;</el-row>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">质量评分</div>
+          <div class="tdstyle" style="width: 300pt;border-right: 1px solid black;border-top: 1px solid black;">{{projectInfo.qualityScore}}</div>
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">质量等级</div>
+          <div class="tdstyle" style="width: 128pt;border-top: 1px solid black;" >{{projectInfo.qualityLevel}}</div>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 590pt;border-top: 1px solid black;text-align: left;">质量综述：</div>
+        </div>
+        <div class="block">
+          <div class="tdstyle" style="width: 590pt;text-align: left;min-height: 40pt;">{{projectInfo.qualityNote}}</div>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 195pt;border-top: 1px solid black;border-right: 1px solid black;text-align: left;min-height: 65pt;">项目负责人签名：</div>
+          <div class="ththead" style="width: 195pt;border-top: 1px solid black;border-right: 1px solid black;text-align: left;min-height: 65pt;">质检员签名：</div>
+          <div class="ththead" style="width: 200pt;border-top: 1px solid black;text-align: left;">质检审核员签名：</div>
+        </div>
+        <div class="block">
+          <div class="ththead" style="width: 590pt;border-top: 1px solid black;text-align: left;min-height: 25pt;">备注：</div>
+        </div>
+      </div>
     </div>
-    <div style="text-align: center;width: 100%;">
+    <div style="text-align: center;width: 100%;margin-top: 20px;">
       <el-button type="primary" icon="el-icon-printer" size="large" @click="printChart">打印</el-button>
     </div>
   </div>
@@ -301,27 +308,20 @@
     border-top:1.0000pt solid #8c939d;
     padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;
   }
-  .tdborder{
-    text-align: center;
-    vertical-align: middle;
-    border-left:1.0000pt solid windowtext;
-    mso-border-left-alt:1.0000pt solid windowtext;
-    /*border-right:1.0000pt solid windowtext;*/
-    mso-border-right-alt:0.5000pt solid windowtext;
-    border-top:1.0000pt solid windowtext;
-    padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;
+
+
+  .tablecss{
+    margin-top: 5px;
+    width: 591pt;
+    border: 1px solid windowtext;
   }
-  .tdborder_end{
-    text-align: center;
-    vertical-align: middle;
-    border-left:1.0000pt solid windowtext;
-    mso-border-left-alt:1.0000pt solid windowtext;
-    border-right:1.0000pt solid windowtext;
-    mso-border-right-alt:0.5000pt solid windowtext;
-    border-top:1.0000pt solid windowtext;
-    padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;
+
+  div .block{
+    overflow:hidden;
+    display: flex;
   }
-  .tdthead{
+  div .block .ththead{
+    padding: 2px;
     font-family:黑体;
     mso-hansi-font-family:宋体;
     color:rgb(0,0,0);
@@ -329,12 +329,21 @@
     font-style:normal;
     font-size:10.5000pt;
     mso-font-kerning:0.0000pt;
+    display:block;
+    float:left;
+    text-align:center;
+    align-items: stretch;
   }
-  .tdline{
+  div .block .tdstyle{
+    padding: 2px;
     font-family:宋体;
     color:rgb(0,0,0);
     font-style:normal;
     font-size:10.5000pt;
     mso-font-kerning:0.0000pt;
+    display:block;
+    float:left;
+    text-align:center;
+    align-items: stretch;
   }
 </style>
