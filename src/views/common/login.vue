@@ -74,6 +74,7 @@
               this.loading = false
               if (data && data.code === 0) {
                 this.$cookie.set('token', data.token)
+                this.$cookie.set('jxrole', '') // 项目管理默认角色为空
                 this.$router.replace({ name: 'home' })
               } else {
                 this.getCaptcha()

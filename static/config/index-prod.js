@@ -5,7 +5,7 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'http://www.gdjxch.cn:19433/htsys';
+  window.SITE_CONFIG['baseUrl'] = 'https://web.gdjxch.cn/htsys';
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain']  = './'; // 域名

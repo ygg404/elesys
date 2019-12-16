@@ -278,6 +278,7 @@
       if (isAuth('project:quality:list')) this.roleradio = 3
       if (isAuth('project:work:list')) this.roleradio = 2
       if (isAuth('project:project:plan')) this.roleradio = 1
+      if (this.$cookie.get('jxrole') !== null && this.$cookie.get('jxrole') !== '') this.roleradio = parseInt(this.$cookie.get('jxrole'))
       this.getDataList()
     },
     methods: {
@@ -421,11 +422,13 @@
       },
       // 编辑安排
       editProjectHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         console.log(this.$router)
         this.$router.push({path: '/project-editallocation', query: {projectNo: item.projectNo}})
       },
       // 编辑工作
       editWorkHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         if (item.scheduleRate < 90) {
           this.$message.error('项目未完结，最高进度只可达90%，请添加进度后再进行作业编辑')
           return
@@ -446,6 +449,7 @@
       },
       // 编辑质量检查
       editQualityHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         if (item.scheduleRate < 90) {
           this.$confirm('当前项目作业未完成, 是否继续质检?', '提示', {
             confirmButtonText: '确定',
@@ -458,12 +462,14 @@
           this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
         }
       },
-      // 产值核算
+      // 编辑产值核算
       editOutputHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         this.$router.push({path: '/project-editoutput', query: {projectNo: item.projectNo}})
       },
-      // 项目审定
+      // 编辑项目审定
       editExamineHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         this.$router.push({path: '/project-editauthorize', query: {projectNo: item.projectNo}})
       },
       // 产值统计表
