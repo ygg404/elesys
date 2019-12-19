@@ -21,8 +21,8 @@
         </el-form-item>
         <el-form-item label="支出类型" prop="accountType">
           <template>
-            <el-radio v-model="dataForm.accountType" label="1">收款</el-radio>
-            <el-radio v-model="dataForm.accountType" label="0">支出</el-radio>
+            <el-radio v-model="dataForm.accountType" label="0">收款</el-radio>
+            <el-radio v-model="dataForm.accountType" label="1">支出</el-radio>
           </template>
         </el-form-item>
         <el-form-item label="备注" prop="accountNote">
@@ -112,16 +112,13 @@
             <div class="table_class">
               <el-table :data="AccountList" border v-loading="dataListLoading" @sort-change="changeSort"
                         style="width: 100%;">
-                <el-table-column prop="accountAddDateTime" header-align="center" align="center"
-                                 label="日期"></el-table-column>
-                <el-table-column prop="accountTypeName" header-align="center" align="center"
-                                 label="收支"></el-table-column>
+                <el-table-column prop="accountAddDateTime" header-align="center" align="center" label="日期"></el-table-column>
+                <el-table-column prop="accountTypeName" header-align="center" align="center" label="收支"></el-table-column>
                 <el-table-column prop="accountNum" header-align="center" align="center" label="金额"></el-table-column>
                 <el-table-column prop="accountNote" header-align="center" align="center" label="备注"></el-table-column>
-                <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+                <el-table-column  header-align="center" align="center" width="150" label="操作">
                   <template slot-scope="scope">
-                    <el-button type="danger" icon="el-icon-delete" circle
-                               @click="DeleteOneAccount(scope.row.id)"></el-button>
+                    <el-button type="danger" icon="el-icon-delete" circle @click="DeleteOneAccount(scope.row.id)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
