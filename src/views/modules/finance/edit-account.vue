@@ -5,6 +5,7 @@
     title="财务操作"
     :close-on-click-modal="false"
     :visible.sync="visible"
+    :before-close="handleDialogClose"
     append-to-body>
 
     <!-- 添加收支数据 对话框-->
@@ -112,13 +113,16 @@
             <div class="table_class">
               <el-table :data="AccountList" border v-loading="dataListLoading" @sort-change="changeSort"
                         style="width: 100%;">
-                <el-table-column prop="accountAddDateTime" header-align="center" align="center" label="日期"></el-table-column>
-                <el-table-column prop="accountTypeName" header-align="center" align="center" label="收支"></el-table-column>
+                <el-table-column prop="accountAddDateTime" header-align="center" align="center"
+                                 label="日期"></el-table-column>
+                <el-table-column prop="accountTypeName" header-align="center" align="center"
+                                 label="收支"></el-table-column>
                 <el-table-column prop="accountNum" header-align="center" align="center" label="金额"></el-table-column>
                 <el-table-column prop="accountNote" header-align="center" align="center" label="备注"></el-table-column>
-                <el-table-column  header-align="center" align="center" width="150" label="操作">
+                <el-table-column header-align="center" align="center" width="150" label="操作">
                   <template slot-scope="scope">
-                    <el-button type="danger" icon="el-icon-delete" circle @click="DeleteOneAccount(scope.row.id)"></el-button>
+                    <el-button type="danger" icon="el-icon-delete" circle
+                               @click="DeleteOneAccount(scope.row.id)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -431,7 +435,13 @@
           })
         })
       },
-
+      /**
+       * 点击 X 关闭对话框的回调
+       **/
+      handleDialogClose () {
+        this.$emit('refreshDataList')
+        this.visible = false
+      }
     },
     mounted () {
       // this.getProjectsFromApi().then(success=>{}).catch(error=>{})
