@@ -2,10 +2,10 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="关键字搜索" @change="getDataList" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="关键字搜索" @change="getDataListBykey" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="getDataListBykey()">查询</el-button>
         <el-button v-if="isAuth('set:worktype:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <el-button v-if="isAuth('set:worktype:delete')" type="danger" @click="deleteHandle()"
                    :disabled="dataListSelections.length <= 0">批量删除
@@ -17,8 +17,8 @@
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
       <el-table-column prop="id" header-align="center" align="center" label="ID" width="80"></el-table-column>
       <el-table-column prop="typeName" header-align="center" align="center" label="类型名称"></el-table-column>
-      <el-table-column prop="unit" header-align="center" align="center" label="单位" width="100"></el-table-column>
-      <el-table-column prop="unitOutput" header-align="center" align="center" label="单位产值" width="80"></el-table-column>
+      <el-table-column prop="unit" header-align="center" align="center" label="单位" width="110"></el-table-column>
+      <el-table-column prop="unitOutput" header-align="center" align="center" label="单位产值" width="110"></el-table-column>
       <el-table-column label="项目类型" prop="projectTypeName" header-align="center" align="center">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.projectTypeName != ''" v-for="(item,index) in scope.row.projectTypeName.split(',')"
@@ -154,6 +154,11 @@
           }
           this.dataListLoading = false
         })
+      },
+      // 通过关键字搜索
+      getDataListBykey () {
+        this.pageIndex = 1
+        this.getDataList()
       },
       // 每页数
       sizeChangeHandle (val) {

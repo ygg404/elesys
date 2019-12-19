@@ -1,11 +1,11 @@
 <template>
   <div class="mod-log">
-    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+    <el-form :inline="true" :model="dataForm" >
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="用户名／用户操作" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="用户名／用户操作" @change="getDataListbefore()" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="getDataListbefore()" >查询</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -121,6 +121,10 @@
           }
           this.dataListLoading = false
         })
+      },
+      getDataListbefore () {
+        this.pageIndex = 1
+        this.getDataList()
       },
       // 每页数
       sizeChangeHandle (val) {

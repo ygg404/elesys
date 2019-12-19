@@ -1,13 +1,15 @@
 <template>
   <div class="mod-config">
-    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()" >
+    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" @change="getDataList()"  placeholder="关键词搜索" clearable ></el-input>
+        <el-input v-model="dataForm.key" @change="getDataListBykey()" placeholder="关键词搜索" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="getDataListBykey()">查询</el-button>
         <el-button v-if="isAuth('set:wpshortcut:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('set:wpshortcut:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('set:wpshortcut:delete')" type="danger" @click="deleteHandle()"
+                   :disabled="dataListSelections.length <= 0">批量删除
+        </el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -75,6 +77,7 @@
 
 <script>
   import AddOrUpdate from './wpshortcut-add-or-update'
+
   export default {
     data () {
       return {
@@ -138,6 +141,11 @@
           }
           this.dataListLoading = false
         })
+      },
+      // 通过关键字搜索
+      getDataListBykey () {
+        this.pageIndex = 1
+        this.getDataList()
       },
       // 每页数
       sizeChangeHandle (val) {
