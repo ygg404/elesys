@@ -53,7 +53,7 @@
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
-      <el-button type="danger" size="large" @click="repairVisible = true">退回返修</el-button>
+      <el-button type="danger" size="large" @click="repairVisible = true" :disabled="isCheck == 2">退回返修</el-button>
     </div>
 
     <el-dialog title="提出返修" :close-on-click-modal="false" width="50%" :visible.sync="repairVisible">
@@ -84,6 +84,7 @@
     data () {
       return {
         projectNo: '',
+        isCheck: 0, // 检查状态： 2为返修中
         projectInfo: '',
         qualityNotelist: [],
         qualityNoteValue: '',
@@ -124,6 +125,7 @@
     methods: {
       init () {
         this.projectNo = this.$route.query.projectNo
+        this.isCheck = this.$route.query.isCheck
         this.getInfoByProjectNo(this.projectNo)
         this.getQualityByProjectNo(this.projectNo)
         this.getBackworkHandle(this.projectNo)

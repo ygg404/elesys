@@ -130,7 +130,7 @@
               <el-button :type="scope.row.projectStatus === 0? 'danger' : 'success'" size="mini" icon="el-icon-refresh-left" @click="stopProjectHandle(scope.row)" v-if="isAuth('project:work:list')">
               </el-button>
             </el-tooltip>
-            <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.submitNote == null && scope.row.backId != null">
+            <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.submitNote == null && scope.row.backId != null & scope.row.isCharge === 1" >
               <el-button type="warning" size="mini" icon="el-icon-s-tools" @click="setBackworkHandle(scope.row)" >
               </el-button>
             </el-tooltip>
@@ -197,7 +197,7 @@
       </el-dialog>
 
       <!--返修内容表-->
-      <el-dialog :title="backTip" :visible.sync="backDialogVisible">
+      <el-dialog :title="backTip" :visible.sync="backDialogVisible" >
         <el-table :data="backWorkList">
           <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
           <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" ></el-table-column>
@@ -459,7 +459,7 @@
             this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
           })
         } else {
-          this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
+          this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo, isCheck: item.isCheck}})
         }
       },
       // 编辑产值核算

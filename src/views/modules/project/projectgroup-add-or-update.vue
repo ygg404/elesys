@@ -1,13 +1,14 @@
 <template>
-  <el-dialog
+  <el-dialog width="70%"
     title="选择作业组" :close-on-click-modal="false" :visible.sync="visible" >
     <span class="span_output">预计产值：{{this.totalOutPut}}</span>
     <el-table :data="groupList" border  style="width: 100%;" v-loading="loading">
-      <el-table-column prop="name" header-align="center" align="left" label="组名" >
+      <el-table-column prop="name" header-align="center" align="left" label="组名" width="140" >
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.checked" size="large" @change="headMenListEvent">{{scope.row.groupName}}</el-checkbox>
         </template>
       </el-table-column>
+      <el-table-column prop="headMan" header-align="center" align="center" width="120" label="队长" ></el-table-column>
       <el-table-column prop="outputRate" header-align="center" align="center" width="120" label="占比(%)" >
         <template slot-scope="scope">
           <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.outputRate" @change="addRate(scope.row)"></el-input>
@@ -36,7 +37,7 @@
     <div style="float: left;margin-top: 10px;">
       项目负责人:
       <el-select v-model="headId" placeholder="项目负责人"  style="width: 130px;" >
-        <el-option v-for="item in headManList" :label="item.headMan" :key="item.headId" :value="item.headId"  ></el-option>
+        <el-option v-for="item in headManList" :label="item.username" :key="item.userId" :value="item.userId"  ></el-option>
       </el-select>
     </div>
     <span slot="footer" class="dialog-footer">
@@ -80,11 +81,18 @@
         this.totalOutPut = totalOutPut
         this.getProjectWorkList(projectNo).then(grouplist => {
           this.groupList = grouplist
-          this.headMenListEvent()
           this.loading = false
+          this.getProjectChargeList().then(data => {
+            this.headManList = data
+            this.headMenListEvent()
+          })
+          // 获取项目负责人列表
           this.getProjectCharge(projectNo).then(projectPlan => {
             for (let headman of this.headManList) {
-              if (headman.headMan === projectPlan.projectCharge) this.headId = headman.headId
+              if (headman.username === projectPlan.projectCharge) {
+                this.headId = headman.userId
+                console.log('headid' + this.headId)
+              }
             }
           })
         })
@@ -124,14 +132,20 @@
       },
       // 作业队长列表
       headMenListEvent () {
-        this.headManList = []
-        this.headId = ''
+        // this.headManList = []
         for (let group of this.groupList) {
           if (group.checked) {
-            this.headManList.push({
-              headId: group.headId,
-              headMan: group.headMan
-            })
+            // this.headId = group.headId
+            // let isheadIdin = false
+            // for (let user of this.headManList) {
+            //   if (user.userId === group.headId) isheadIdin = true
+            // }
+            // if (!isheadIdin) {
+            //   this.headManList.push({
+            //     userId : group.headId,
+            //     username: group.headMan
+            //   })
+            // }
             this.headId = group.headId
           }
         }
@@ -193,6 +207,23 @@
           }
         }
         this.tOutPut = parseFloat(this.tOutPut.toFixed(2))
+      },
+      // 获取项目负责人列表
+      getProjectChargeList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/group/getChargeList`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
       },
       // 获取项目负责人
       getProjectCharge (projectNo) {
