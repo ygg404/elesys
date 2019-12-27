@@ -75,6 +75,8 @@
               if (data && data.code === 0) {
                 this.$cookie.set('token', data.token)
                 this.$cookie.set('jxrole', '') // 项目管理默认角色为空
+                this.$cookie.set('jxstartDate', '') // 选择时间（起始时间）
+                this.$cookie.set('jxendDate', '') // 选择时间（结束时间）
                 this.$router.replace({ name: 'home' })
               } else {
                 this.getCaptcha()

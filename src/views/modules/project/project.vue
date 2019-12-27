@@ -17,8 +17,8 @@
           <el-option v-for="item in dateItemList" :label="item.dateItem" :key="item.id" :value="item.id"></el-option>
         </el-select>
         <el-form-item style="margin-left: -2px;">
-          <el-date-picker v-model="dataForm.startDate" type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
-          <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
+          <el-date-picker v-model="dataForm.startDate"   type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
+          <el-date-picker v-model="dataForm.endDate"  type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
         </el-form-item>
         <el-form-item style="margin-left: 20px;">
           <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable style="width: 150px;"  @change="getDataList"></el-input>
@@ -263,8 +263,6 @@
       backworkAddOrUpdate
     },
     activated () {
-      this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
-      this.changeEnd()
       this.dateItemList = [{'id': 0, 'dateItem': '项目启动时间'},
         {'id': 1, 'dateItem': '项目开工时间'},
         {'id': 2, 'dateItem': '作业完成时间'},
@@ -279,6 +277,20 @@
       if (isAuth('project:work:list')) this.roleradio = 2
       if (isAuth('project:project:plan')) this.roleradio = 1
       if (this.$cookie.get('jxrole') !== null && this.$cookie.get('jxrole') !== '') this.roleradio = parseInt(this.$cookie.get('jxrole'))
+      if (this.$cookie.get('jxstartDate') !== null && this.$cookie.get('jxstartDate') !== '') {
+        this.dataForm.startDate = new Date(this.$cookie.get('jxstartDate'))
+        this.changeEnd()
+      } else {
+        this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+        this.changeEnd()
+      }
+      if (this.$cookie.get('jxendDate') !== null && this.$cookie.get('jxendDate') !== '') {
+        this.dataForm.endDate = new Date(this.$cookie.get('jxendDate'))
+        this.changeStart()
+      } else {
+        this.dataForm.endDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+        this.changeStart()
+      }
       this.getDataList()
     },
     methods: {
@@ -330,8 +342,13 @@
           this.dataListLoading = false
         })
       },
-      // 开始时间改变
+      // 改变开始时间
       changeStart () {
+        if (this.dataForm.endDate === null || this.dataForm.endDate === '') {
+          this.$cookie.set('jxendDate', '')
+        } else {
+          this.$cookie.set('jxendDate', moment(new Date(this.dataForm.endDate)).format('YYYY-MM-DD'))
+        }
         this.pickerOptionsStart = Object.assign({}, this.pickerOptionsStart, {
           disabledDate: (time) => {
             return time.getTime() > this.dataForm.endDate
@@ -340,8 +357,14 @@
         this.pageIndex = 1
         this.getDataList()
       },
-      // 结束时间改变
+      // 改变结束时间
       changeEnd () {
+        if (this.dataForm.startDate === null || this.dataForm.startDate === '') {
+          this.$cookie.set('jxstartDate', '')
+        } else {
+          this.$cookie.set('jxstartDate', moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD'))
+        }
+        console.log(this.$cookie.get('jxstartDate'))
         this.pickerOptionsEnd = Object.assign({}, this.pickerOptionsEnd, {
           disabledDate: (time) => {
             return time.getTime() < this.dataForm.startDate
@@ -437,20 +460,23 @@
       },
       // 作业任务单打印
       printWorkHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         this.$router.push({path: '/project-printwork', query: {projectNo: item.projectNo}})
       },
-      // 任务流程单打印
+      // 质检单打印
       printCheckHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         this.$router.push({path: '/project-printcheck', query: {projectNo: item.projectNo}})
       },
       // 任务流程单打印
       printProjectHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
         this.$router.push({path: '/project-printproject', query: {projectNo: item.projectNo}})
       },
       // 编辑质量检查
       editQualityHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        if (item.scheduleRate < 90) {
+        if (item.isWork !== 1) {
           this.$confirm('当前项目作业未完成, 是否继续质检?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',

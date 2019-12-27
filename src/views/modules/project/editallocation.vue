@@ -1,7 +1,7 @@
 <template>
   <div class="mod-config">
     <el-row :gutter="24">
-      <el-col :span="15">
+      <el-col :span="14">
         <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" style="text-align: left;">
           <el-card class="box-card" >
             <div slot="header" class="clearfix" style="padding: 0">
@@ -36,8 +36,12 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="预计产值:" prop="projectOutput">
-                  <el-input placeholder="产值" type="number" style="max-width: 140px;" v-model="dataForm.projectOutput" @change="countWorkDateHandler" ></el-input>
+                  <el-input placeholder="产值" type="number" style="max-width: 120px;" v-model="dataForm.projectOutput" @change="countWorkDateHandler" ></el-input>
+                  <el-tooltip class="item"  content="产值明细计算" placement="right"  >
+                    <el-button type="primary"  icon="el-icon-s-platform" @click="setProjectOutputHandle()" ></el-button>
+                  </el-tooltip>
                 </el-form-item>
+
               </el-col>
             </el-row>
             <el-row :gutter="24">
@@ -48,14 +52,14 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="质检工期:" prop="projectQualityDate">
-                  <el-input placeholder="质检工期" type="number" style="max-width: 140px;" v-model="dataForm.projectQualityDate" ></el-input>
+                  <el-input placeholder="质检工期" type="number" style="max-width: 120px;" v-model="dataForm.projectQualityDate" ></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
           </el-card>
         </el-form>
       </el-col>
-      <el-col :span="9">
+      <el-col :span="10">
         <el-card class="box-card project_info"  >
           <div slot="header" class="clearfix">
             <span class="span_title">项目基本信息</span>
@@ -85,6 +89,21 @@
           <div v-for="group in this.groupWorkList" :key="group.groupId" class="group_item" v-if="group.checked">
             {{group.groupName}}:占比{{group.outputRate}}%，产值:{{group.projectOutput}}，最短工期:{{group.shortDateTime}}，最长工期:{{group.lastDateTime}}。
           </div>
+        </el-card>
+        <!--预计产值明细表-->
+        <el-card style="margin-top: 10px;">
+          <div slot="header" class="clearfix" style="padding: 0">
+            <span class="span_title">预计产值明细  </span>
+            <span v-if="totalOutPut !== 0" style="color:#00b7ee;">(预计总产值：{{totalOutPut}})</span>
+          </div>
+          <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;">
+            <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" ></el-table-column>
+            <el-table-column prop="unit" header-align="center" align="center"  label="量单位" ></el-table-column>
+            <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
+            <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" ></el-table-column>
+            <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" ></el-table-column>
+            <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" ></el-table-column>
+          </el-table>
         </el-card>
       </el-col>
     </el-row>
@@ -118,6 +137,58 @@
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
     </div>
+
+    <!--产值明细计算-->
+    <el-dialog title="产值明细计算" :visible.sync="outputCalVisible" width="70%" :close-on-click-modal="false">
+      <el-row :gutter="24" class="card_work">
+        <el-col :span="8">
+          <el-card class="box-card"  >
+            <div slot="header" class="clearfix">
+              <span style="font-size: 13px;">项目类型：</span>
+              <el-select  v-model="ptValue" multiple collapse-tags style="width: 75%;" @change="projectTypeChangeHandler()" >
+                <el-option v-for="item in projectTypelist" :label="item.name" :key="item.id" :value="item.id"  ></el-option>
+              </el-select>
+            </div>
+            <div class="left_work">
+              <el-checkbox
+                v-for="(workType, index) in workTypelist"
+                :key="index"
+                :label="workType.typeName"
+                v-model="workType.checked"
+                v-if="workType.isVisible"
+                @change="checkOutputVoInit"
+                class="checkbox_class"
+              ></el-checkbox>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="16">
+          <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;">
+            <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="120"></el-table-column>
+            <el-table-column prop="unit" header-align="center" align="center"  label="工作量单位" width="110"></el-table-column>
+            <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
+            <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" width="110">
+              <template slot-scope="scope">
+                <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectRatio" @change="checkOutputVoInit" ></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" width="110">
+              <template slot-scope="scope">
+                <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.workLoad" @change="checkOutputVoInit"></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>
+          </el-table>
+          <div>
+            <span style="color: #00b7ee">预计总产值：{{totalOutPut}}</span>
+          </div>
+        </el-col>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="outputCalVisible = false"  plain>返回</el-button>
+        <el-button @click="putProjectOutputToApiHandle"  type="primary">确定</el-button>
+      </span>
+    </el-dialog>
     <!-- 弹窗, 新增 / 修改  项目组-->
     <projectgroup-add-or-update v-if="projectGroupVisible" ref="projectgroupAddOrUpdate" @refreshDataList="init"></projectgroup-add-or-update>
   </div>
@@ -133,6 +204,8 @@
       return {
         projectNo: this.$route.query.projectNo,
         projectGroupVisible: false,
+        ptValue: [],
+        outputCalVisible: false, // 产值明细计算
         projectInfo: '',
         dataForm: {
           executeStandard: '',
@@ -184,7 +257,11 @@
         worknoteValue: '',
         workrequireList: [],   // 作业要求列表
         workrequireValue: '',
-        groupWorkList: []  // 作业分组情况
+        groupWorkList: [],  // 作业分组情况
+
+        projectTypelist: [],  // 项目类型列表
+        workTypelist: [],     // 工作类型列表
+        totalOutPut: 0    // 预计总产值计算数值
       }
     },
     components: {
@@ -203,6 +280,9 @@
         this.getProjectDataCoe()
         this.getInfoByProjectNo(this.projectNo)  // 获取项目基本信息
         this.getGroupByProjectNo(this.projectNo) // 获取项目分组情况
+        this.getWorkTypelist(this.projectNo).then(success => {
+          this.checkOutputVoInit()
+        })
         this.dataForm.projectBegunDateTime = moment(new Date()).format('YYYY-MM-DD')
         // this.getProjectCharge(this.projectNo)  // 获取项目负责人
       },
@@ -482,6 +562,158 @@
           })
         })
       },
+      // 获取项目类型列表
+      getProjectTypelist () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/set/projecttype/getProjectTypelist`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.projectTypelist = []
+              this.projectTypelist.push({id: 0, name: '全部'})
+              console.log(this.projectTypelist)
+              for (let item of data.list) {
+                this.projectTypelist.push({id: item.id, name: item.name})
+              }
+              resolve(data.projectTypelist)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取工作类型列表
+      getWorkTypelist (projectNo) {
+        console.log(projectNo)
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/checkoutputtemp/list`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'projectNo': projectNo
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.workTypelist = data.list
+              resolve(data.workTypelist)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 工作类型可见或不可见
+      workTypeInit () {
+        for (let workType of this.workTypelist) {
+          workType.isVisible = false
+          // 工作类型 不属于 任意项目则设为 可见
+          if (workType.projectTypeIdList.length === 0) {
+            workType.isVisible = true
+          } else {
+            for (let ptypeId of workType.projectTypeIdList) {
+              for (let ptvalue of this.ptValue) {
+                if (ptvalue === ptypeId) workType.isVisible = true
+              }
+            }
+          }
+        }
+      },
+      // 项目类型改变
+      projectTypeChangeHandler () {
+        console.log(this.ptValue)
+        for (let ptvalue of this.ptValue) {
+          // 选择全部项目时
+          if (ptvalue === 0) {
+            this.ptValue = []
+            for (let pw of this.projectTypelist) if (pw.id !== 0) this.ptValue.push(pw.id)
+            break
+          }
+        }
+        this.workTypeInit()
+        this.checkOutputVoInit()
+      },
+      // 产值明细计算
+      setProjectOutputHandle () {
+        this.ptValue = []
+        this.totalOutPut = 0
+        this.getProjectTypelist().then(success => {
+          this.getWorkTypelist(this.projectNo).then(success => {
+            let ptType = this.projectInfo.projectType.split(',')
+            console.log(ptType)
+            for (let pt of this.projectTypelist) {
+              for (let type of ptType) {
+                if (pt.name === type) {
+                  this.ptValue.push(pt.id)
+                }
+              }
+            }
+            this.workTypeInit()
+            this.checkOutputVoInit()
+          })
+        })
+        this.outputCalVisible = true
+      },
+      // 提交 预算产值明细
+      putProjectOutputToApiHandle () {
+        this.outputCalVisible = false
+        this.$http({
+          url: this.$http.adornUrl(`/project/checkoutputtemp/save`),
+          method: 'post',
+          data: this.$http.adornData({
+            'projectNo': this.projectNo,
+            'tempOutputlist': this.workTypelist
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.dataForm.projectOutput = this.totalOutPut
+            this.countWorkDateHandler()
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
+      // 工作类型在表格勾选显示
+      chooseRatio (params) {
+        //  console.log(params)
+        let temp = []
+        params.forEach(e => {
+          if (e.checked) {
+            e.typeOutput = this.numFilter(
+              e.workLoad * e.projectRatio * e.unitOutput
+            )
+            if (e.projectRatio == null || e.workLoad == null) {
+              e.projectRatio = 1
+              e.workLoad = 0
+            }
+            temp.push(e)
+          }
+        })
+        return temp
+      },
+      // 根据工作类型可见不可见 来显示右侧工作组工作类型数据
+      checkOutputVoInit () {
+        let totalOutPut = 0
+        let worktypeList = this.workTypelist
+        worktypeList.forEach((ele, index) => {
+          if (ele.checked) {
+            ele.typeOutput = parseFloat((ele.projectRatio * ele.unitOutput * ele.workLoad).toFixed(2))
+            totalOutPut = parseFloat((totalOutPut + ele.typeOutput).toFixed(2))
+          }
+        })
+        this.workTypelist = worktypeList
+        this.totalOutPut = totalOutPut
+      },
+      // 保留小数点后两位的过滤器，尾数不四舍五入
+      numFilter (value) {
+        // 截取当前数据到小数点后三位
+        let tempVal = parseFloat(value).toFixed(3)
+        let realVal = tempVal.substring(0, tempVal.length - 1)
+        return realVal
+      },
       // 返回
       goBack () {
         console.log('goBack')
@@ -546,5 +778,23 @@
 
   .el-select-dropdown{
     max-width: 243px;
+  }
+  .el-checkbox+.el-checkbox {
+    margin-left: 00px;
+  }
+  .left_work{
+    border: 1px solid #6f7180;
+    text-align: left;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 400px;
+  }
+  .checkbox_class{
+    width: 99%;
+    margin-left: 0;
+  }
+  .card_work{
+    margin-top: 20px;
+    font-size: 16px;
   }
 </style>

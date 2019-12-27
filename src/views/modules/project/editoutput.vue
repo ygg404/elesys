@@ -49,7 +49,10 @@
         <div v-for="(groupOutput,index) in outPutGroupList" v-if="groupOutput.checked">
           <el-card>
             <div slot="header" class="clearfix">
-              <el-radio :label="groupOutput.groupId"><span class="group_card">{{groupOutput.groupName}}</span></el-radio>
+              <el-radio :label="groupOutput.groupId">
+                <span class="group_card">{{groupOutput.groupName}}</span>
+                <span>(队长：{{groupOutput.headMan}})</span>
+              </el-radio>
             </div>
             <el-table :data="chooseRatio(groupOutput.checkOutputVoList)" border  style="width: 100%;">
               <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="150"></el-table-column>
@@ -68,7 +71,8 @@
               <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>
             </el-table>
             <div span class="font_card">
-              <span>预计产值：{{groupOutput.projectOutput}}。</span>
+              <span>预计产值：{{groupOutput.projectOutput}}</span>
+              <span>（预计占比：{{groupOutput.outputRate}}%）。  </span>
               <span>实际产值：{{groupOutput.projectActuallyOutput}}。</span>
             </div>
           </el-card>
@@ -76,6 +80,7 @@
         </el-radio-group>
       </el-col>
     </el-row>
+
 
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
@@ -156,7 +161,6 @@
       },
       // 根据工作类型可见不可见 来显示右侧工作组工作类型数据
       checkOutputVoInit () {
-        console.log('init')
         this.leftData = []
         this.totalOutPut = 0
         this.outPutGroupList.forEach((e, index) => {
