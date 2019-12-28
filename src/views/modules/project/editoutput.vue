@@ -284,7 +284,7 @@
       postCutoffTimeToApi(){
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl(`/project/quality/save`),
+            url: this.$http.adornUrl(`/project/quality/cutOffTimesave`),
             method: 'post',
             data: this.$http.adornData({
               'projectNo': this.projectNo,

@@ -33,34 +33,33 @@
         </el-form-item>
       </el-form>
       <el-table :data="dataList" border v-loading="dataListLoading" @sort-change="changeSort" style="width: 100%;">
-        <el-table-column prop="projectNo" header-align="center" align="center" width="120" label="项目编号" sortable
+        <el-table-column prop="projectNo" header-align="center" align="center" width="120" label="项目编号" sortable="custom"
                          :sort-orders="['descending','ascending']"></el-table-column>
         <el-table-column prop="projectName" header-align="center" align="left" label="项目名称"
                          :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位"
                          :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人"
-                         width="120"></el-table-column>
-        <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="85">
+        <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" width="120" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
+        <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="105" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.projectStatus === 0" size="small" type="primary">启动</el-tag>
             <el-tag v-else-if="scope.row.projectStatus === 1" size="small" type="danger">暂停</el-tag>
           </template>
         </el-table-column>
-        <el-table-column :key="Math.random()"  prop="isPlan" header-align="center" align="center" label="安排情况" width="85" v-if="roleradio===1">
+        <el-table-column key="a"  prop="isPlan" header-align="center" align="center" label="安排情况" width="105" v-if="roleradio===1" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.isPlan == 1" size="small" type="success">已安排</el-tag>
             <el-tag  v-if="scope.row.isPlan != 1" size="small" type="info">未安排</el-tag>
           </template>
         </el-table-column>
-        <el-table-column :key="Math.random()"  prop="isWork" header-align="center" align="center" label="作业情况" width="85" v-if="roleradio===2">
+        <el-table-column key="b"  prop="isWork" header-align="center" align="center" label="作业情况" width="105" v-if="roleradio===2" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope" >
             <el-tag v-if="scope.row.isWork === 1" size="small" type="success">已作业</el-tag>
             <el-tag v-else-if="scope.row.isWork === 2" size="small" type="danger">返修中</el-tag>
             <el-tag v-else size="small" type="info">未作业</el-tag>
           </template>
         </el-table-column>
-        <el-table-column :key="Math.random()"  prop="isCheck" header-align="center" align="center" label="质检情况" width="90" v-if="roleradio===3">
+        <el-table-column key="c"  prop="isCheck" header-align="center" align="center" label="质检情况" width="105" v-if="roleradio===3" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope" >
             <el-tag v-if="scope.row.isCheck == 1" size="small" type="success">已质检</el-tag>
             <el-tag v-else-if="scope.row.isCheck === 2" size="small" type="danger">返修中</el-tag>
@@ -68,19 +67,19 @@
             <el-tag v-else size="small" type="info">未质检</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="isOutput" header-align="center" align="center" label="核算情况" width="85" v-if="roleradio===4">
+        <el-table-column key="d" prop="isOutput" header-align="center" align="center" label="核算情况" width="105" v-if="roleradio===4" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.isOutput == 1" size="small" type="success">已核算</el-tag>
             <el-tag v-if="scope.row.isOutput != 1" size="small" type="info">未核算</el-tag>
           </template>
         </el-table-column>
-        <el-table-column :key="Math.random()"  prop="isAuthorize" header-align="center" align="center" label="审核情况" width="85" v-if="roleradio===5">
+        <el-table-column key="e"  prop="isAuthorize" header-align="center" align="center" label="审核情况" width="105" v-if="roleradio===5" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.isAuthorize === 1" size="small" type="success">已审核</el-tag>
             <el-tag v-else size="small" type="info">未审核</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="scheduleRate" header-align="center" align="center" width="120" label="项目进度">
+        <el-table-column prop="scheduleRate" header-align="center" align="center" width="120" label="项目进度" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <!--是作业人员则添加 进度-->
             <div v-if="roleradio==2 && scope.row.isCharge == 1" @click="setScheduleHandle(scope.row)">
@@ -307,7 +306,11 @@
           default:
             this.dataForm.order = 'desc'
         }
-        this.dataForm.sidx = 'id'
+        if (val.prop === 'projectNo') {
+          this.dataForm.sidx = 'id'
+        } else {
+          this.dataForm.sidx = val.prop
+        }
         this.getDataList()
       },
       // 获取数据列表
