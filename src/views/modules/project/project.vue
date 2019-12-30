@@ -33,12 +33,29 @@
         </el-form-item>
       </el-form>
       <el-table :data="dataList" border v-loading="dataListLoading" @sort-change="changeSort" style="width: 100%;">
-        <el-table-column prop="projectNo" header-align="center" align="center" width="120" label="项目编号" sortable="custom"
-                         :sort-orders="['descending','ascending']"></el-table-column>
-        <el-table-column prop="projectName" header-align="center" align="left" label="项目名称"
-                         :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位"
-                         :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column prop="projectNo" header-align="center" align="center" width="120" label="项目编号" sortable="custom" :sort-orders="['descending','ascending']">
+          <template slot-scope="scope">
+            <el-popover placement="right" width="240" trigger="hover" >
+              <div style="background-color:#f0f0f0;color: #00a0e9;border:1px solid #5daf34">
+                <div >项目编号：{{scope.row.projectNo}}</div>
+                <div >项目启动时间：{{scope.row.projectStartDateTime  == null?'-':scope.row.projectStartDateTime}}</div>
+                <div >项目开工时间：{{scope.row.projectBegunDateTime  == null?'-':scope.row.projectBegunDateTime}}</div>
+                <div >作业完成时间：{{scope.row.wFinishDateTime == null?'-':scope.row.wFinishDateTime}}</div>
+                <div >质检完成时间：{{scope.row.qFinishDateTime == null?'-':scope.row.qFinishDateTime}}</div>
+                <div >结算时间：{{scope.row.cutOffTime == null?'-':scope.row.cutOffTime.substring(0,7)}}</div>
+                <div >作业工期：{{scope.row.projectWorkDate == null?'-':scope.row.projectWorkDate}}</div>
+                <div >质检工期：{{scope.row.projectQualityDate == null?'-':scope.row.projectQualityDate}}</div>
+                <div :style="scope.row.backDateNum>0?'color:red':''">返修天数：{{scope.row.backDateNum == null?'-':scope.row.backDateNum}}</div>
+                <div :style="scope.row.woverTime>0?'color:red':''">作业超时天数：{{scope.row.woverTime == null?'-':scope.row.woverTime}}</div>
+                <div :style="scope.row.qoverTime>0?'color:red':''">质检超时天数：{{scope.row.qoverTime == null?'-':scope.row.qoverTime}}</div>
+              </div>
+              <span slot="reference" style="cursor: pointer">{{scope.row.projectNo}}</span>
+            </el-popover>
+
+          </template>
+        </el-table-column>
+        <el-table-column prop="projectName" header-align="center" align="left" label="项目名称" :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" width="120" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
         <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="105" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
@@ -337,6 +354,33 @@
           if (data && data.code === 0) {
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
+            // 计算 质检 和 作业超时时间
+            for (let data of this.dataList) {
+              data.backDateNum = data.backDateNum === null ? 0 : data.backDateNum
+              // 开工时间为空
+              if (data.projectBegunDateTime == null) {
+                data.woverTime = null
+                data.qoverTime = null
+              } else if (data.isPlan === 1) {   // 项目已经安排
+                // 作业时间为空 工作时间 为当前时间
+                if (data.wFinishDateTime === null) {
+                  let woverTime = parseInt((new Date() - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate + data.backDateNum)
+                  data.woverTime = woverTime < 0 ? 0 : woverTime
+                  data.qoverTime = null
+                } else {
+                  let woverTime = parseInt((new Date(data.wFinishDateTime) - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate + data.backDateNum)
+                  data.woverTime = woverTime < 0 ? 0 : woverTime
+                  // 质检时间为空 质检时间 为当前时间
+                  if (data.qFinishDateTime === null) {
+                    let qoverTime = parseInt((new Date() - new Date(data.wFinishDateTime)) / (24 * 60 * 60 * 1000) - data.projectQualityDate)
+                    data.qoverTime = qoverTime < 0 ? 0 : qoverTime
+                  } else {
+                    let qoverTime = parseInt((new Date(data.qFinishDateTime) - new Date(data.wFinishDateTime)) / (24 * 60 * 60 * 1000) - data.projectQualityDate)
+                    data.qoverTime = qoverTime < 0 ? 0 : qoverTime
+                  }
+                }
+              }
+            }
           } else {
             this.dataList = []
             this.totalPage = 0

@@ -11,22 +11,22 @@
       <el-table-column prop="headMan" header-align="center" align="center" width="120" label="队长" ></el-table-column>
       <el-table-column prop="outputRate" header-align="center" align="center" width="120" label="占比(%)" >
         <template slot-scope="scope">
-          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.outputRate" @change="addRate(scope.row)"></el-input>
+          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.outputRate" @change="addRate(scope.row)" min="0"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="projectOutput" header-align="center" align="center" label="产值" >
         <template slot-scope="scope">
-          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectOutput" @change="addOutPut(scope.row)"></el-input>
+          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectOutput" @change="addOutPut(scope.row)" min="0" ></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="shortDateTime" header-align="center" align="center" label="最短工期" >
         <template slot-scope="scope">
-          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.shortDateTime"></el-input>
+          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.shortDateTime" min="0"></el-input>
         </template>
       </el-table-column>
       <el-table-column prop="lastDateTime" header-align="center" align="center" label="最长工期" >
         <template slot-scope="scope">
-          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.lastDateTime"></el-input>
+          <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.lastDateTime" min="0"></el-input>
         </template>
       </el-table-column>
     </el-table>

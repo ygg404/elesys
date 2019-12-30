@@ -36,7 +36,7 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="预计产值:" prop="projectOutput">
-                  <el-input placeholder="产值" type="number" style="max-width: 120px;" v-model="dataForm.projectOutput" @change="countWorkDateHandler" ></el-input>
+                  <el-input placeholder="产值" type="number" style="max-width: 120px;" v-model="dataForm.projectOutput" @change="countWorkDateHandler" min="0" ></el-input>
                   <el-tooltip class="item"  content="产值明细计算" placement="right"  >
                     <el-button type="primary"  icon="el-icon-s-platform" @click="setProjectOutputHandle()" ></el-button>
                   </el-tooltip>
@@ -47,12 +47,12 @@
             <el-row :gutter="24">
               <el-col :span="12">
                 <el-form-item label="作业工期    :" prop="projectWorkDate">
-                  <el-input placeholder="作业工期" type="number" style="max-width: 140px;" v-model="dataForm.projectWorkDate" ></el-input>
+                  <el-input placeholder="作业工期" type="number" style="max-width: 140px;" v-model="dataForm.projectWorkDate" min="0"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="质检工期:" prop="projectQualityDate">
-                  <el-input placeholder="质检工期" type="number" style="max-width: 120px;" v-model="dataForm.projectQualityDate" ></el-input>
+                  <el-input placeholder="质检工期" type="number" style="max-width: 120px;" v-model="dataForm.projectQualityDate" min="0"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
