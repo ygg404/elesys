@@ -529,7 +529,7 @@
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
+            this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo,isCheck: item.isCheck}})
           })
         } else {
           this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo, isCheck: item.isCheck}})

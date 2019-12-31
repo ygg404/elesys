@@ -110,7 +110,7 @@
           backNote: ''
         },  // 返修意见
         repairRule: {
-          repairNote: [
+          backNote: [
             { required: true, message: '返修意见不能为空', trigger: 'blur' }
           ]
         }
