@@ -86,7 +86,7 @@
           // xhr.setRequestHeader('token', Vue.cookie.get('token'))
           // xhr.setRequestHeader('Access-Control-Allow-Origin', '*')
           // // 设置响应类型为 blob
-          // xhr.responseType = 'blob'
+          // xhr.responseType = 'arraybuffer'
           // // 关键部分
           // xhr.onload = function (e) {
           //   // 如果请求执行成功

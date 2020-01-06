@@ -66,16 +66,30 @@
             <el-col :span="22">
               <table style="width:100%;margin:0 auto" border="1" cellspacing="0">
                 <tr><th>检查内容</th><th>检查类型</th><th>检查结果</th><th>错漏数量A类</th><th>错漏数量B类</th><th>错漏数量C类</th><th>错漏数量D类</th><th>检查项扣分</th></tr>
-                <tr><td colspan="8">空间基准质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></td></tr>
+                <!--19年检查项-->
+                <tr v-if="preShow"><td colspan="8">空间基准质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 0 & item.typeId < 4">
                   <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
-                <tr><td colspan="8">采集、定处理质量(权:0.4) <span class="from_span">质量元素扣分: <span style="color: red">{{cjScore}}</span></span></td></tr>
+                <tr v-if="preShow"><td colspan="8">采集、定处理质量(权:0.4) <span class="from_span">质量元素扣分: <span style="color: red">{{cjScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 4 & item.typeId < 10">
                   <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
-                <tr><td colspan="8">成果质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{cgScore}}</span></span></td></tr>
-                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 10">
+                <tr v-if="preShow"><td colspan="8">成果质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{cgScore}}</span></span></td></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 10 & item.typeId <= 15">
+                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                </tr>
+                <!--20年检查项-->
+                <tr v-if="nextShow"><td colspan="8">作业依据、空间基准及数学精度(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{zcScore}}</span></span></td></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId > 15 & item.typeId < 22">
+                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                </tr>
+                <tr v-if="nextShow"><td colspan="8">数据采集、处理质量(权:0.4) <span class="from_span">质量元素扣分: <span style="color: red">{{dcScore}}</span></span></td></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 22 & item.typeId < 34">
+                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                </tr>
+                <tr v-if="nextShow"><td colspan="8">成果资料质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{gcScore}}</span></span></td></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 34 & item.typeId < 43">
                   <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
               </table>
@@ -119,7 +133,9 @@
   export default {
     data () {
       return {
-        checkcontent: ['坐标系统、高程系统的正确性',
+        checkcontent: [
+          // 19年检查内容
+          '坐标系统、高程系统的正确性',
           '投影参数、转换参数的正确性',
           '起算数据及选用的正确性、可靠性',
           '控制测量成果',
@@ -133,13 +149,45 @@
           '表格表达质量',
           '计算质量',
           '技术文档表达质量',
-          '资料完整性、规范性'],  // 检查内容
+          '资料完整性、规范性',
+          // 20年检查内容
+          '作业依据、原始资料（含行政审批资料）使用的正确性、有效性',
+          '平面、高程基准（包括投影、转换参数）',
+          '平面坐标精度',
+          '相对位置（或边长）精度',
+          '高程精度',
+          '其他',
+          '仪器及其使用的符合性',
+          '作业内容、范围的符合性',
+          '作业记录的规范性',
+          '作业记录的正确性、完整性',
+          '作业内容（要素、数据）错误情况',
+          '作业内容（要素、数据）缺漏情况',
+          '属性（定性、分类）错误情况',
+          '属性（定性、分类）缺漏情况',
+          '图面符号、线划、色彩表达的正确性',
+          '图面注记内容及大小的正确性',
+          '平差计算过程及结果正确性',
+          '其他',
+          '图面表达清晰性（符号、注记叠压等）',
+          '成果表的清晰、完整、正确性',
+          '技术文档内容的完整性',
+          '技术文档内容的正确性、标准规范符合性',
+          '图、文（表）一致性',
+          '资料规整性（字体、大小、格式、页码、纸张大小）',
+          '成果资料的齐全性'
+        ],
         projectInfo: '',
         backWorkList: [],
         kjScore: 0, // 空间扣分
         cjScore: 0,   // 采集扣分
         cgScore: 0,  // 成果质量扣分
-        scoreDetailList: [] // 评分明细
+        zcScore: 0,   // 作业依据扣分
+        dcScore: 0,   // 数据采集扣分
+        gcScore: 0,   // 成果表扣分
+        scoreDetailList: [], // 评分明细
+        preShow: false, // 19年检查显示
+        nextShow: true  // 20年检查显示
       }
     },
     mounted () {
@@ -159,9 +207,6 @@
         this.kjScore = 0
         this.cjScore = 0
         this.cgScore = 0
-        let kjShow = false
-        let cjShow = false
-        let cgShow = false
         datalist.forEach((item, index) => {
           item.kjShow = false
           item.cjShow = false
@@ -171,26 +216,37 @@
             + (item.checkB === '' ? 0 : item.checkB * 12)
             + (item.checkC === '' ? 0 : item.checkC * 4)
             + (item.checkD === '' ? 0 : item.checkD * 1)
+          // 19年 检查项
           if (item.typeId >= 0 && item.typeId < 4) {
             this.kjScore += item.score
-            if (!kjShow) {
-              kjShow = true
-              item.kjShow = true
-            }
+            this.preShow = true
+            this.nextShow = false
           }
           if (item.typeId >= 4 && item.typeId < 10) {
             this.cjScore += item.score
-            if (!cjShow) {
-              cjShow = true
-              item.cjShow = true
-            }
+            this.preShow = true
+            this.nextShow = false
           }
-          if (item.typeId >= 10) {
+          if (item.typeId >= 10 && item.typeId < 16) {
             this.cgScore += item.score
-            if (!cgShow) {
-              cgShow = true
-              item.cgShow = true
-            }
+            this.preShow = true
+            this.nextShow = false
+          }
+          // 20年 检查项
+          if (item.typeId > 15 && item.typeId < 22) {
+            this.zcScore += item.score
+            this.preShow = false
+            this.nextShow = true
+          }
+          if (item.typeId >= 22 && item.typeId < 34) {
+            this.dcScore += item.score
+            this.preShow = false
+            this.nextShow = true
+          }
+          if (item.typeId >= 34 && item.typeId < 43) {
+            this.gcScore += item.score
+            this.preShow = false
+            this.nextShow = true
           }
         })
 
