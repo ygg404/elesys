@@ -26,6 +26,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="orderNum" header-align="center" align="center" label="排序号" width="80"></el-table-column>
+      <el-table-column prop="isValid" header-align="center" align="center" label="是否有效" width="80">
+        <template slot-scope="scope"><el-switch v-model="scope.row.validFlag" @change="validSwitchHandle(scope.row)"></el-switch></template>
+      </el-table-column>
       <el-table-column prop="url" header-align="center" align="center" :show-overflow-tooltip="true" label="菜单URL"></el-table-column>
       <el-table-column prop="perms" header-align="center" align="center"  :show-overflow-tooltip="true" label="授权标识"></el-table-column>
       <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
@@ -87,6 +90,26 @@
             // that.expandAll()
           })
         })
+      },
+      // 修改菜单有效标志位
+      validSwitchHandle (item) {
+        this.$http({
+              url: this.$http.adornUrl('/sys/menu/update'),
+              method: 'post',
+              data: this.$http.adornData({
+                'menuId': item.menuId,
+                'type': item.type,
+                'name': item.name,
+                'parentId': item.parentId,
+                'url': item.url,
+                'perms': item.perms,
+                'orderNum': item.orderNum,
+                'validFlag': item.validFlag
+              })
+            }).then(({data}) => {
+              if (data && data.code === 0) {
+              }
+          })
       },
       // 新增 / 修改
       addOrUpdateHandle (id) {

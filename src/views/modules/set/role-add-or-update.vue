@@ -7,7 +7,7 @@
       <el-form-item label="角色名称" prop="roleName">
         <el-input v-model="dataForm.roleName" placeholder="角色名称"></el-input>
       </el-form-item>
-  
+
       <el-form-item size="mini" label="授权">
         <el-tree
           :data="menuList"
@@ -54,7 +54,7 @@
       init (id) {
         this.dataForm.id = id || 0
         this.$http({
-          url: this.$http.adornUrl('/sys/menu/list'),
+          url: this.$http.adornUrl('/sys/menu/validlist'),
           method: 'get',
           params: this.$http.adornParams()
         }).then(({data}) => {
