@@ -478,6 +478,11 @@
           this.$message.error('当前项目已作业完成，无法添加进度！')
           return
         }
+        // 项目质检已提交，就无法提交进度
+        if (item.isCheck === 1) {
+          this.$message.error('当前项目已质检完成，无法添加进度！')
+          return
+        }
         this.projectscheduleVisible = true
         this.$nextTick(() => {
           this.$refs.projectscheduleAddOrUpdate.init(item)

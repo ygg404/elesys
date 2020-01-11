@@ -33,7 +33,7 @@
       return {
         loading: false,
         dataForm: {
-          userName: '',
+          userAccount: '',
           password: '',
           uuid: '',
           captcha: ''
