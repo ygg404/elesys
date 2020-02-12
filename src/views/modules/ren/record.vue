@@ -1,0 +1,291 @@
+<template>
+  <div class="mod-config">
+    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+      <el-form-item>
+        <el-input v-model="dataForm.key" placeholder="用户名" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="getDataList()">查询</el-button>
+      </el-form-item>
+    </el-form>
+    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">
+      <el-table-column type="expand" >
+        <template slot-scope="scope">
+          <el-card>
+            <div slot="header" class="clearfix">
+              <span class="card_head">详细资料</span>
+            </div>
+            <div>
+              <el-row>
+                <el-col :span="16">
+                  <el-row>
+                    <el-col :span="12"><span class="card_detail_span">姓名：</span><span class="card_detail_content">{{scope.row.username}}</span></el-col>
+                    <el-col :span="12"><span class="card_detail_span">出生日期：</span><span class="card_detail_content">{{scope.row.birthday}}</span></el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="12"><span class="card_detail_span">工作类型：</span>
+                      <el-tag v-if="scope.row.jobType === 1"  type="primary">全职</el-tag>
+                      <el-tag v-else-if="scope.row.jobType === 2"  type="success">兼职</el-tag>
+                    </el-col>
+                    <el-col :span="12"><span class="card_detail_span">身份证号：</span><span class="card_detail_content">{{scope.row.idNo}}</span></el-col>
+                  </el-row>
+                  <el-row >
+                    <el-col :span="12"><span class="card_detail_span">籍贯：</span><span class="card_detail_content">{{scope.row.nativeProvince}}{{scope.row.nativeCity}}</span></el-col>
+                    <el-col :span="12"><span class="card_detail_span">婚姻状况：</span>
+                      <span class="card_detail_content">
+                        <el-tag v-if="scope.row.maritalStatus === 0" type="success" >未婚</el-tag>
+                        <el-tag v-else-if="scope.row.maritalStatus === 1"  type="primary">已婚</el-tag>
+                        <el-tag v-else-if="scope.row.maritalStatus === 2"  type="warning">离异</el-tag>
+                        <el-tag v-else-if="scope.row.maritalStatus === 3"  type="danger">丧偶</el-tag>
+                      </span>
+                    </el-col>
+                  </el-row>
+                  <el-row >
+                    <el-col :span="12"><span class="card_detail_span">最高学历：</span>
+                      <span class="card_detail_content">
+                        <el-tag v-if="scope.row.education === 0"  >无</el-tag>
+                        <el-tag v-else-if="scope.row.education === 1"  >小学</el-tag>
+                        <el-tag v-else-if="scope.row.education === 2"  >初中</el-tag>
+                        <el-tag v-else-if="scope.row.education === 3"  >中专/高中/职高</el-tag>
+                        <el-tag v-else-if="scope.row.education === 4"  >专科</el-tag>
+                        <el-tag v-else-if="scope.row.education === 5"  >本科</el-tag>
+                        <el-tag v-else-if="scope.row.education === 6"  >硕士研究生</el-tag>
+                        <el-tag v-else-if="scope.row.education === 7"  >博士研究生</el-tag>
+                      </span>
+                    </el-col>
+                    <el-col :span="12"><span class="card_detail_span">职称等级：</span>
+                      <span class="card_detail_content">
+                        <el-tag v-if="scope.row.titleLever === 0" >无</el-tag>
+                        <el-tag v-else-if="scope.row.titleLever === 1"  type="primary">技术员</el-tag>
+                        <el-tag v-else-if="scope.row.titleLever === 2"  type="warning">助理工程师</el-tag>
+                        <el-tag v-else-if="scope.row.titleLever === 3"  type="danger">中级工程师</el-tag>
+                        <el-tag v-else-if="scope.row.titleLever === 4"  type="danger">高级工程师</el-tag>
+                        <el-tag v-else-if="scope.row.titleLever === 5"  type="danger">正高级工程师</el-tag>
+                      </span>
+                    </el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="12"><span class="card_detail_span">入职时间：</span><span class="card_detail_content">{{scope.row.entryTime }}</span></el-col>
+                    <el-col :span="12"><span class="card_detail_span">试用期：</span><span class="card_detail_content">{{scope.row.trialPeriod}} 个月 </span></el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="12"><span class="card_detail_span">邮箱：</span><span class="card_detail_content">{{scope.row.email}}</span></el-col>
+                    <el-col :span="12"><span class="card_detail_span">手机号：</span><span class="card_detail_content">{{scope.row.mobile}}</span></el-col>
+                  </el-row>
+                </el-col>
+                <el-col :span="8"><img :src="scope.row.headImg"  class="card_detail_img" /></el-col>
+              </el-row>
+              <el-row class="card_table_title"><span >教育背景</span></el-row>
+              <el-row>
+                <el-table border :data="scope.row.educationList">
+                  <el-table-column prop="createTime" header-align="center" align="center" label="学历" ></el-table-column>
+                  <el-table-column prop="createTime" header-align="center" align="center" label="学校" ></el-table-column>
+                  <el-table-column prop="scheduleRate" header-align="center" align="center" label="专业" ></el-table-column>
+                  <el-table-column prop="scheduleNote" header-align="center" align="center" label="日期"></el-table-column>
+                </el-table>
+              </el-row>
+              <el-row class="card_table_title"><span >工作经历</span></el-row>
+              <el-row>
+                <el-table  border :data="scope.row.educationList">
+                  <el-table-column prop="createTime" header-align="center" align="center" label="企业" ></el-table-column>
+                  <el-table-column prop="createTime" header-align="center" align="center" label="职位" ></el-table-column>
+                  <el-table-column prop="scheduleRate" header-align="center" align="center" label="工作描述" ></el-table-column>
+                  <el-table-column prop="scheduleNote" header-align="center" align="center" label="日期"></el-table-column>
+                </el-table>
+              </el-row>
+            </div>
+          </el-card>
+        </template>
+      </el-table-column>
+      <el-table-column prop="userId" header-align="center" align="center" label="用户id"></el-table-column>
+      <el-table-column prop="useraccount" header-align="center" align="center" label="账号"></el-table-column>
+      <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>
+      <el-table-column prop="headImg" header-align="center" align="center" label="照片">
+        <template slot-scope="scope">
+          <img :src='scope.row.headImg' class="head_image" />
+        </template>
+      </el-table-column>
+      <el-table-column prop="email" header-align="center" align="center" label="邮箱"></el-table-column>
+      <el-table-column prop="mobile" header-align="center" align="center" label="手机号"></el-table-column>
+
+      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+        <template slot-scope="scope">
+          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.userId)">编辑</el-button>
+          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.userId)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      @size-change="sizeChangeHandle"
+      @current-change="currentChangeHandle"
+      :current-page="pageIndex"
+      :page-sizes="[25, 50, 100]"
+      :page-size="pageSize"
+      :total="totalPage"
+      layout="total, sizes, prev, pager, next, jumper">
+    </el-pagination>
+    <!-- 弹窗, 新增 / 修改 -->
+    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+  </div>
+</template>
+
+<script>
+  import AddOrUpdate from './renrecord-add-or-update'
+
+  export default {
+    data () {
+      return {
+        dataForm: {
+          key: '',
+          sidx: 'id',
+          order: 'desc'
+        },
+        dataList: [],
+        pageIndex: 1,
+        pageSize: 25,
+        totalPage: 0,
+        dataListLoading: false,
+        dataListSelections: [],
+        addOrUpdateVisible: false
+      }
+    },
+    components: {
+      AddOrUpdate
+    },
+    activated () {
+      this.getDataList()
+    },
+    methods: {
+      // 排序字段改变
+      changeSort (val) {
+        console.log(val)
+        switch (val.order) {
+          case 'ascending':
+            this.dataForm.order = 'asc'
+            break
+          case 'descending':
+            this.dataForm.order = 'desc'
+            break
+          default:
+            this.dataForm.order = 'desc'
+        }
+        this.dataForm.sidx = val.prop
+        this.getDataList()
+      },
+      // 获取数据列表
+      getDataList () {
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl('/ren/record/page'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'page': this.pageIndex,
+            'limit': this.pageSize,
+            'key': this.dataForm.key,
+            'sidx': this.dataForm.sidx,
+            'order': this.dataForm.order
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.dataList = data.page.list
+            this.totalPage = data.page.totalCount
+            for (let data of this.dataList) {
+              data.headImg = (window.atob(data.headImg))
+            }
+          } else {
+            this.$message.error(data.msg)
+            this.dataList = []
+            this.totalPage = 0
+          }
+          this.dataListLoading = false
+        })
+      },
+      // 每页数
+      sizeChangeHandle (val) {
+        this.pageSize = val
+        this.pageIndex = 1
+        this.getDataList()
+      },
+      // 当前页
+      currentChangeHandle (val) {
+        this.pageIndex = val
+        this.getDataList()
+      },
+      // 多选
+      selectionChangeHandle (val) {
+        this.dataListSelections = val
+      },
+      // 新增 / 修改
+      addOrUpdateHandle (id) {
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(id)
+        })
+      },
+      // 删除
+      deleteHandle (id) {
+        var ids = id ? [id] : this.dataListSelections.map(item => {
+          return item.userId
+        })
+        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/ren/record/delete'),
+            method: 'post',
+            data: this.$http.adornData(ids, false)
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.getDataList()
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      }
+    }
+  }
+</script>
+
+<style scoped>
+  .head_image{
+    height: 55px;
+    width: 55px;
+    border-radius: 45%;
+  }
+  .card_head{
+    font-size: 16pt;
+    font-weight: 700;
+  }
+  .card_detail_span{
+    font-weight: 700;
+    font-size: 12pt;
+  }
+  .card_detail_content{
+    font-size: 12pt;
+  }
+  .card_detail_row{
+    margin-top: 5px;
+  }
+  .card_table_title{
+    border-bottom:2px solid #00a2d4;
+    font-size: 14pt;
+    font-weight: 700;
+    margin-top: 10px;
+  }
+  .card_detail_img{
+    min-width: 180px;
+    min-height: 243px;
+    width: 180px;
+    height: 243px;
+    border: 1px solid #00b7ee;
+    border-radius: 10px;
+  }
+</style>

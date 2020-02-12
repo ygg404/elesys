@@ -2,7 +2,7 @@
   <nav class="site-navbar" :class="'site-navbar--' + navbarLayoutType" >
     <div class="site-navbar__header">
       <h1 class="site-navbar__brand" @click="$router.push({ name: 'home' })">
-        <a class="site-navbar__brand-lg" href="javascript:;">杰信测绘管理系统</a>
+        <a class="site-navbar__brand-lg" href="javascript:;">{{sysName}}</a>
         <a class="site-navbar__brand-mini" href="javascript:;">杰信</a>
       </h1>
     </div>
@@ -18,11 +18,11 @@
         class="site-navbar__menu site-navbar__menu--right"
         mode="horizontal">
         <!--<el-menu-item index="1" @click="$router.push({ name: 'theme' })">-->
-          <!--<template slot="title">-->
-            <!--<el-badge value="new">-->
-              <!--<icon-svg name="shezhi" class="el-icon-setting"></icon-svg>-->
-            <!--</el-badge>-->
-          <!--</template>-->
+        <!--<template slot="title">-->
+        <!--<el-badge value="new">-->
+        <!--<icon-svg name="shezhi" class="el-icon-setting"></icon-svg>-->
+        <!--</el-badge>-->
+        <!--</template>-->
         <!--</el-menu-item>-->
         <el-menu-item class="site-navbar__avatar" index="3">
           <el-dropdown :show-timeout="0" placement="bottom">
@@ -48,11 +48,15 @@
   export default {
     data () {
       return {
+        sysName: '杰信测绘管理系统',
         updatePassowrdVisible: false
       }
     },
     components: {
       UpdatePassword
+    },
+    created () {
+      this.getSysNameHandle()
     },
     computed: {
       navbarLayoutType: {
@@ -71,6 +75,19 @@
       }
     },
     methods: {
+      // 获取系统名称
+      getSysNameHandle () {
+        let param_key = 'sysName'
+        this.$http({
+          url: this.$http.adornUrl(`/sys/config/getNameByKey`),
+          method: 'get',
+          params: this.$http.adornParams({
+            'key': param_key
+          })
+        }).then(({data}) => {
+          this.sysName = data.config.paramValue
+        })
+      },
       // 修改密码
       updatePasswordHandle () {
         this.updatePassowrdVisible = true
