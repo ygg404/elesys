@@ -30,7 +30,9 @@
                     <el-col :span="12"><span class="card_detail_span">身份证号：</span><span class="card_detail_content">{{scope.row.idNo}}</span></el-col>
                   </el-row>
                   <el-row >
-                    <el-col :span="12"><span class="card_detail_span">籍贯：</span><span class="card_detail_content">{{scope.row.nativeProvince}}{{scope.row.nativeCity}}</span></el-col>
+                    <el-col :span="12"><span class="card_detail_span">籍贯：</span>
+                      <span class="card_detail_content" >{{getPlaceName(scope.row.nativeProvince,scope.row.nativeCity)}}</span>
+                    </el-col>
                     <el-col :span="12"><span class="card_detail_span">婚姻状况：</span>
                       <span class="card_detail_content">
                         <el-tag v-if="scope.row.maritalStatus === 0" type="success" >未婚</el-tag>
@@ -77,20 +79,20 @@
               </el-row>
               <el-row class="card_table_title"><span >教育背景</span></el-row>
               <el-row>
-                <el-table border :data="scope.row.educationList">
-                  <el-table-column prop="createTime" header-align="center" align="center" label="学历" ></el-table-column>
-                  <el-table-column prop="createTime" header-align="center" align="center" label="学校" ></el-table-column>
-                  <el-table-column prop="scheduleRate" header-align="center" align="center" label="专业" ></el-table-column>
+                <el-table border :data="scope.row.edBackgroundList">
                   <el-table-column prop="scheduleNote" header-align="center" align="center" label="日期"></el-table-column>
+                  <el-table-column prop="educationBackground" header-align="center" align="center" label="学历" ></el-table-column>
+                  <el-table-column prop="educationSchool" header-align="center" align="center" label="学校" ></el-table-column>
+                  <el-table-column prop="major" header-align="center" align="center" label="专业" ></el-table-column>
                 </el-table>
               </el-row>
               <el-row class="card_table_title"><span >工作经历</span></el-row>
               <el-row>
-                <el-table  border :data="scope.row.educationList">
-                  <el-table-column prop="createTime" header-align="center" align="center" label="企业" ></el-table-column>
-                  <el-table-column prop="createTime" header-align="center" align="center" label="职位" ></el-table-column>
-                  <el-table-column prop="scheduleRate" header-align="center" align="center" label="工作描述" ></el-table-column>
+                <el-table  border :data="scope.row.workBackgroundList">
                   <el-table-column prop="scheduleNote" header-align="center" align="center" label="日期"></el-table-column>
+                  <el-table-column prop="company" header-align="center" align="center" label="企业" ></el-table-column>
+                  <el-table-column prop="jobPosition" header-align="center" align="center" label="职位" ></el-table-column>
+                  <el-table-column prop="jobDescription" header-align="center" align="center" label="工作描述" ></el-table-column>
                 </el-table>
               </el-row>
             </div>
@@ -130,7 +132,8 @@
 </template>
 
 <script>
-  import AddOrUpdate from './renrecord-add-or-update'
+  import AddOrUpdate from './record-add-or-update'
+  import {provinceAndCityData} from 'element-china-area-data'
 
   export default {
     data () {
@@ -146,6 +149,7 @@
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
+        placeOptions: provinceAndCityData,
         addOrUpdateVisible: false
       }
     },
@@ -153,6 +157,7 @@
       AddOrUpdate
     },
     activated () {
+
       this.getDataList()
     },
     methods: {
@@ -249,6 +254,21 @@
             }
           })
         })
+      },
+      // 获取省市名称
+      getPlaceName ( nProvinceId,nCityId) {
+        console.log(this.placeOptions)
+        let pName = ''
+        for (let provinceOption of this.placeOptions) {
+          if (provinceOption.value === nProvinceId) {
+            pName += provinceOption.label
+            for(let cityOption of provinceOption.children){
+              if(cityOption.value === nCityId) pName+= cityOption.label
+            }
+            break
+          }
+        }
+        return pName
       }
     }
   }
@@ -256,8 +276,8 @@
 
 <style scoped>
   .head_image{
-    height: 55px;
-    width: 55px;
+    height: 50px;
+    width: 50px;
     border-radius: 45%;
   }
   .card_head{
