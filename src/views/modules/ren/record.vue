@@ -17,72 +17,188 @@
             </div>
             <div>
               <el-row>
-                <el-col :span="16">
-                  <el-row>
-                    <el-col :span="12"><span class="card_detail_span">姓名：</span><span class="card_detail_content">{{scope.row.username}}</span>
+                <el-col :span="16" style="margin-top:20px;">
+                  <el-row class="card_elrow_margin">
+                    <el-col :span="10">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span" >姓名：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">{{scope.row.username}}</span>
+                        </el-col>
+                      </el-row>
                     </el-col>
-                    <el-col :span="12"><span class="card_detail_span">出生日期：</span><span class="card_detail_content">{{scope.row.birthday}}</span>
-                    </el-col>
-                  </el-row>
-                  <el-row>
-                    <el-col :span="12"><span class="card_detail_span">工作类型：</span>
-                      <el-tag v-if="scope.row.jobType === 1" type="primary">全职</el-tag>
-                      <el-tag v-else-if="scope.row.jobType === 2" type="success">兼职</el-tag>
-                    </el-col>
-                    <el-col :span="12"><span class="card_detail_span">身份证号：</span><span class="card_detail_content">{{scope.row.idNo}}</span>
-                    </el-col>
-                  </el-row>
-                  <el-row>
-                    <el-col :span="12"><span class="card_detail_span">籍贯：</span>
-                      <span class="card_detail_content">{{getPlaceName(scope.row.nativeProvince,scope.row.nativeCity)}}</span>
-                    </el-col>
-                    <el-col :span="12"><span class="card_detail_span">婚姻状况：</span>
-                      <span class="card_detail_content">
-                        <el-tag v-if="scope.row.maritalStatus === 0" type="success">未婚</el-tag>
-                        <el-tag v-else-if="scope.row.maritalStatus === 1" type="primary">已婚</el-tag>
-                        <el-tag v-else-if="scope.row.maritalStatus === 2" type="warning">离异</el-tag>
-                        <el-tag v-else-if="scope.row.maritalStatus === 3" type="danger">丧偶</el-tag>
-                      </span>
+                    <el-col :span="14">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">出生日期：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">{{scope.row.birthday}}</span>
+                        </el-col>
+                      </el-row>
                     </el-col>
                   </el-row>
-                  <el-row>
-                    <el-col :span="12"><span class="card_detail_span">最高学历：</span>
-                      <span class="card_detail_content">
-                        <el-tag v-if="scope.row.education === 0">无</el-tag>
-                        <el-tag v-else-if="scope.row.education === 1">小学</el-tag>
-                        <el-tag v-else-if="scope.row.education === 2">初中</el-tag>
-                        <el-tag v-else-if="scope.row.education === 3">中专/高中/职高</el-tag>
-                        <el-tag v-else-if="scope.row.education === 4">专科</el-tag>
-                        <el-tag v-else-if="scope.row.education === 5">本科</el-tag>
-                        <el-tag v-else-if="scope.row.education === 6">硕士研究生</el-tag>
-                        <el-tag v-else-if="scope.row.education === 7">博士研究生</el-tag>
-                      </span>
+
+                  <el-row class="card_elrow_margin">
+                    <el-col :span="10">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">性别：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <el-tag v-if="scope.row.sex === 1" type="primary">男</el-tag>
+                          <el-tag v-else-if="scope.row.sex === 2" type="warning">女</el-tag>
+                        </el-col>
+                      </el-row>
                     </el-col>
-                    <el-col :span="12"><span class="card_detail_span">职称等级：</span>
-                      <span class="card_detail_content">
-                        <el-tag v-if="scope.row.titleLever === 0">无</el-tag>
-                        <el-tag v-else-if="scope.row.titleLever === 1" >技术员</el-tag>
-                        <el-tag v-else-if="scope.row.titleLever === 2" type="warning">助理工程师</el-tag>
-                        <el-tag v-else-if="scope.row.titleLever === 3" type="success">中级工程师</el-tag>
-                        <el-tag v-else-if="scope.row.titleLever === 4" type="primary">高级工程师</el-tag>
-                        <el-tag v-else-if="scope.row.titleLever === 5" type="danger">正高级工程师</el-tag>
-                      </span>
-                    </el-col>
-                  </el-row>
-                  <el-row>
-                    <el-col :span="12"><span class="card_detail_span">入职时间：</span><span class="card_detail_content">{{scope.row.entryTime }}</span>
-                    </el-col>
-                    <el-col :span="12"><span class="card_detail_span">试用期：</span><span class="card_detail_content">{{scope.row.trialPeriod}} 个月 </span>
+                    <el-col :span="14">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span" >身份证号：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">{{scope.row.idNo}}</span>
+                        </el-col>
+                      </el-row>
                     </el-col>
                   </el-row>
-                  <el-row>
-                    <el-col :span="12"><span class="card_detail_span">邮箱：</span><span class="card_detail_content">{{scope.row.email}}</span>
+
+                  <el-row class="card_elrow_margin">
+                    <el-col :span="10">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">籍贯：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span
+                            class="card_detail_content"
+                          >{{getPlaceName(scope.row.nativeProvince,scope.row.nativeCity)}}</span>
+                        </el-col>
+                      </el-row>
                     </el-col>
-                    <el-col :span="12"><span class="card_detail_span">手机号：</span><span class="card_detail_content">{{scope.row.mobile}}</span>
+
+                    <el-col :span="14">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">婚姻状况：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">
+                            <el-tag v-if="scope.row.maritalStatus === 0" type="success">未婚</el-tag>
+                            <el-tag v-else-if="scope.row.maritalStatus === 1" type="primary">已婚</el-tag>
+                            <el-tag v-else-if="scope.row.maritalStatus === 2" type="warning">离异</el-tag>
+                            <el-tag v-else-if="scope.row.maritalStatus === 3" type="danger">丧偶</el-tag>
+                          </span>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                  </el-row>
+
+                  <el-row class="card_elrow_margin">
+                    <el-col :span="10">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">最高学历：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">
+                            <el-tag v-if="scope.row.education === 0">无</el-tag>
+                            <el-tag v-else-if="scope.row.education === 1">小学</el-tag>
+                            <el-tag v-else-if="scope.row.education === 2">初中</el-tag>
+                            <el-tag v-else-if="scope.row.education === 3">中专/高中/职高</el-tag>
+                            <el-tag v-else-if="scope.row.education === 4">专科</el-tag>
+                            <el-tag v-else-if="scope.row.education === 5">本科</el-tag>
+                            <el-tag v-else-if="scope.row.education === 6">硕士研究生</el-tag>
+                            <el-tag v-else-if="scope.row.education === 7">博士研究生</el-tag>
+                          </span>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+
+                    <el-col :span="14">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">职称等级：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">
+                            <el-tag v-if="scope.row.titleLever === 0">无</el-tag>
+                            <el-tag v-else-if="scope.row.titleLever === 1" type="primary">技术员</el-tag>
+                            <el-tag v-else-if="scope.row.titleLever === 2" type="warning">助理工程师</el-tag>
+                            <el-tag v-else-if="scope.row.titleLever === 3" type="danger">中级工程师</el-tag>
+                            <el-tag v-else-if="scope.row.titleLever === 4" type="danger">高级工程师</el-tag>
+                            <el-tag v-else-if="scope.row.titleLever === 5" type="danger">正高级工程师</el-tag>
+                          </span>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                  </el-row>
+
+                  <el-row class="card_elrow_margin">
+                    <el-col :span="10">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">入职时间：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">{{scope.row.entryTime }}</span>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">试用期：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">{{scope.row.trialPeriod}} 个月</span>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                  </el-row>
+
+                  <el-row class="card_elrow_margin">
+                    <el-col :span="10">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">邮箱：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">{{scope.row.email}}</span>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                    <el-col :span="14">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">手机号：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <span class="card_detail_content">{{scope.row.mobile}}</span>
+                        </el-col>
+                      </el-row>
+                    </el-col>
+                  </el-row>
+                  <el-row class="card_elrow_margin">
+                    <el-col :span="10">
+                      <el-row>
+                        <el-col :span="8">
+                          <span class="card_detail_span">工作类型：</span>
+                        </el-col>
+                        <el-col :span="16">
+                          <el-tag v-if="scope.row.jobType === 1" type="primary">全职</el-tag>
+                          <el-tag v-else-if="scope.row.jobType === 2" type="success">兼职</el-tag>
+                        </el-col>
+                      </el-row>
                     </el-col>
                   </el-row>
                 </el-col>
-                <el-col :span="8"><img :src="scope.row.headImg" class="card_detail_img"/></el-col>
+
+                <el-col :span="8">
+                  <img :src="scope.row.headImg" class="card_detail_img" />
+                </el-col>
               </el-row>
               <el-row class="card_table_title"><span>教育背景</span></el-row>
               <el-row>
@@ -345,8 +461,8 @@
     font-size: 12pt;
   }
 
-  .card_detail_row {
-    margin-top: 5px;
+  .card_elrow_margin{
+    margin-bottom:12px;
   }
 
   .card_table_title {
