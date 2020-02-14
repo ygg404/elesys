@@ -1,7 +1,15 @@
 <template>
   <div class="mod-home">
     <el-card>
-      <h1>个人中心</h1>
+      <div slot="header" class="clearfix">
+        <span class="home_title">个人中心</span>
+        <div style="float: right; ">
+          <el-button type="primary" icon="el-icon-edit" @click="editRecordHandle">编辑个人资料</el-button>
+          <el-button type="primary" icon="el-icon-key" @click="updatePasswordHandle">修改密码</el-button>
+          <el-button type="danger" icon="el-icon-s-home"  @click="logoutHandle">退出</el-button>
+        </div>
+
+      </div>
       <el-row :gutter="20">
         <el-col :span="18">
           <el-row :gutter="20"><el-col :span="4"><span class="span_row">账号：</span></el-col><el-col :span="4"><span class="font_span">{{userDetail.useraccount}}</span></el-col></el-row>
@@ -28,10 +36,6 @@
       </el-row>
     </el-card>
 
-    <div class="bottom_btn">
-      <el-button type="primary" size="large" @click="updatePasswordHandle">修改密码</el-button>
-      <el-button type="danger" size="large" @click="logoutHandle">退出</el-button>
-    </div>
     <!-- 弹窗, 修改密码 -->
     <update-password v-if="updatePassowrdVisible" ref="updatePassowrd"></update-password>
   </div>
@@ -104,6 +108,10 @@
 <style>
   .mod-home {
     line-height: 1.5;
+  }
+  .home_title{
+    font-size: 18pt;
+    font-weight: 700;
   }
   .span_row{
     font-size: 15px;

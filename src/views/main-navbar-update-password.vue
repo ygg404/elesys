@@ -3,7 +3,8 @@
     title="修改密码"
     :visible.sync="visible"
     :append-to-body="true">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px"
+             v-loading="loading" element-loading-text="正在修改密码中...">
       <el-form-item label="用户账号">
         <span>{{ userAccount }}</span>
       </el-form-item>
@@ -40,6 +41,7 @@
       }
       return {
         visible: false,
+        loading: false,
         dataForm: {
           password: '',
           newPassword: '',
@@ -83,6 +85,7 @@
       dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            this.loading = true
             this.$http({
               url: this.$http.adornUrl('/sys/user/password'),
               method: 'post',
@@ -98,6 +101,7 @@
                   duration: 1500,
                   onClose: () => {
                     this.visible = false
+                    this.loading = false
                     this.$nextTick(() => {
                       this.mainTabs = []
                       clearLoginInfo()

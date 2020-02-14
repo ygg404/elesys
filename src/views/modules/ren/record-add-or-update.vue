@@ -1,14 +1,17 @@
 <template>
   <el-dialog width="80%"
-             title="编辑档案" v-loading="loading"
+             :title="'编辑档案  （姓名：' + dataForm.username + '）'"
              :close-on-click-modal="false"
              :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
-             label-width="100px">
+             v-loading="loading" :element-loading-text="loadingtext"  label-width="100px">
       <el-row>
         <el-col :span="14">
-          <el-form-item label="姓名" prop="username">
-            <span>{{dataForm.username}}</span>
+          <el-form-item label="性别" prop="sex">
+            <el-radio-group v-model="dataForm.sex">
+              <el-radio :label="1">男</el-radio>
+              <el-radio :label="2">女</el-radio>
+            </el-radio-group>
           </el-form-item>
           <el-form-item label="身份证号" prop="idNo">
             <el-input v-model="dataForm.idNo" placeholder="身份证号" class="card_detail_input"></el-input>
@@ -190,7 +193,7 @@
   import lrz from 'lrz'
   import recordeductionAddOrUpdate from './recordeducation-add-or-update'
   import recordworkAddOrUpdate from './recordwork-add-or-update'
-  import {getUUID} from "../../../utils";
+  import { getUUID } from "@/utils"
 
   export default {
     data() {
@@ -199,12 +202,14 @@
         recordeductionVisible: false,
         recordworkVisible: false,
         loading: true,
+        loadingtext: '正在加载中',
         maritalItemList: [],
         titleItemList: [],
         educationItemList: [],
         placeOptions: provinceAndCityData,
         dataForm: {
           userId: 0,
+          sex: 1,
           idNo: '',
           birthday: '',
           entryTime: '',
@@ -293,6 +298,7 @@
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
           this.loading = true
+          this.loadingtext = '正在加载中'
           if (this.dataForm.userId) {
             this.$http({
               url: this.$http.adornUrl(`/ren/record/info/${this.dataForm.userId}`),
@@ -303,6 +309,7 @@
               if (data && data.code === 0) {
                 this.dataForm.username = data.renRecordVo.username
                 this.dataForm.idNo = data.renRecordVo.idNo
+                this.dataForm.sex = data.renRecordVo.sex
                 this.dataForm.birthday = data.renRecordVo.birthday
                 this.dataForm.entryTime = data.renRecordVo.entryTime
                 this.dataForm.jobType = data.renRecordVo.jobType
@@ -344,12 +351,15 @@
               wBackground.startDate = wBackground.monthRangeDate[0]
               wBackground.endDate = wBackground.monthRangeDate[1]
             }
+            this.loading = true
+            this.loadingtext = '正在上传中'
             this.$http({
               url: this.$http.adornUrl(`/ren/record/save`),
               method: 'post',
               data: this.$http.adornData({
                 'userId': this.dataForm.userId,
                 'idNo': this.dataForm.idNo,
+                'sex': this.dataForm.sex,
                 'birthday': this.dataForm.birthday,
                 'entryTime': this.dataForm.entryTime,
                 'jobType': this.dataForm.jobType,
@@ -367,6 +377,7 @@
                 'workBackgroundList': this.dataForm.workBackgroundList
               })
             }).then(({data}) => {
+              this.loading = false
               if (data && data.code === 0) {
                 this.$message({
                   message: '操作成功',
@@ -447,7 +458,7 @@
               console.log(rst.base64)
             }).catch(function (error) {
             // 失败时执行
-            that.$message.error('上传有误，请重新上传！')
+            that.$message.error('上传图片有误，请重新上传！')
           }).always(function () {
             // 不管成功或失败，都会执行
           })
