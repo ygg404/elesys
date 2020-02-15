@@ -43,10 +43,10 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="试用期(月)" prop="trialPeriod">
-            <el-input v-model="dataForm.trialPeriod" type="number" min="0" max="12" placeholder="试用期（月）"
-                      class="card_detail_input"></el-input>
-          </el-form-item>
+          <!--<el-form-item label="试用期(月)" prop="trialPeriod">-->
+            <!--<el-input v-model="dataForm.trialPeriod" type="number" min="0" max="12" placeholder="试用期（月）"-->
+                      <!--class="card_detail_input"></el-input>-->
+          <!--</el-form-item>-->
         </el-col>
       </el-row>
       <el-row>
@@ -249,9 +249,6 @@
           mobile: [
             {required: true, message: '手机号不能为空', trigger: 'blur'}
           ],
-          trialPeriod: [
-            {required: true, message: '试用期（月）不能为空', trigger: 'blur'}
-          ],
           maritalStatus: [
             {required: true, message: '婚姻状况不能为空', trigger: 'blur'}
           ]
@@ -281,16 +278,16 @@
       ]
     },
     methods: {
-      init(id) {
-        this.dataForm.userId = id || 0
+      init() {
+        // this.dataForm.userId = id || 0
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
           this.loading = true
-          this.loadingtext = '正在加载中'
-          if (this.dataForm.userId) {
+          this.loadingtext = '正在加载中...'
+          if (true) {
             this.$http({
-              url: this.$http.adornUrl(`/ren/record/info/${this.dataForm.userId}`),
+              url: this.$http.adornUrl(`/ren/recordtemp/info`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
@@ -343,10 +340,10 @@
             this.loading = true
             this.loadingtext = '正在上传中'
             this.$http({
-              url: this.$http.adornUrl(`/ren/record/save`),
+              url: this.$http.adornUrl(`/ren/recordtemp/save`),
               method: 'post',
               data: this.$http.adornData({
-                'userId': this.dataForm.userId,
+                // 'userId': this.dataForm.userId,
                 'idNo': this.dataForm.idNo,
                 'sex': this.dataForm.sex,
                 'birthday': this.dataForm.birthday,

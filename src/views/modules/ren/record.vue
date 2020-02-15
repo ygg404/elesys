@@ -11,7 +11,7 @@
     <el-table :data="dataList" border v-loading="dataListLoading" @expand-change="recordLoadHandle" style="width: 100%;"  >
       <el-table-column type="expand">
         <template slot-scope="scope">
-          <el-card :v-loading="infoloading" element-loading-text="正在加载个人资料...">
+          <el-card v-loading="infoloading" element-loading-text="正在加载个人资料...">
             <div slot="header" class="clearfix">
               <span class="card_head">详细资料</span>
             </div>
@@ -327,9 +327,6 @@
           if (data && data.code === 0) {
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
-            for (let data of this.dataList) {
-              data.headImg = (window.atob(data.headImg))
-            }
           } else {
             this.$message.error(data.msg)
             this.dataList = []
@@ -360,34 +357,7 @@
           this.$refs.addOrUpdate.init(id)
         })
       },
-      // 删除
-      deleteHandle(id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.userId
-        })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/ren/record/delete'),
-            method: 'post',
-            data: this.$http.adornData(ids, false)
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500
-              })
-              this.getDataList()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
-      },
+
       // 获取个人详细资料
       recordLoadHandle (row, expandedRows) {
         console.log(expandedRows.length)
@@ -416,7 +386,7 @@
             row.nativeCity = data.renRecordVo.nativeCity
             row.nativePlace = [data.renRecordVo.nativeProvince, data.renRecordVo.nativeCity]
             row.maritalStatus = data.renRecordVo.maritalStatus
-            row.headImg = window.atob(data.renRecordVo.headImg)
+            row.headImg = data.renRecordVo.headImg
             row.edBackgroundList = data.renRecordVo.edBackgroundList
             row.workBackgroundList = data.renRecordVo.workBackgroundList
           }
