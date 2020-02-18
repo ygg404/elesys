@@ -2,14 +2,29 @@
   <div class="mod-home">
     <el-card>
       <div slot="header" class="clearfix">
-        <span class="home_title">个人中心</span>
-        <div style="float: right; ">
-          <el-button type="primary" icon="el-icon-edit" @click="editRecordHandle">编辑个人资料</el-button>
-          <el-button type="primary" icon="el-icon-key" @click="updatePasswordHandle">修改密码</el-button>
-          <el-button type="danger" icon="el-icon-s-home"  @click="logoutHandle">退出</el-button>
+        <div class="home_header_line">
+          <span class="home_title">个人中心</span>
+
+          <div style="float: right; ">
+            <el-button type="primary" icon="el-icon-edit" @click="editRecordHandle">编辑个人资料</el-button>
+            <el-button type="primary" icon="el-icon-key" @click="updatePasswordHandle">修改密码</el-button>
+            <el-button type="danger" icon="el-icon-s-home"  @click="logoutHandle">退出</el-button>
+          </div>
         </div>
       </div>
       <div align="center">
+        <div v-if="userDetail.isAudit != null" style="font-size: 12pt;"><span>审核状态：</span>
+          <el-popover placement="top" width="160" v-model="auditvisible" v-if="userDetail.isAudit == 2" title="审核反馈意见">
+            <p style="color: red">{{userDetail.auditMsg}}</p>
+            <div style="text-align: right; margin: 0">
+              <el-button type="primary" size="mini" @click="auditvisible = false">确定</el-button>
+            </div>
+            <span  slot="reference" type="danger" class="home_text_unpassed">未通过</span>
+          </el-popover>
+          <el-tag type="success" v-if="userDetail.isAudit == 1">已通过</el-tag>
+          <el-tag  v-if="userDetail.isAudit == 0" type="warning">未审核</el-tag>
+          <el-button v-if="userDetail.isAudit == 0" type="warning" size="small" @click="deleteAudit()"> 撤销审核 </el-button>
+        </div>
         <table class="MsoNormalTable" border="0" cellspacing="0"
                style="border-collapse:collapse;width:590.9000pt;margin-left:4.6500pt;border:none;mso-padding-alt:0.0000pt 0.0000pt 0.0000pt 0.0000pt ;">
           <tbody>
@@ -59,7 +74,7 @@
                 <div class="titlepstyleh50">籍贯</div>
               </td>
               <td colspan="2">
-                <div class="contentpstyleh50" style="width:180px;">{{userDetail.idNo}}</div>
+                <div class="contentpstyleh50" style="width:180px;">{{getPlaceName(userDetail.nativeProvince, userDetail.nativeCity)}}</div>
               </td>
             </tr>
 
@@ -242,6 +257,7 @@
 </template>
 
 <script>
+  import {provinceAndCityData} from 'element-china-area-data'
   import UpdatePassword from '../main-navbar-update-password'
   import RencordTempAddOrUpdate from '../modules/ren/recordtemp-add-or-update'
   import momnet from 'moment'
@@ -251,8 +267,10 @@
   export default {
     data () {
       return {
+        placeOptions: provinceAndCityData,
         rencordTempVisible: false,
         updatePassowrdVisible: false,
+        auditvisible: false,
         userDetail: '',
         loadTime: momnet(new Date()).format('YYYY-MM-DD hh:mm:ss')
       }
@@ -261,13 +279,19 @@
       UpdatePassword,
       RencordTempAddOrUpdate
     },
+    computed: {
+      userId: {
+        get () { return this.$store.state.user.id },
+        set (val) { this.$store.commit('user/updateId', val) }
+      }
+    },
     activated () {
       this.getUserDetailFromApi()
     },
     methods: {
       getUserDetailFromApi () {
         this.$http({
-          url: this.$http.adornUrl(`/ren/recordtemp/info`),
+          url: this.$http.adornUrl(`/ren/recordtemp/info/${this.userId}`),
           method: 'get',
           params: this.$http.adornParams()
         }).then(({ data }) => {
@@ -279,11 +303,36 @@
           }
         });
       },
+      // 撤销审核
+      deleteAudit () {
+        this.$confirm('是否撤销当前个人资料的编辑', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/ren/recordtemp/deleteAudit'),
+            method: 'post',
+            data: this.$http.adornData()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '撤销成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.getUserDetailFromApi()
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
       // 编辑个人资料
       editRecordHandle () {
         this.rencordTempVisible = true
         this.$nextTick(() => {
-          this.$refs.rencordTempAddOrUpdate.init()
+          this.$refs.rencordTempAddOrUpdate.init(this.userId , 0)
         })
       },
       // 修改密码
@@ -311,6 +360,20 @@
             }
           })
         }).catch(() => {})
+      },
+      // 获取省市名称
+      getPlaceName(nProvinceId, nCityId) {
+        let pName = ''
+        for (let provinceOption of this.placeOptions) {
+          if (provinceOption.value === nProvinceId) {
+            pName += provinceOption.label
+            for (let cityOption of provinceOption.children) {
+              if (cityOption.value === nCityId) pName += cityOption.label
+            }
+            break
+          }
+        }
+        return pName
       }
     }
   }
@@ -323,6 +386,15 @@
   .home_title{
     font-size: 18pt;
     font-weight: 700;
+  }
+  .home_header_line{
+    display: flex;
+    justify-content: space-between;
+  }
+  .home_text_unpassed{
+    text-decoration:underline;
+    cursor: pointer;
+    color: red;
   }
   .span_row{
     font-size: 15px;

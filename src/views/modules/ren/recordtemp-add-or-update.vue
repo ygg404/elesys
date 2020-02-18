@@ -43,10 +43,10 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <!--<el-form-item label="试用期(月)" prop="trialPeriod">-->
-            <!--<el-input v-model="dataForm.trialPeriod" type="number" min="0" max="12" placeholder="试用期（月）"-->
-                      <!--class="card_detail_input"></el-input>-->
-          <!--</el-form-item>-->
+          <el-form-item label="试用期(月)" prop="trialPeriod" v-if="dataForm.isAudit == 1">
+            <el-input v-model="dataForm.trialPeriod" type="number" min="0" max="12" placeholder="试用期（月）"
+                      class="card_detail_input"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
       <el-row>
@@ -175,15 +175,31 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
+      <el-button type="danger" @click="returnAuditHandle()" v-if="dataForm.isAudit == 1">退回重改</el-button>
+      <el-button type="primary" @click="dataFormSubmit()" v-if="dataForm.isAudit == 1">审核确定</el-button>
+      <el-button type="primary" @click="dataFormSubmit()" v-if="dataForm.isAudit == 0">提交审核</el-button>
     </span>
+
+    <!--档案审核返退内容表-->
+    <el-dialog title="档案退回重改意见" :visible.sync="returnAuditVisible" :close-on-click-modal="false" append-to-body >
+
+      <el-input type="textarea" placeholder="请输入返退重改意见" maxlength="1000" size="large" show-word-limit rows="4"
+                v-model="dataForm.auditMsg" ></el-input>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="returnAuditVisible = false" >返回</el-button>
+        <el-button @click="auditFormSubmit()" type="danger" >确定返退</el-button>
+      </span>
+    </el-dialog>
   </el-dialog>
 </template>
 
 <script>
   import {provinceAndCityData} from 'element-china-area-data'
+  import moment from 'moment'
   import lrz from 'lrz'
   import { getUUID } from "@/utils"
+  import {getEducationItem, getMaritalItem, getTitleItem} from "@/utils/selectedItem"
 
   export default {
     data() {
@@ -191,12 +207,16 @@
         visible: false,
         recordeductionVisible: false,
         recordworkVisible: false,
+        returnAuditVisible: false,
         loading: true,
         loadingtext: '正在加载中',
-        maritalItemList: [],
-        titleItemList: [],
-        educationItemList: [],
+        maritalItemList: getMaritalItem(),
+        titleItemList: getTitleItem(),
+        educationItemList: getEducationItem(),
         placeOptions: provinceAndCityData,
+        auditForm: {
+          auditMsg: ''
+        },
         dataForm: {
           userId: 0,
           sex: 1,
@@ -215,8 +235,13 @@
           nativeCity: '',
           maritalStatus: '',
           headImg: '',
+          isAudit: '',
+          auditMsg: '',
           edBackgroundList: [],
           workBackgroundList: []
+        },
+        auditRule: {
+          aduitMsg: [{required: true, message: '审核返退意见不能为空', trigger: 'blur'}]
         },
         dataRule: {
           idNo: [
@@ -251,43 +276,24 @@
           ],
           maritalStatus: [
             {required: true, message: '婚姻状况不能为空', trigger: 'blur'}
+          ],
+          trialPeriod: [
+            {required: true, message: '审核时试用期需管理员填写，试用期不能为空！', trigger: 'blur'}
           ]
         }
       }
     },
-    created() {
-      this.maritalItemList = [{'id': 0, 'dateItem': '未婚'},
-        {'id': 1, 'dateItem': '已婚'},
-        {'id': 2, 'dateItem': '离异'},
-        {'id': 3, 'dateItem': '丧偶'}]
-      this.titleItemList = [{'id': 0, 'dateItem': '无'},
-        {'id': 1, 'dateItem': '技术员'},
-        {'id': 2, 'dateItem': '助理工程师'},
-        {'id': 3, 'dateItem': '中级工程师'},
-        {'id': 4, 'dateItem': '高级工程师'},
-        {'id': 4, 'dateItem': '正高级工程师'}
-      ]
-      this.educationItemList = [{'id': 0, 'dateItem': '无'},
-        {'id': 1, 'dateItem': '小学'},
-        {'id': 2, 'dateItem': '初中'},
-        {'id': 3, 'dateItem': '中专/高中/职高'},
-        {'id': 4, 'dateItem': '专科'},
-        {'id': 5, 'dateItem': '本科'},
-        {'id': 6, 'dateItem': '硕士研究生'},
-        {'id': 7, 'dateItem': '博士研究生'}
-      ]
-    },
     methods: {
-      init() {
-        // this.dataForm.userId = id || 0
+      init( id ,isaudit = 0) {
+        this.dataForm.userId = id
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
           this.loading = true
           this.loadingtext = '正在加载中...'
-          if (true) {
+          if (this.dataForm.userId) {
             this.$http({
-              url: this.$http.adornUrl(`/ren/recordtemp/info`),
+              url: this.$http.adornUrl(`/ren/recordtemp/info/${this.dataForm.userId}`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
@@ -310,6 +316,8 @@
                 this.dataForm.nativePlace = [data.renRecordVo.nativeProvince, data.renRecordVo.nativeCity]
                 this.dataForm.maritalStatus = data.renRecordVo.maritalStatus
                 this.dataForm.headImg = data.renRecordVo.headImg
+                this.dataForm.isAudit = isaudit
+                this.dataForm.auditMsg = data.renRecordVo.auditMsg
                 for (let edBackground of data.renRecordVo.edBackgroundList){
                   edBackground.edId = getUUID()
                   edBackground.monthRangeDate = [edBackground.startDate , edBackground.endDate]
@@ -330,12 +338,12 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             for (let edBackground of this.dataForm.edBackgroundList){
-              edBackground.startDate = edBackground.monthRangeDate[0]
-              edBackground.endDate = edBackground.monthRangeDate[1]
+              edBackground.startDate = moment(edBackground.monthRangeDate[0]).format('YYYY-MM-DD')
+              edBackground.endDate = moment(edBackground.monthRangeDate[1]).format('YYYY-MM-DD')
             }
             for (let wBackground of this.dataForm.workBackgroundList){
-              wBackground.startDate = wBackground.monthRangeDate[0]
-              wBackground.endDate = wBackground.monthRangeDate[1]
+              wBackground.startDate = moment(wBackground.monthRangeDate[0]).format('YYYY-MM-DD')
+              wBackground.endDate = moment(wBackground.monthRangeDate[1]).format('YYYY-MM-DD')
             }
             this.loading = true
             this.loadingtext = '正在上传中'
@@ -343,7 +351,7 @@
               url: this.$http.adornUrl(`/ren/recordtemp/save`),
               method: 'post',
               data: this.$http.adornData({
-                // 'userId': this.dataForm.userId,
+                'userId': this.dataForm.userId,
                 'idNo': this.dataForm.idNo,
                 'sex': this.dataForm.sex,
                 'birthday': this.dataForm.birthday,
@@ -359,6 +367,7 @@
                 'nativeCity': this.dataForm.nativeCity,
                 'maritalStatus': this.dataForm.maritalStatus,
                 'headImg': this.dataForm.headImg,
+                'isAudit': this.dataForm.isAudit,
                 'edBackgroundList': this.dataForm.edBackgroundList,
                 'workBackgroundList': this.dataForm.workBackgroundList
               })
@@ -379,8 +388,42 @@
           }
         })
       },
+      // 退回重改
+      returnAuditHandle () {
+        this.returnAuditVisible = true
+      },
+      // 退回重改意见
+      auditFormSubmit(){
+        console.log(this.dataForm.auditMsg)
+        if (this.dataForm.auditMsg === undefined || this.dataForm.auditMsg === null){
+          this.$message.error('审核反馈意见不能为空！')
+          return
+        }
+        this.$http({
+          url: this.$http.adornUrl(`/ren/recordtemp/update`),
+          method: 'post',
+          data: this.$http.adornData({
+            'userId': this.dataForm.userId,
+            'auditMsg': this.dataForm.auditMsg,
+            'isAudit': 2
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.$message({
+              message: '返退成功',
+              type: 'success',
+              duration: 1500
+            })
+            this.visible = false
+            this.returnAuditVisible = false
+            this.$emit('refreshDataList')
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
       // 籍贯选择器
-      placeChangeHandle() {
+      placeChangeHandle () {
         this.dataForm.nativeProvince = this.dataForm.nativePlace[0]
         this.dataForm.nativeCity = this.dataForm.nativePlace[1]
       },

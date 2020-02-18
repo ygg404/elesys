@@ -28,7 +28,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="10">
-          <div class="card_detail_img">
+          <div class="card_detail_img" v-loading="imgLoading">
             <img :src="dataForm.headImg" alt="" class="card_detail_img_content"/>
             <div class="card_detail_img_add"><i class="el-icon-plus addplus"></i></div>
             <input type="file" class="card_detail_img_input" accept="image/*" @change="compressImgHandle"/>
@@ -182,8 +182,10 @@
 
 <script>
   import {provinceAndCityData} from 'element-china-area-data'
+  import moment from 'moment'
   import lrz from 'lrz'
   import { getUUID } from "@/utils"
+  import {getEducationItem, getMaritalItem, getTitleItem} from "@/utils/selectedItem"
 
   export default {
     data() {
@@ -193,9 +195,10 @@
         recordworkVisible: false,
         loading: true,
         loadingtext: '正在加载中',
-        maritalItemList: [],
-        titleItemList: [],
-        educationItemList: [],
+        imgLoading: false,   // 图片加载
+        maritalItemList: getMaritalItem(),
+        titleItemList: getTitleItem(),
+        educationItemList: getEducationItem(),
         placeOptions: provinceAndCityData,
         dataForm: {
           userId: 0,
@@ -258,28 +261,6 @@
         }
       }
     },
-    created() {
-      this.maritalItemList = [{'id': 0, 'dateItem': '未婚'},
-        {'id': 1, 'dateItem': '已婚'},
-        {'id': 2, 'dateItem': '离异'},
-        {'id': 3, 'dateItem': '丧偶'}]
-      this.titleItemList = [{'id': 0, 'dateItem': '无'},
-        {'id': 1, 'dateItem': '技术员'},
-        {'id': 2, 'dateItem': '助理工程师'},
-        {'id': 3, 'dateItem': '中级工程师'},
-        {'id': 4, 'dateItem': '高级工程师'},
-        {'id': 4, 'dateItem': '正高级工程师'}
-      ]
-      this.educationItemList = [{'id': 0, 'dateItem': '无'},
-        {'id': 1, 'dateItem': '小学'},
-        {'id': 2, 'dateItem': '初中'},
-        {'id': 3, 'dateItem': '中专/高中/职高'},
-        {'id': 4, 'dateItem': '专科'},
-        {'id': 5, 'dateItem': '本科'},
-        {'id': 6, 'dateItem': '硕士研究生'},
-        {'id': 7, 'dateItem': '博士研究生'}
-      ]
-    },
     methods: {
       init(id) {
         this.dataForm.userId = id || 0
@@ -333,12 +314,12 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             for (let edBackground of this.dataForm.edBackgroundList){
-              edBackground.startDate = edBackground.monthRangeDate[0]
-              edBackground.endDate = edBackground.monthRangeDate[1]
+              edBackground.startDate = moment(edBackground.monthRangeDate[0]).format('YYYY-MM-DD')
+              edBackground.endDate = moment(edBackground.monthRangeDate[1]).format('YYYY-MM-DD')
             }
             for (let wBackground of this.dataForm.workBackgroundList){
-              wBackground.startDate = wBackground.monthRangeDate[0]
-              wBackground.endDate = wBackground.monthRangeDate[1]
+              wBackground.startDate = moment(wBackground.monthRangeDate[0]).format('YYYY-MM-DD')
+              wBackground.endDate = moment(wBackground.monthRangeDate[1]).format('YYYY-MM-DD')
             }
             this.loading = true
             this.loadingtext = '正在上传中'
@@ -433,8 +414,7 @@
       // 图片压缩处理
       compressImgHandle(e) {
         let that = this
-        if (e.target.files) {
-          // lrz(file,[ options ])
+        if (e.target.files && e.target.files.length === 1) {
           let options = {
             quality: 0.5,
             width: 900,

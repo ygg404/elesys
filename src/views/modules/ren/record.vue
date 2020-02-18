@@ -243,10 +243,10 @@
       <el-table-column prop="email" header-align="center" align="center" label="邮箱"></el-table-column>
       <el-table-column prop="mobile" header-align="center" align="center" label="手机号"></el-table-column>
 
-      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+      <el-table-column fixed="right" header-align="center" align="center" width="180" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.userId)">编辑</el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.userId)">删除</el-button>
+          <el-button type="danger" size="mini" @click="auditHandle(scope.row.userId)" v-if="scope.row.isAudit === 0">待审核</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -259,13 +259,16 @@
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
-    <!-- 弹窗, 新增 / 修改 -->
+    <!-- 弹窗, 新增 / 修改 个人资料 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <!--审核 个人资料 -->
+    <rencord-temp-add-or-update v-if="rencordTempVisible" ref="rencordTempAddOrUpdate" @refreshDataList="getDataList"></rencord-temp-add-or-update>
   </div>
 </template>
 
 <script>
   import AddOrUpdate from './record-add-or-update'
+  import RencordTempAddOrUpdate from './recordtemp-add-or-update'
   import {provinceAndCityData} from 'element-china-area-data'
 
   export default {
@@ -281,14 +284,16 @@
         pageSize: 25,
         totalPage: 0,
         dataListLoading: false,
-        infoloading: true, // 个人资料下载Loading
+        infoloading: true, // 个人资料Loading
         dataListSelections: [],
         placeOptions: provinceAndCityData,
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        rencordTempVisible: false
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,
+      RencordTempAddOrUpdate
     },
     activated() {
       this.getDataList()
@@ -357,7 +362,13 @@
           this.$refs.addOrUpdate.init(id)
         })
       },
-
+      // 审核步骤
+      auditHandle (userId) {
+        this.rencordTempVisible = true
+        this.$nextTick(() => {
+          this.$refs.rencordTempAddOrUpdate.init(userId , 1)
+        })
+      },
       // 获取个人详细资料
       recordLoadHandle (row, expandedRows) {
         console.log(expandedRows.length)
