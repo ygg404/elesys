@@ -263,7 +263,6 @@
   import momnet from 'moment'
   import { clearLoginInfo } from '@/utils'
 
-
   export default {
     data () {
       return {

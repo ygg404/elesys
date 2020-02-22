@@ -191,7 +191,8 @@
             method: 'post',
             data: {
               'id': row.id,
-              'projectNo': row.projectNo
+              'projectNo': row.projectNo,
+              'contractNo': row.contractNo
             }
           }).then(({data}) => {
             if (data && data.code === 0) {

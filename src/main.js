@@ -11,8 +11,10 @@ import httpRequest from '@/utils/httpRequest' // api: https://github.com/axios/a
 import {isAuth, getUUID} from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import 'element-ui/lib/theme-chalk/index.css'
+// import Vue2OrgTree from 'vue2-org-tree'
+import branchTree from './components/branch-tree'
 
-
+Vue.use(branchTree)
 Vue.use(VueCookie)
 Vue.config.productionTip = false
 

@@ -217,30 +217,44 @@
       },
       // 删除
       deleteHandle (scop) {
-        var ids = scop.id ? [scop.id] : this.dataListSelections.map(item => {
-          return item.ids
-        })
         this.$confirm('确定对合同编号[' + scop.contractNo + ']进行删除操作?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/project/contract/delete'),
-            method: 'post',
-            data: this.$http.adornData(ids, false)
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500
-              })
-              this.getDataList()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
+          if (scop.projectList.length > 0) {
+            this.$confirm('该合同下有关联项目是否也进行删除操作?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.deleteContractApi(scop)
+            })
+          } else {
+            this.deleteContractApi(scop)
+          }
+        })
+      },
+      // 删除合同接口
+      deleteContractApi(scop){
+        var ids = scop.id ? [scop.id] : this.dataListSelections.map(item => {
+          return item.ids
+        })
+        this.$http({
+          url: this.$http.adornUrl('/project/contract/delete'),
+          method: 'post',
+          data: this.$http.adornData(ids, false)
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1500
+            })
+            this.getDataList()
+          } else {
+            this.$message.error(data.msg)
+          }
         })
       },
       // 下载合同文件
