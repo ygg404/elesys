@@ -21,7 +21,7 @@
             @current-change="treeCurrentChangeHandle"
             :default-expand-all="true"
             :highlight-current="true"
-            :expand-on-click-node="false">
+            :expand-on-click-node="true">
           </el-tree>
         </el-popover>
         <el-input v-model="dataForm.branchParentName" v-popover:menuListPopover :readonly="true" placeholder="点击选择上级部门" class="menu-list__input"></el-input>
@@ -113,40 +113,64 @@
     },
     methods: {
       init (id) {
-        this.getUserList()
-        this.getBranchList().then(success => {
-          this.branchList = success
-          this.branchTreeList = treeDataTranslate(success , 'id')
-          console.log(this.branchTreeList)
-        })
-        this.dataForm.id = id || 0
-        this.visible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].resetFields()
-          if (this.dataForm.id) {
-            this.$http({
-              url: this.$http.adornUrl(`/set/branch/info/${this.dataForm.id}`),
-              method: 'get',
-              params: this.$http.adornParams()
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.dataForm.parentId = data.branch.parentId
-                this.dataForm.branchName = data.branch.branchName
-                this.dataForm.mdeputyId = data.branch.mdeputyId
-                this.dataForm.mdeputyName = data.branch.mdeputyName
-                this.dataForm.sdeputyId = data.branch.sdeputyId
-                this.dataForm.mdeputyName = data.branch.mdeputyName
-                this.dataForm.orderNum = data.branch.orderNum
+        // 获取用户列表
+        this.getUserList().then(data => {
+          this.userAllList = data
+          // 获取部门列表
+          this.getBranchList().then(success => {
+            this.branchList = success
+            this.branchTreeList = treeDataTranslate(success , 'id')
+            this.dataForm.id = id || 0
+            this.visible = true
+            this.$nextTick(() => {
+              this.$refs['dataForm'].resetFields()
+              if (this.dataForm.id) {
+                this.$http({
+                  url: this.$http.adornUrl(`/set/branch/info/${this.dataForm.id}`),
+                  method: 'get',
+                  params: this.$http.adornParams()
+                }).then(({data}) => {
+                  if (data && data.code === 0) {
+                    this.dataForm.parentId = data.branchVo.parentId
+                    this.dataForm.branchName = data.branchVo.branchName
+                    this.dataForm.mdeputyId = data.branchVo.mdeputyId
+                    this.dataForm.mdeputyName = data.branchVo.mdeputyName
+                    this.dataForm.sdeputyId = data.branchVo.sdeputyId
+                    this.dataForm.mdeputyName = data.branchVo.mdeputyName
+                    this.dataForm.orderNum = data.branchVo.orderNum
+                    this.userValue = []
+                    // 初始化所属成员和主副负责人
+                    this.userValueList = []
+                    for (let user of data.branchVo.userList) {
+                      this.userValue.push(user.userId)
+                      for (let userDat of this.userAllList) {
+                        if (user.userId === userDat.userId) {
+                          this.userValueList.push(userDat)
+                          userDat.checked = true
+                          break
+                        }
+                      }
+                    }
+                    // 获取上级部门名称
+                    for (let branch of this.branchList) {
+                      if ( branch.id === this.dataForm.parentId) {
+                        this.dataForm.branchParentName = branch.branchName
+                        break
+                      }
+                    }
+                  }
+                })
+              } else {
+                this.dataForm.orderNum = 1
+                this.dataForm.parentId = ''
+                this.dataForm.branchName = ''
+                this.dataForm.branchParentName = ''
+                this.dataForm.mdeputyId = ''
+                this.dataForm.sdeputyId = ''
+                this.userValueList = []
               }
             })
-          } else {
-            this.dataForm.orderNum = 1
-            this.dataForm.parentId = ''
-            this.dataForm.branchName = ''
-            this.dataForm.branchParentName = ''
-            this.dataForm.mdeputyId = ''
-            this.dataForm.sdeputyId = ''
-          }
+          })
         })
       },
       // 表单提交
@@ -162,7 +186,8 @@
                 'branchName': this.dataForm.branchName,
                 'mdeputyId': this.dataForm.mdeputyId,
                 'sdeputyId': this.dataForm.sdeputyId,
-                'orderNum': this.dataForm.orderNum
+                'orderNum': this.dataForm.orderNum,
+                'userList': this.userValueList
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
@@ -178,6 +203,7 @@
               }
             })
           }
+
         })
       },
       // 获取部门列表
@@ -199,15 +225,38 @@
       },
       // 获取用户信息列表
       getUserList () {
-        this.$http({
-          url: this.$http.adornUrl('/sys/user/getAllUserList'),
-          method: 'get'
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.userAllList = data.list
-          } else {
-            this.userAllList = []
-          }
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/sys/user/getAllUserList'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              for (let userDat of data.list) {
+                userDat.checked = false
+              }
+              resolve(data.list)
+            } else {
+              this.userAllList = []
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取部门与用户关系
+      getBranchUserHandle () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/sys/branchuser/getAllUserList'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
         })
       },
       // 菜单树选中
@@ -220,7 +269,7 @@
         let userValueList = []
         this.userAllList.forEach((item, index) => {
           if ( item.checked ) {
-              userValueList.push(item)
+            userValueList.push(item)
           }
         })
         this.userValueList = userValueList

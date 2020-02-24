@@ -18,7 +18,6 @@
       <!--</div>-->
 
       <div class="col-md-10 col-md-offset-1" v-loading="loading">
-
         <div class="text-center">
 
           <branch-tree name="test"
@@ -30,7 +29,6 @@
                          :render-content="renderContent"
                          @on-node-click="onNodeClick"
           />
-          <el-transfer v-model="value" :data="data"></el-transfer>
         </div>
       </div>
     </el-card>
@@ -47,57 +45,7 @@
   export default {
     data() {
       return {
-        branchTreeDat:{},
-        data: {
-          id: 0,
-          label: "XXX科技有限公司",
-          children: [
-            {
-              id: 2,
-              label: "产品研发部",
-              children: [
-                {
-                  id: 5,
-                  label: "研发-前端"
-                },
-                {
-                  id: 6,
-                  label: "研发-后端"
-                },
-                {
-                  id: 9,
-                  label: "UI设计"
-                },
-                {
-                  id: 10,
-                  label: "产品经理"
-                }
-              ]
-            },
-            {
-              id: 3,
-              label: "销售部",
-              children: [
-                {
-                  id: 7,
-                  label: "销售一部"
-                },
-                {
-                  id: 8,
-                  label: "销售二部"
-                }
-              ]
-            },
-            {
-              id: 4,
-              label: "财务部"
-            },
-            {
-              id: 9,
-              label: "HR人事"
-            }
-          ]
-        },
+        branchTreeDat: {},
         branchTreeProps: {
           id: 'id',
           branchName: 'label',
@@ -143,16 +91,11 @@
         return data.label;
       },
       onNodeClick(e, data) {
-        alert(data.label);
-      },
-      collapse(list) {
-        var _this = this;
-        list.forEach(function(child) {
-          if (child.expand) {
-            child.expand = false;
-          }
-          child.children && _this.collapse(child.children);
-        });
+        console.log(data.id)
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.branchAddOrUpdate.init(data.id)
+        })
       },
       addBranchHandle(){
         this.addOrUpdateVisible = true
