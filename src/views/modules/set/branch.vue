@@ -4,24 +4,44 @@
       <div slot="header" class="clearfix">
         <el-button size="large" type="primary" icon="el-icon-plus" @click="addBranchHandle()">添加部门</el-button>
       </div>
-      <!--<div style="width: 100%;height: 500px;overflow: hidden; position:relative;" v-loading="loading">-->
-        <!--<div class="branch_cell" >-->
-          <!--<div class="header">-->
-            <!--<i class="el-icon-school"></i>-->
-            <!--<span class="groupname">测绘队</span>-->
-          <!--</div>-->
-          <!--<div class="groupdetail">-->
-            <!--<div class="usercontent"></div>-->
-          <!--</div>-->
-        <!--</div>-->
-        <!--<div class="div" v-drag style="border: 1px solid #00ff00;width: 100px;height: 100px;background-color: red;position: absolute;"></div>-->
-      <!--</div>-->
+<!--      <div style="width: 100%;height: 500px;overflow: hidden; position:relative;" v-loading="loading">-->
+        <div class="branch_cell"  >
+          <div class="header" >
+            <span class="groupname">测绘队</span>
+            <i class="el-icon-top"></i>
+          </div>
+          <div class="groupdetail">
+            <div class="usercontent"></div>
+            <div class="btnfooter">
+              <el-button size="small" type="primary">编辑</el-button>
+              <el-button size="small" type="danger">删除</el-button>
+            </div>
+          </div>
+        </div>
+
+      <div class="branch_cell"  >
+        <div class="header" >
+          <span class="groupname">测绘队</span>
+          <i class="el-icon-top"></i>
+        </div>
+        <div class="groupdetail">
+          <div class="usercontent"></div>
+          <div class="btnfooter">
+            <el-button size="small" type="primary">编辑</el-button>
+            <el-button size="small" type="danger">删除</el-button>
+          </div>
+        </div>
+      </div>
+<!--        </div>-->
+<!--        <div class="div" v-drag style="border: 1px solid #00ff00;width: 100px;height: 100px;background-color: red;position: absolute;"></div>-->
+
 
       <div class="col-md-10 col-md-offset-1" v-loading="loading">
-        <div class="text-center">
 
+
+        <div class="text-center" v-for="branchTree in branchTreeDat">
           <branch-tree name="test"
-                         :data="branchTreeDat"
+                         :data="branchTree"
                          :horizontal="true"
                          :collapsable="false"
                          :props="branchTreeProps"
@@ -79,7 +99,7 @@
             for(let dat of data.list){
               dat.label = dat.branchName
             }
-            this.branchTreeDat = treeDataTranslate(data.list , 'id')[0]
+            this.branchTreeDat = treeDataTranslate(data.list , 'id')
             console.log(this.branchTreeDat)
           } else {
             this.dataList = []
@@ -141,21 +161,30 @@
     /*position: absolute;*/
     border: 2px solid #0BB2D4;
     box-shadow: 5px 5px 3px rgba(73, 148, 204, 0.15);
-    width: 120px;
+    width: 145px;
     height: auto;
     font-size: 18pt;
     padding: 5px;
     border-radius: 5px;
   }
+  .branch_cell > .header{
+    display: flex;
+    justify-content: space-between;
+  }
+
   .branch_cell > .header i{
     font-size: 17pt;
     vertical-align: middle;
+  }
+  .branch_cell > .header i:hover{
+    color: red;
   }
   .branch_cell > .header >.groupname{
     font-size: 13pt;
     vertical-align: middle;
   }
   .branch_cell >.groupdetail{
+    min-height: 10px;
     border-top: 1px dashed #00a0e9;
     display: none;
   }
@@ -167,12 +196,23 @@
   .branch_cell >.groupdetail > .usercontent i{
     font-size: 9pt;
   }
+  .branch_cell >.groupdetail > .btnfooter {
+
+  }
+  .branch_cell > .groupfooter{
+    display: none;
+  }
   .branch_cell :hover{
     cursor: pointer;
     color: #00a0e9;
   }
-  .branch_cell :hover + .groupdetail{
+  .branch_cell > .header :checked ~.groupdetail {
     display: block;
   }
+
+  /*.branch_cell > .groupdetail :hover {*/
+  /*  display: block;*/
+  /*}*/
+
 
 </style>

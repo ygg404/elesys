@@ -3,13 +3,12 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="110px">
       <el-form-item label="部门名称" prop="branchName">
         <el-input v-model="dataForm.branchName" placeholder="部门名称"></el-input>
       </el-form-item>
       <el-form-item label="上级部门" prop="parentId">
-        <el-popover
+        <el-popover transition="fade-in-linear"
           ref="menuListPopover"
           placement="bottom-start"
           trigger="click">
@@ -119,7 +118,14 @@
           // 获取部门列表
           this.getBranchList().then(success => {
             this.branchList = success
+            let parentNode = [{
+              branchName : '无',
+              id : -1,
+              parentId: -1
+            }]
+            success = parentNode.concat(success)
             this.branchTreeList = treeDataTranslate(success , 'id')
+            console.log(this.branchTreeList)
             this.dataForm.id = id || 0
             this.visible = true
             this.$nextTick(() => {
@@ -131,7 +137,7 @@
                   params: this.$http.adornParams()
                 }).then(({data}) => {
                   if (data && data.code === 0) {
-                    this.dataForm.parentId = data.branchVo.parentId
+                    this.dataForm.parentId = data.branchVo.parentId === 0 ? -1 : data.branchVo.parentId
                     this.dataForm.branchName = data.branchVo.branchName
                     this.dataForm.mdeputyId = data.branchVo.mdeputyId
                     this.dataForm.mdeputyName = data.branchVo.mdeputyName
@@ -152,22 +158,25 @@
                       }
                     }
                     // 获取上级部门名称
+                    if (data.branchVo.parentId === 0) this.dataForm.branchParentName = '无'
                     for (let branch of this.branchList) {
                       if ( branch.id === this.dataForm.parentId) {
                         this.dataForm.branchParentName = branch.branchName
                         break
                       }
+
                     }
                   }
                 })
               } else {
                 this.dataForm.orderNum = 1
-                this.dataForm.parentId = ''
+                this.dataForm.parentId = -1
                 this.dataForm.branchName = ''
-                this.dataForm.branchParentName = ''
+                this.dataForm.branchParentName = '无'
                 this.dataForm.mdeputyId = ''
                 this.dataForm.sdeputyId = ''
                 this.userValueList = []
+                this.getOrderNumHandle()
               }
             })
           })
@@ -182,7 +191,7 @@
               method: 'post',
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,
-                'parentId': this.dataForm.parentId,
+                'parentId': this.dataForm.parentId === -1 ? 0 : this.dataForm.parentId,
                 'branchName': this.dataForm.branchName,
                 'mdeputyId': this.dataForm.mdeputyId,
                 'sdeputyId': this.dataForm.sdeputyId,
@@ -243,35 +252,38 @@
           })
         })
       },
-      // 获取部门与用户关系
-      getBranchUserHandle () {
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl('/sys/branchuser/getAllUserList'),
-            method: 'get'
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-
-            } else {
-              this.$message.error(data.msg)
-              reject(data.msg)
-            }
-          })
-        })
-      },
       // 菜单树选中
       treeCurrentChangeHandle (data, node) {
         this.dataForm.parentId = data.id
         this.dataForm.branchParentName = data.branchName
+        this.getOrderNumHandle()
+      },
+      // 上级部门选中获取排序号
+      getOrderNumHandle () {
+        let parentId = this.dataForm.parentId === -1 ? 0 : this.dataForm.parentId
+        let maxOrder = 0
+        for (let branch of this.branchList) {
+          if (branch.parentId === parentId) {
+            maxOrder = branch.orderNum
+          }
+        }
+        this.dataForm.orderNum = maxOrder + 1
       },
       // 选中用户改变
       chooseUserHandle () {
         let userValueList = []
+        // 判断主副负责人 是否在所选中的列表中
+        let mdeputyFlag = false
+        let sdeputyFlag = false
         this.userAllList.forEach((item, index) => {
           if ( item.checked ) {
             userValueList.push(item)
+            if(item.userId === this.dataForm.mdeputyId) mdeputyFlag = true
+            if(item.userId === this.dataForm.sdeputyId) sdeputyFlag = true
           }
         })
+        if(!mdeputyFlag) this.dataForm.mdeputyId = ''
+        if(!sdeputyFlag) this.dataForm.sdeputyId = ''
         this.userValueList = userValueList
       },
       // 主负责人选择改变
@@ -299,7 +311,7 @@
 </script>
 
 
-<style scoped>
+<style>
   .check_branch{
     margin-top: 10px;
     border: 1px solid #167cdd;
@@ -321,5 +333,11 @@
   .check_branch .check_content .checkbox_class{
     width: 95%;
     margin-left: 10px;
+  }
+
+  .el-tree-node.is-current > .el-tree-node__content {
+
+    color: dodgerblue !important;
+
   }
 </style>
