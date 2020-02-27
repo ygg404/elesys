@@ -25,10 +25,10 @@
         </el-popover>
         <el-input v-model="dataForm.branchParentName" v-popover:menuListPopover :readonly="true" placeholder="点击选择上级部门" class="menu-list__input"></el-input>
       </el-form-item>
-      <el-form-item label="序号" prop="orderNum">
-        <el-input type="number" v-model="dataForm.orderNum" placeholder="序号"
-            min="0" max="10"  ></el-input>
-      </el-form-item>
+<!--      <el-form-item label="序号" prop="orderNum">-->
+<!--        <el-input type="number" v-model="dataForm.orderNum" placeholder="序号"-->
+<!--            min="0" max="10"  ></el-input>-->
+<!--      </el-form-item>-->
       <el-form-item label="部门成员">
         <div class="check_branch">
           <el-input prefix-icon="el-icon-search" placeholder="搜索成员关键字"
@@ -66,6 +66,7 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
+      <el-button type="danger" @click="deleteBranchHandle()">删除</el-button>
       <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
     </span>
   </el-dialog>
@@ -99,10 +100,10 @@
           ],
           branchName: [
             { required: true, message: '部门名称不能为空', trigger: 'blur' }
-          ],
-          orderNum: [
-            { required: true, message: '序号不能为空', trigger: 'blur' }
           ]
+          // orderNum: [
+          //   { required: true, message: '序号不能为空', trigger: 'blur' }
+          // ]
         },
         branchListTreeProps: {
           label: 'branchName',
@@ -305,6 +306,32 @@
         this.dataForm.sdeputyId = item.userId
         // 主副负责人 不唯一
         if ( this.dataForm.mdeputyId === this.dataForm.sdeputyId) this.dataForm.mdeputyId = ''
+      },
+      // 删除部门
+      deleteBranchHandle () {
+        let tip = '是否删除部门 [' + this.dataForm.branchName + '] 及其下级部门所有的信息?'
+        this.$confirm(tip, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl('/set/branch/delete'),
+            method: 'post',
+            data: this.$http.adornData([this.dataForm.id], false)
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.visible = false
+              this.$emit('refreshDataList')
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
       }
     }
   }

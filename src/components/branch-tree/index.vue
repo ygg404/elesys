@@ -12,6 +12,7 @@
         @on-expand="(e, data) => $emit('on-expand', e, data)"
         @on-node-focus="(e, data) => $emit('on-node-focus', e, data)"
         @on-node-click="(e, data) => $emit('on-node-click', e, data)"
+        @on-node-itop="(e, data) => $emit( 'on-node-itop', e, data)"
         @on-node-mouseover="(e, data) => $emit('on-node-mouseover', e, data)"
         @on-node-mouseout="(e, data) => $emit('on-node-mouseout', e, data)"
       >

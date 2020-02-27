@@ -33,6 +33,10 @@
 .org-tree-node-label {
   position: relative;
   display: inline-block;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
 
   .org-tree-node-label-inner {
     padding: 10px 15px;
@@ -40,10 +44,13 @@
     border-radius: 5px;
     border: 1px solid #0BB2D4;
     box-shadow: 5px 5px 3px rgba(73, 148, 204, 0.15);
+    //justify-content: space-between;
+    //display: flex;
 
     &:hover{
       cursor: pointer;
       background-color: #00a0e9;
+      color:white;
     }
   }
 }
@@ -268,3 +275,5 @@
     }
   }
 }
+
+

@@ -56,6 +56,7 @@ export const renderLabel = (h, data, context) => {
   const renderContent = props.renderContent
 
   // event handlers
+  const sortHandler = listeners['on-node-itop']
   const clickHandler = listeners['on-node-click']
   const mouseOverHandler = listeners['on-node-mouseover']
   const mouseOutHandler = listeners['on-node-mouseout']
@@ -101,13 +102,27 @@ export const renderLabel = (h, data, context) => {
     domProps: {
       className: cls.join(' ')
     },
-    style: { width: labelWidth },
     on: {
-      'click': e => clickHandler && clickHandler(e, data),
       'mouseover': e => mouseOverHandler && mouseOverHandler(e, data),
       'mouseout': e => mouseOutHandler && mouseOutHandler(e, data)
-    }
-  }, childNodes)])
+    },
+    style: { width: labelWidth }
+  }, [
+    h('span',{
+      on: {
+        'click': e => clickHandler && clickHandler(e, data)
+        }
+      }, data.branchName ),
+    h('i',{
+      domProps: {
+        className: 'el-icon-top on-node-itop'
+      },
+      on: {
+        'click': e => sortHandler && sortHandler(e, data),
+      }
+    }),
+    childNodes])
+  ])
 }
 
 // 创建 node 子节点
