@@ -80,7 +80,7 @@
       @size-change="sizeChangeHandle"
       @current-change="currentChangeHandle"
       :current-page="pageIndex"
-      :page-sizes="[10, 20, 50, 100]"
+      :page-sizes="[25, 50, 100]"
       :page-size="pageSize"
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
@@ -100,7 +100,7 @@
         },
         dataList: [],
         pageIndex: 1,
-        pageSize: 10,
+        pageSize: 25,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
@@ -177,11 +177,11 @@
               this.$message({
                 message: '操作成功',
                 type: 'success',
-                duration: 1500,
-                onClose: () => {
-                  this.getDataList()
-                }
+                duration: 1500
               })
+              this.pageIndex = 1
+              this.getDataList()
+
             } else {
               this.$message.error(data.msg)
             }

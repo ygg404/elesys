@@ -228,6 +228,7 @@
                 type: 'success',
                 duration: 1500
               })
+              this.pageIndex = 1
               this.getDataList()
             } else {
               this.$message.error(data.msg)

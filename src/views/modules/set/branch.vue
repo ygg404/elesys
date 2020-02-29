@@ -35,11 +35,11 @@
                     <el-col :span="16" style="color: #1fd3e9">{{branchShowDat.branchName}}</el-col>
                   </el-row>
                   <div v-for="(recordVo,index) in branchShowDat.recordVoList">
-                    <el-row class="content_row" >
-                      <el-col :span="8">{{index == 0? '部门成员：': '&ensp; ' }}</el-col>
-                      <el-col :span="8" style="color: #00a0e9;vertical-align: middle;"><div>{{recordVo.username}}</div></el-col>
-                      <el-col :span="8"><div v-if="recordVo.userId === branchShowDat.mdeputyId" class="maintag">主要负责人</div></el-col>
-                      <el-col :span="8"><div v-if="recordVo.userId === branchShowDat.sdeputyId" class="secondtag">副负责人</div></el-col>
+                    <el-row class="content_row tag-group" >
+                      <el-col :span="8" style="line-height: 200%;">{{index == 0? '部门成员：': '&ensp; ' }}</el-col>
+                      <el-col :span="8" style="color: #00a0e9;vertical-align: middle;"><span style="line-height: 200%;">{{recordVo.username}}</span></el-col>
+                      <el-col :span="8"><el-tag v-if="recordVo.userId === branchShowDat.mdeputyId" type="danger">主要负责人</el-tag></el-col>
+                      <el-col :span="8"><el-tag v-if="recordVo.userId === branchShowDat.sdeputyId" type="success">副负责人</el-tag></el-col>
                     </el-row>
                   </div>
                 </div>
@@ -170,7 +170,8 @@
         let tip = '是否删除部门 [' + this.branchShowDat.branchName + '] 及其下级部门所有的信息?'
         this.$confirm(tip, '提示', {
           confirmButtonText: '确定',
-          cancelButtonText: '取消'
+          cancelButtonText: '取消',
+          type: 'error'
         }).then(() => {
           this.$http({
             url: this.$http.adornUrl('/set/branch/delete'),

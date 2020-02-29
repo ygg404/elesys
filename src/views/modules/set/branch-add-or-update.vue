@@ -137,6 +137,7 @@
                   method: 'get',
                   params: this.$http.adornParams()
                 }).then(({data}) => {
+                  this.keySearch = ''
                   if (data && data.code === 0) {
                     this.dataForm.parentId = data.branchVo.parentId === 0 ? -1 : data.branchVo.parentId
                     this.dataForm.branchName = data.branchVo.branchName
@@ -170,6 +171,7 @@
                   }
                 })
               } else {
+                this.keySearch = ''
                 this.dataForm.orderNum = 1
                 this.dataForm.parentId = -1
                 this.dataForm.branchName = ''
