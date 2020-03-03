@@ -45,18 +45,37 @@
         <template slot="title">
           <div class="access_item_title">设置员工加减分考核</div>
         </template>
-        <div>控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；</div>
-        <div>页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。</div>
+        <el-card>
+          <el-table border="1" width="100%" :data="branchUserList" :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+                   :span-method="objectSpanMethod">
+            <el-table-column prop="branchName" header-align="center" align="center" label="部门名称"></el-table-column>
+            <el-table-column prop="username" header-align="center" align="center" label="用户名"></el-table-column>
+            <el-table-column header-align="center" align="center" label="考核目标">
+              <template slot-scope="scope">
+                <div v-for="item in scope.row.accessIdList"><el-tag>{{getAccessName(item)}}</el-tag></div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="accessScore" header-align="center" align="center" label="考核总分"></el-table-column>
+            <el-table-column  header-align="center" align="center" label="操作" width="150">
+              <template slot-scope="scope">
+                <el-button size="small" type="primary" @click="editAccessUserHandle(scope.row)">编辑</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
       </el-collapse-item>
     </el-collapse>
 
     <!-- 弹窗, 新增 / 修改 -->
-    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="init"></add-or-update>
+
+    <accessuser-add-or-update v-if="accessUserVisible" ref="accessuserAddOrUpdate" @refreshDataList="init"></accessuser-add-or-update>
   </div>
 </template>
 
 <script>
   import AddOrUpdate from './access-add-or-update'
+  import accessuserAddOrUpdate from './accessuser-add-or-update'
   import { treeDataTranslate } from '@/utils'
 
   export default {
@@ -68,21 +87,62 @@
           order: 'desc'
         },
         dataList: [],
+        branchUserList: [], // 部门用户列表
         pageIndex: 1,
         pageSize: 25,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        accessUserVisible: false
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,
+      accessuserAddOrUpdate
     },
     activated () {
-      this.getDataList()
+      this.init()
     },
     methods: {
+      // 初始化
+      init () {
+        this.getAccessList().then(success => {
+          this.getBranchList().then(branchUserList => {
+            this.getAccessUserList().then(accessuserlist => {
+              for (let branch of branchUserList) {
+                let accessIdList = []
+                let allscore = 0
+                for (let access of accessuserlist) {
+                  if (access.userId === branch.userId) {
+                    accessIdList.push(access.accessId)
+                    allscore += this.getAccessScoreById(access.accessId)
+                  }
+                }
+                branch.accessIdList = accessIdList
+                branch.accessScore = allscore
+              }
+              this.branchUserList = branchUserList
+              console.log(this.branchUserList)
+            })
+          })
+        })
+      },
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex === 0) {
+          if (row.islast || rowIndex === 0) {
+            return {
+              rowspan: row.size,
+              colspan: 1
+            };
+          } else {
+            return {
+              rowspan: 0,
+              colspan: 0
+            };
+          }
+        }
+      },
       // 排序字段改变
       changeSort (val) {
         console.log(val)
@@ -100,26 +160,23 @@
         this.getDataList()
       },
       // 获取数据列表
-      getDataList () {
-        this.dataListLoading = true
-        this.$http({
-          url: this.$http.adornUrl('/ren/access/list'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'page': this.pageIndex,
-            'limit': this.pageSize,
-            'key': this.dataForm.key,
-            'sidx': this.dataForm.sidx,
-            'order': this.dataForm.order
+      getAccessList () {
+        return new Promise((resolve, reject) => {
+          this.dataListLoading = true
+          this.$http({
+            url: this.$http.adornUrl('/ren/access/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.dataList = treeDataTranslate(data.list)
+              resolve(this.dataList)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+            this.dataListLoading = false
           })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.dataList = treeDataTranslate(data.list)
-            console.log(this.dataList)
-          } else {
-            this.dataList = []
-          }
-          this.dataListLoading = false
         })
       },
       // 每页数
@@ -146,7 +203,7 @@
       },
       // 删除
       deleteHandle (item) {
-        let title = '确定对[id=' + item.id + ']['+ item.accessName + ']进行["删除"]操作?'
+        let title = '确定对[id=' + item.id + '][' + item.accessName + ']进行["删除"]操作?'
         this.$confirm(title, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -172,13 +229,106 @@
             }
           })
         })
+      },
+      // 获取所有部门
+      getBranchList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/branch/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              let branchlist = this.getBranchChildList(treeDataTranslate(data.list))
+              let branchUserList = []
+              for (let branch of branchlist) {
+                for (let i = 0; i < branch.recordVoList.length; i++) {
+                  let record = {
+                    branchName: branch.branchName,
+                    userId: branch.recordVoList[i].userId,
+                    username: branch.recordVoList[i].username,
+                    size: branch.recordVoList.length,
+                    islast: i === 0 ? true : false
+                  }
+                  branchUserList.push(record)
+                }
+              }
+              this.branchList = branchlist
+              console.log(branchUserList)
+              resolve(branchUserList)
+            } else {
+              this.dataList = []
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取所有子部门
+      getBranchChildList (branchlist) {
+        let childList = []
+        for (let branch of branchlist) {
+          if (branch.children !== undefined) {
+            childList = childList.concat(this.getBranchChildList(branch.children))
+          } else {
+            childList.push(branch)
+          }
+        }
+        return childList
+      },
+      // 编辑员工的加减分考核
+      editAccessUserHandle (item) {
+        this.accessUserVisible = true
+        this.$nextTick(() => {
+          this.$refs.accessuserAddOrUpdate.init(item)
+        })
+      },
+      // 获取目标与用户列表
+      getAccessUserList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/ren/accessuser/list`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(treeDataTranslate(data.list))
+            } else {
+              this.$message(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取目标分数
+      getAccessScoreById (accessId) {
+        for (let access of this.dataList) {
+          for (let child of access.children) {
+            if (accessId === child.id) {
+              return access.accessScore
+            }
+          }
+        }
+      },
+      // 获取目标名称
+      getAccessName (accessId) {
+        let accessName = ''
+        for (let access of this.dataList) {
+          for (let child of access.children){
+            if (accessId === child.id){
+              accessName = access.accessName + '/' + child.accessName
+              break
+            }
+          }
+        }
+        return accessName
       }
     }
   }
 </script>
 
 
-<style scoped>
+<style>
 
   .access_item_title{
     width: 99%;
@@ -194,5 +344,7 @@
   .access_item_title:hover {
     color: #0BB2D4;
   }
+
+
 
 </style>

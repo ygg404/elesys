@@ -25,43 +25,42 @@
         </el-popover>
         <el-input v-model="dataForm.branchParentName" v-popover:menuListPopover :readonly="true" placeholder="点击选择上级部门" class="menu-list__input"></el-input>
       </el-form-item>
-<!--      <el-form-item label="序号" prop="orderNum">-->
-<!--        <el-input type="number" v-model="dataForm.orderNum" placeholder="序号"-->
-<!--            min="0" max="10"  ></el-input>-->
-<!--      </el-form-item>-->
       <el-form-item label="部门成员">
-        <div class="check_branch">
-          <el-input prefix-icon="el-icon-search" placeholder="搜索成员关键字"
-                    v-model="keySearch" style="padding: 5px"></el-input>
-          <div class="check_content">
-            <el-checkbox
-              v-for="(item, index) in userAllList"
-              :key="item.userId"
-              :label="item.username"
-              v-if="item.username.indexOf(keySearch.trim()) != -1"
-              v-model="item.checked"
-              @change="chooseUserHandle()"
-              class="checkbox_class"
-            ></el-checkbox>
+        <div class="branch_line">
+          <div class="check_branch" >
+            <el-input prefix-icon="el-icon-search" placeholder="搜索成员关键字"
+                      v-model="keySearch" style="padding: 5px"></el-input>
+            <div class="check_content">
+              <el-checkbox
+                v-for="(item, index) in userAllList"
+                :key="item.userId"
+                :label="item.username"
+                v-if="item.username.indexOf(keySearch.trim()) != -1"
+                v-model="item.checked"
+                @change="chooseUserHandle()"
+                class="checkbox_class"
+              ></el-checkbox>
+            </div>
+          </div>
+          <div class="table_set">
+            <el-table border :data="userValueList">
+              <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>
+              <el-table-column prop="mdeputyId" header-align="center" align="center" label="是否为主负责人" >
+                <template  slot-scope="scope">
+                  <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.mdeputyId"
+                               @change="mdeputyChangeHandle(scope.row)"></el-checkbox>
+                </template>
+              </el-table-column>
+              <el-table-column prop="sdeputyId" header-align="center" align="center" label="是否为副负责人">
+                <template  slot-scope="scope">
+                  <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.sdeputyId"
+                               @change="sdeputyChangeHandle(scope.row)"></el-checkbox>
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
         </div>
-      </el-form-item>
-      <el-form-item>
-        <el-table border :data="userValueList">
-          <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>
-          <el-table-column prop="mdeputyId" header-align="center" align="center" label="是否为主负责人">
-            <template  slot-scope="scope">
-              <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.mdeputyId"
-                           @change="mdeputyChangeHandle(scope.row)"></el-checkbox>
-            </template>
-          </el-table-column>
-          <el-table-column prop="sdeputyId" header-align="center" align="center" label="是否为副负责人">
-            <template  slot-scope="scope">
-              <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.sdeputyId"
-                           @change="sdeputyChangeHandle(scope.row)"></el-checkbox>
-            </template>
-          </el-table-column>
-        </el-table>
+
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -120,8 +119,8 @@
           this.getBranchList().then(success => {
             this.branchList = success
             let parentNode = [{
-              branchName : '无',
-              id : -1,
+              branchName: '无',
+              id: -1,
               parentId: -1
             }]
             success = parentNode.concat(success)
@@ -341,6 +340,11 @@
 
 
 <style>
+  .branch_line{
+    display: flex;
+    justify-content: flex-start;
+  }
+
   .check_branch{
     margin-top: 10px;
     border: 1px solid #167cdd;
@@ -362,6 +366,10 @@
   .check_branch .check_content .checkbox_class{
     width: 95%;
     margin-left: 10px;
+  }
+  .branch_line .table_set{
+    margin-left: 14px;
+    margin-top: 10px;
   }
 
   .el-tree-node.is-current > .el-tree-node__content {

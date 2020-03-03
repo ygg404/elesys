@@ -24,7 +24,7 @@
         <el-input v-model="dataForm.accessName" placeholder="目标名称"></el-input>
       </el-form-item>
       <el-form-item label="目标分数" prop="accessScore" v-if="dataForm.rank === 2">
-        <el-input v-model="dataForm.accessScore" placeholder="目标分数" type="number" min="0" max="100"></el-input>
+        <el-input-number v-model="dataForm.accessScore"  :min="0" :max="20" label="目标分数"></el-input-number>
       </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
