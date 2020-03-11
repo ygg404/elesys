@@ -270,7 +270,6 @@
         rencordTempVisible: false,
         updatePassowrdVisible: false,
         auditvisible: false,
-        userDetail: '',
         loadTime: momnet(new Date()).format('YYYY-MM-DD hh:mm:ss')
       }
     },
@@ -282,10 +281,16 @@
       userId: {
         get () { return this.$store.state.user.id },
         set (val) { this.$store.commit('user/updateId', val) }
+      },
+      userDetail: {
+        get () { return this.$store.state.user.userDetail },
+        set (val) { this.$store.commit('user/updateUserDetail', val) }
       }
     },
     activated () {
-      this.getUserDetailFromApi()
+      // this.getUserDetailFromApi()
+      this.edBackgroundList = this.userDetail.edBackgroundList
+      this.workBackgroundList = this.userDetail.workBackgroundList
     },
     methods: {
       getUserDetailFromApi () {
@@ -295,12 +300,10 @@
           params: this.$http.adornParams()
         }).then(({ data }) => {
           if (data && data.code === 0) {
-            this.userDetail = data.renRecordVo
-            this.edBackgroundList = data.renRecordVo.edBackgroundList
-            this.workBackgroundList = data.renRecordVo.workBackgroundList
+
           } else {
           }
-        });
+        })
       },
       // 撤销审核
       deleteAudit () {
