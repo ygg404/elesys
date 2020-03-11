@@ -270,6 +270,9 @@
         rencordTempVisible: false,
         updatePassowrdVisible: false,
         auditvisible: false,
+        userDetail: '',
+        edBackgroundList:[],
+        workBackgroundList:[],
         loadTime: momnet(new Date()).format('YYYY-MM-DD hh:mm:ss')
       }
     },
