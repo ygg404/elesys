@@ -2,7 +2,9 @@ export default {
   namespaced: true,
   state: {
     id: 0,
-    name: ''
+    name: '',
+    account: '',
+    userDetail: ''
   },
   mutations: {
     updateId (state, id) {
@@ -13,6 +15,9 @@ export default {
     },
     updateAccount (state, account) {
       state.account = account
+    },
+    updateUserDetail (state, userDetail){
+      state.userDetail = userDetail
     }
   }
 }

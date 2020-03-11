@@ -27,7 +27,8 @@
         <el-menu-item class="site-navbar__avatar" index="3">
           <el-dropdown :show-timeout="0" placement="bottom">
             <span class="el-dropdown-link">
-              <img src="~@/assets/img/avatar.png" :alt="userName">{{ userName }}
+              <img :src="userDetail.headImg"  v-if="userDetail.headImg != null"/>
+              <img src="~@/assets/img/avatar.png" :alt="userName" v-if="userDetail.headImg == null">{{ userName }}
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item @click.native="updatePasswordHandle()">修改密码</el-dropdown-item>
@@ -57,6 +58,7 @@
     },
     created () {
       this.getSysNameHandle()
+      this.getUserDetailFromApi()
     },
     computed: {
       navbarLayoutType: {
@@ -70,8 +72,16 @@
         get () { return this.$store.state.common.mainTabs },
         set (val) { this.$store.commit('common/updateMainTabs', val) }
       },
+      userId: {
+        get () { return this.$store.state.user.id },
+        set (val) { this.$store.commit('user/updateId', val) }
+      },
       userName: {
         get () { return this.$store.state.user.name }
+      },
+      userDetail: {
+        get () { return this.$store.state.user.userDetail },
+        set (val) { this.$store.commit('user/updateUserDetail', val) }
       }
     },
     methods: {
@@ -93,6 +103,19 @@
         this.updatePassowrdVisible = true
         this.$nextTick(() => {
           this.$refs.updatePassowrd.init()
+        })
+      },
+      getUserDetailFromApi () {
+        this.$http({
+          url: this.$http.adornUrl(`/ren/recordtemp/info/${this.userId}`),
+          method: 'get',
+          params: this.$http.adornParams()
+        }).then(({ data }) => {
+          if (data && data.code === 0) {
+            this.userDetail = data.renRecordVo
+          } else {
+            this.$message.error(data.msg)
+          }
         })
       },
       // 退出

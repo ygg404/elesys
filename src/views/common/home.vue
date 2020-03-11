@@ -337,7 +337,7 @@
                     <p style="width:140px;"> 工作内容</p>
                   </div>
                 </td>
-               
+
               </tr>
               <!--工作经历动态数据-->
               <tr v-for="(v,i) in workBackgroundList" :key="i">
@@ -365,7 +365,7 @@
               </tr>
             </table>
       </div>
-     
+
     </el-card>
 
     <!-- 弹窗, 修改密码 -->
@@ -389,7 +389,6 @@
         rencordTempVisible: false,
         updatePassowrdVisible: false,
         auditvisible: false,
-        userDetail: '',
         edBackgroundList:[],
         workBackgroundList:[],
         loadTime: momnet(new Date()).format('YYYY-MM-DD hh:mm:ss')
@@ -410,23 +409,11 @@
       }
     },
     activated () {
-      // this.getUserDetailFromApi()
       this.edBackgroundList = this.userDetail.edBackgroundList
       this.workBackgroundList = this.userDetail.workBackgroundList
     },
     methods: {
-      getUserDetailFromApi () {
-        this.$http({
-          url: this.$http.adornUrl(`/ren/recordtemp/info/${this.userId}`),
-          method: 'get',
-          params: this.$http.adornParams()
-        }).then(({ data }) => {
-          if (data && data.code === 0) {
 
-          } else {
-          }
-        })
-      },
       // 撤销审核
       deleteAudit () {
         this.$confirm('是否撤销当前个人资料的编辑', '提示', {
@@ -482,10 +469,6 @@
             if (data && data.code === 0) {
               clearLoginInfo()
             }
-
-
-
-            
           })
         }).catch(() => {})
       },
@@ -508,6 +491,11 @@
 </script>
 
 <style>
+  .home_title{
+    font-size: 14pt;
+    font-weight: 700;
+  }
+
  .titlepstyle {
   height: 30px;
   width: 90px;
