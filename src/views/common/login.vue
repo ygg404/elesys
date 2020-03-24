@@ -1,29 +1,58 @@
 <template>
   <div class="site-wrapper site-page--login">
     <div class="site-content__wrapper">
-      <div class="site-content">
-        <!--<div class="brand-info">-->
-          <!--<h2 class="brand-info__text">前后分离快速开发框架</h2>-->
-          <!--<p class="brand-info__intro">基于vue、element-ui构建开发，实现后台管理前端功能，提供一套更优的前端解决方案。</p>-->
-        <!--</div>-->
-        <div class="login-main">
-          <h3 class="login-title">登录</h3>
-          <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon>
-            <el-form-item prop="userName">
-              <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input v-model="dataForm.password" type="password" placeholder="密码"></el-input>
-            </el-form-item>
+      <div class="login-main">
+        <img src="~@/assets/img/logo.png"  class="login-main-img">
+        <!--          <h3 class="login-title">登录</h3>-->
+        <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon style="margin-top: 20px;">
+          <el-form-item prop="userName">
+            <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input v-model="dataForm.password" type="password" placeholder="密码"></el-input>
+          </el-form-item>
 
-            <el-form-item>
-              <el-button  class="login-btn-submit" :icon="loading==true?'el-icon-loading':''"  type="primary" @click="dataFormSubmit()">登录</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
+          <el-form-item>
+            <el-button  class="login-btn-submit" :icon="loading==true?'el-icon-loading':''"  type="primary" @click="dataFormSubmit()">登录</el-button>
+          </el-form-item>
+        </el-form>
       </div>
+      <div class="site-bottom">
+        <div>Copyright © 2020 gdjxch.cn All rights reserved.</div>
+        <div>粤ICP备19096985号</div>
+      </div>
+
     </div>
+
   </div>
+
+
+<!--  <div class="site-content__wrapper">-->
+<!--    <div class="site-content">-->
+<!--      &lt;!&ndash;<div class="brand-info">&ndash;&gt;-->
+<!--      &lt;!&ndash;<h2 class="brand-info__text">前后分离快速开发框架</h2>&ndash;&gt;-->
+<!--      &lt;!&ndash;<p class="brand-info__intro">基于vue、element-ui构建开发，实现后台管理前端功能，提供一套更优的前端解决方案。</p>&ndash;&gt;-->
+<!--      &lt;!&ndash;</div>&ndash;&gt;-->
+<!--      <div class="login-main">-->
+<!--        <h3 class="login-title">登录</h3>-->
+<!--        <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon>-->
+<!--          <el-form-item prop="userName">-->
+<!--            <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item prop="password">-->
+<!--            <el-input v-model="dataForm.password" type="password" placeholder="密码"></el-input>-->
+<!--          </el-form-item>-->
+
+<!--          <el-form-item>-->
+<!--            <el-button  class="login-btn-submit" :icon="loading==true?'el-icon-loading':''"  type="primary" @click="dataFormSubmit()">登录</el-button>-->
+<!--          </el-form-item>-->
+<!--        </el-form>-->
+<!--      </div>-->
+
+
+<!--    </div>-->
+
+<!--  </div>-->
 </template>
 
 <script>
@@ -134,6 +163,7 @@
     .site-content {
       min-height: 100%;
       padding: 150px 500px 30px 30px;
+      text-align: center;
     }
     .brand-info {
       margin: 220px 100px 0 90px;
@@ -152,14 +182,19 @@
       opacity: .6;
     }
     .login-main {
-       border-radius: 50px 50px 50px 50px;
-    top: 0;
-    right: 0;
-   padding: 50px 60px 50px;
-    width: 470px;
-    min-height: 100%;
-    background-color: #fff;
-    margin-left: 50%;
+      margin-left: 50%;
+      transform: translate(-50%,0);
+      align-items: center;
+      border-radius: 20px;
+      margin-top: 130px;
+      padding: 20px 60px 50px;
+      width: 470px;
+      height: auto;
+      background-color: #fff;
+    }
+    .login-main-img{
+      width: 100%;
+      height: auto;
     }
     .login-title {
       font-size: 16px;
@@ -173,7 +208,19 @@
     }
     .login-btn-submit {
       width: 100%;
-      margin-top: 38px;
+      margin-top: 30px;
+    }
+    .site-bottom{
+      margin-left: 50%;
+      transform: translate(-50%,-50%);
+      position: absolute;
+      text-align: center;
+      color: white;
+      font-size: 11pt;
+      font-weight: 500;
+      width: 470px;
+      bottom: 0;
+      margin-bottom: 10px;
     }
   }
 </style>

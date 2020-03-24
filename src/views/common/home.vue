@@ -97,10 +97,7 @@
                   <div class="titlepstyle">邮箱</div>
                 </td>
                 <td colspan="2">
-                  <div
-                    class="contentpstyle"
-                    style="width:200px; font-size: 18px;"
-                  >{{userDetail.email}}</div>
+                  <div class="contentpstyle" style="width:200px; font-size: 18px;">{{userDetail.email}}</div>
                 </td>
               </tr>
 

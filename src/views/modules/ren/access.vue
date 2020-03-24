@@ -10,7 +10,7 @@
             <el-button  type="primary" icon="el-icon-plus" @click="addOrUpdateHandle()">添加考核目标</el-button>
           </template>
           <div>
-            <el-table :data="dataList" border v-loading="dataListLoading"   style="width: 100%;"
+            <el-table :key="Math.random()" :data="dataList" border v-loading="dataListLoading"   style="width: 100%;"
                       row-key="id" border default-expand-all :tree-props="{children: 'children', hasChildren: 'hasChildren'}">>
               <el-table-column prop="id" header-align="left" align="left" label="ID" width="100"></el-table-column>
               <el-table-column prop="accessName" header-align="center" align="center" label="目标名称">
@@ -46,7 +46,7 @@
           <div class="access_item_title">设置员工加减分考核</div>
         </template>
         <el-card>
-          <el-table border="1" width="100%" :data="branchUserList" :header-cell-style="{background:'#eef1f6',color:'#606266'}"
+          <el-table :key="Math.random()" border="1" width="100%" :data="branchUserList" :header-cell-style="{background:'#eef1f6',color:'#606266'}"
                    :span-method="objectSpanMethod">
             <el-table-column prop="branchName" header-align="center" align="center" label="部门名称"></el-table-column>
             <el-table-column prop="username" header-align="center" align="center" label="用户名"></el-table-column>

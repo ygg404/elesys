@@ -1,40 +1,70 @@
 <template>
   <div class="mod-config">
     <el-card>
-      <el-collapse class="collapse_item">
-        <el-collapse-item  name="1">
-          <template slot="title">
-            <span class="collapse_item_title">基本工资设置</span>
-          </template>
-          <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>
-          <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
-        </el-collapse-item>
-        <el-collapse-item  name="2">
-          <template slot="title">
-            <span class="collapse_item_title">绩效设置</span>
-          </template>
-          <div>控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；</div>
-          <div>页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。</div>
-        </el-collapse-item>
-      </el-collapse>
+      <template slot="header">
+        <div class="pay_item_title">
+          <span>默认工资设置</span>
+          <el-button type="primary" icon="el-icon-edit" style="margin-right: 10px;">编辑</el-button>
+        </div>
+      </template>
+      <el-table :data="dataList" border   style="width: 100%;">
+        <el-table-column prop="username" header-align="center" align="center" label="用户名"></el-table-column>
+        <el-table-column prop="baseSalary" header-align="center" align="center" label="基本工资"></el-table-column>
+        <el-table-column prop="workSalary" header-align="center" align="center" label="职务工资"></el-table-column>
+        <el-table-column prop="titleSalary" header-align="center" align="center" label="职称工资"></el-table-column>
+        <el-table-column prop="housingSalary" header-align="center" align="center" label="住房补贴"></el-table-column>
+        <el-table-column prop="pcSalary" header-align="center" align="center" label="电脑补贴"></el-table-column>
+        <el-table-column prop="mealSalary" header-align="center" align="center" label="餐补贴"></el-table-column>
+        <el-table-column prop="socialSalary" header-align="center" align="center" label="社保"></el-table-column>
+        <el-table-column prop="cutPay" header-align="center" align="center" label="扣款"></el-table-column>
+      </el-table>
     </el-card>
-
   </div>
 </template>
 
 <script>
   export default {
-    name: 'payset'
+    data () {
+      return {
+        dataList: []
+      }
+    },
+
+    activated () {
+      this.getSalarySetlist()
+    },
+    methods: {
+      getSalarySetlist () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/ren/salaryset/list`),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.dataList = data.list
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      }
+    }
   }
 </script>
 
 <style scoped>
-  .collapse_item{
-    border: 1px solid #8c939d;
-  }
-  .collapse_item_title{
-    padding: 5px;
+  .pay_item_title{
+    width: 99%;
     font-size: 14pt;
     font-weight: 700;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    display: flex;
+    justify-content: space-between;
   }
 </style>

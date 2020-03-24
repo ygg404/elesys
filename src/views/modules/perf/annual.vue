@@ -1,5 +1,9 @@
 <template>
-
+  <div class="mod-config">
+    <el-card>
+      ooopppp
+    </el-card>
+  </div>
 </template>
 
 <script>

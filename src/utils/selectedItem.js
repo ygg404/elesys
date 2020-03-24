@@ -36,3 +36,17 @@ export function getEducationItem () {
     {'id': 7, 'dateItem': '博士研究生'}]
   return itemList
 }
+
+/**
+ * 获取请假类型
+ */
+export function getLeaveItem () {
+  let itemList = [
+    {'id': 0, 'leaveItem': '病假'},
+    {'id': 1, 'leaveItem': '事假'},
+    {'id': 2, 'leaveItem': '年假'},
+    {'id': 3, 'leaveItem': '陪产假'},
+    {'id': 4, 'leaveItem': '产假'},
+    {'id': 5, 'leaveItem': '婚假'}]
+  return itemList
+}

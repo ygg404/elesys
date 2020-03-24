@@ -72,12 +72,14 @@ import {
   Aside,
   Main,
   Footer,
+  Calendar,
   Loading,
   MessageBox,
   Message,
   Notification
 } from 'element-ui'
 
+Vue.use(Calendar)
 Vue.use(Pagination)
 Vue.use(Dialog)
 Vue.use(Autocomplete)
