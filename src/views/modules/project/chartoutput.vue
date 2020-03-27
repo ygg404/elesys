@@ -12,7 +12,8 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button icon="el-icon-printer" type="primary" @click="printChart">打印</el-button>
+          <el-button icon="el-icon-printer" type="primary" @click="printChartHandle">打印</el-button>
+          <el-button icon="el-icon-printer" type="success" @click="exportChartHandle">导出Excel</el-button>
         </el-form-item>
       </el-form>
       <div id="chartId">
@@ -25,7 +26,7 @@
             <el-col :span="11"><div class="grid-header">项目名称</div></el-col>
             <el-col :span="3"><div class="grid-header">项目负责人</div></el-col>
             <el-col :span="4"><div class="grid-header">项目启动时间</div></el-col>
-            <el-col :span="3"><div class="grid-header">完成时间</div></el-col>
+            <el-col :span="3"><div class="grid-header">作业完成时间</div></el-col>
             <el-col :span="3"><div class="grid-header">实际产值</div></el-col>
           </el-row>
           <div v-for="(data, index) in dataList">
@@ -37,7 +38,7 @@
               <el-col :span="11"><div>{{data.projectName}}</div></el-col>
               <el-col :span="3"><div >{{data.projectCharge === null? '&ensp; ':data.projectCharge}}</div></el-col>
               <el-col :span="4"><div >{{data.projectStartDateTime === null? '&ensp; ':data.projectStartDateTime}}</div></el-col>
-              <el-col :span="3"><div >{{data.qFinishDateTime === null? '&ensp; ':data.qFinishDateTime}}</div></el-col>
+              <el-col :span="3"><div >{{data.wFinishDateTime === null? '&ensp; ':data.wFinishDateTime}}</div></el-col>
               <el-col :span="3"><div >{{data.projectActuallyOutput}}</div></el-col>
             </el-row>
             <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
@@ -64,12 +65,13 @@
 <script>
   import moment from 'moment'
   import index from '../../../icons'
+  import Vue from 'vue'
 
   export default {
     data () {
       return {
         dataForm: {
-          workGroupID: '',
+          groupId: '',
           startDate: '',
           endDate: ''
         },
@@ -172,7 +174,7 @@
         })
       },
       // 打印报表
-      printChart () {
+      printChartHandle () {
         const print = document.getElementById('chartId').innerHTML
         // 把当前页面替换成要打印的内容
         document.body.innerHTML = print
@@ -180,6 +182,43 @@
         window.print()
         // 刷新页面
         window.location.reload()
+      },
+      // 导出excel表
+      exportChartHandle () {
+        this.dataListLoading = true
+        let that = this
+        let startDate = moment(new Date(this.dataForm.startDate.getFullYear(), this.dataForm.startDate.getMonth(), 1)).format('YYYY-MM-DD')
+        let endDate = moment(new Date(this.dataForm.endDate.getFullYear(), this.dataForm.endDate.getMonth() + 1, 1)).format('YYYY-MM-DD')
+        let downTitle = this.monthTitle
+        let downurl = window.SITE_CONFIG['baseUrl'] + '/project/chartoutput/exportExcel?startDate=' + startDate + '&endDate=' + endDate + '&groupId=' + this.dataForm.groupId
+        let xhr = new XMLHttpRequest()
+        // GET请求,请求路径url,async(是否异步)
+        xhr.open('GET', downurl, true)
+        // 设置请求头参数的方式,如果没有可忽略此行代码
+        xhr.setRequestHeader('token', Vue.cookie.get('token'))
+        // 设置响应类型为 blob
+        xhr.responseType = 'blob'
+        // 关键部分
+        xhr.onload = function (e) {
+          that.dataListLoading = false
+          // 如果请求执行成功
+          if (this.status === 200) {
+            let blob = this.response
+            console.log((e))
+            let filename = downTitle + '产值统计表.xls'
+            let a = document.createElement('a')
+            // 创键临时url对象
+            var url = URL.createObjectURL(blob)
+            a.href = url
+            a.download = filename
+            a.click()
+            // 释放之前创建的URL对象
+            window.URL.revokeObjectURL(url)
+
+          }
+        }
+        // 发送请求
+        xhr.send()
       },
       // 开始时间处理
       startDateHandle () {

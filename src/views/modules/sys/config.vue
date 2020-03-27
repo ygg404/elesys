@@ -54,8 +54,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button type="primary" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+          <el-button type="danger" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -63,7 +63,7 @@
       @size-change="sizeChangeHandle"
       @current-change="currentChangeHandle"
       :current-page="pageIndex"
-      :page-sizes="[10, 20, 50, 100]"
+      :page-sizes="[25, 50, 100]"
       :page-size="pageSize"
       :total="totalPage"
       layout="total, sizes, prev, pager, next, jumper">
@@ -83,7 +83,7 @@
         },
         dataList: [],
         pageIndex: 1,
-        pageSize: 10,
+        pageSize: 25,
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
@@ -157,13 +157,11 @@
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {
             if (data && data.code === 0) {
+              this.getDataList()
               this.$message({
                 message: '操作成功',
                 type: 'success',
-                duration: 1500,
-                onClose: () => {
-                  this.getDataList()
-                }
+                duration: 1500
               })
             } else {
               this.$message.error(data.msg)

@@ -1,7 +1,12 @@
 <template>
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <el-form-item>
+      <el-form-item label="项目类型：">
+        <el-select v-model="dataForm.projectTypeId" clearable placeholder="请选择项目类型" style="width: 100%;" @change="getDataListBykey()" >
+          <el-option v-for="item in projectTypeList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="关键字：" >
         <el-input v-model="dataForm.key" placeholder="关键字搜索" @change="getDataListBykey" clearable></el-input>
       </el-form-item>
       <el-form-item>
@@ -15,7 +20,8 @@
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle"
               @sort-change="changeSort" style="width: 100%;">
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
-      <el-table-column prop="id" header-align="center" align="center" label="ID" width="80"></el-table-column>
+      <el-table-column prop="orderNum" header-align="center" align="center" label="序列号" width="85"></el-table-column>
+<!--      <el-table-column prop="id" header-align="center" align="center" label="ID" width="80"></el-table-column>-->
       <el-table-column prop="typeName" header-align="center" align="center" label="类型名称"></el-table-column>
       <el-table-column prop="unit" header-align="center" align="center" label="单位" width="110"></el-table-column>
       <el-table-column prop="unitOutput" header-align="center" align="center" label="单位产值" width="110"></el-table-column>
@@ -26,8 +32,9 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+      <el-table-column fixed="right" header-align="center" align="center" width="240" label="操作">
         <template slot-scope="scope">
+          <el-button type="warning" size="mini" @click="" icon="el-icon-top" @click="setSortHandle(scope.row)">顺序</el-button>
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -49,15 +56,15 @@
 
 <script>
   import AddOrUpdate from './worktype-add-or-update'
-  import {resolve} from 'url'
 
   export default {
     data () {
       return {
         dataForm: {
           key: '',
-          sidx: 'id',
-          order: 'desc'
+          sidx: 'order_num',
+          order: 'desc',
+          projectTypeId: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -66,7 +73,7 @@
         dataListLoading: false,
         dataListSelections: [],
         addOrUpdateVisible: false,
-        ProjectTypeList: []
+        projectTypeList: []
 
       }
     },
@@ -96,7 +103,6 @@
         this.getProjectList().then(success => {
           this.getDataList()
         })
-
       },
       // 同步获取 项目类型列表数据
       getProjectList () {
@@ -106,7 +112,8 @@
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.ProjectTypeList = data.list
+              let typeDat = [{ id: 0, name: '无'}]
+              this.projectTypeList = typeDat.concat(data.list)
               resolve(data.list)
             } else {
               this.dataList = []
@@ -126,7 +133,8 @@
             'limit': this.pageSize,
             'key': this.dataForm.key,
             'sidx': this.dataForm.sidx,
-            'order': this.dataForm.order
+            'order': this.dataForm.order,
+            'projectTypeId': this.dataForm.projectTypeId
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -137,7 +145,7 @@
               ItemData.projectTypeName = ''
               // 遍历单条数据关联的项目类型ID
               for (let PIDItem of ItemData.projectTypeIdList) {
-                for (let PIDInProjectTypeListItem of this.ProjectTypeList) {
+                for (let PIDInProjectTypeListItem of this.projectTypeList) {
                   if (PIDItem === PIDInProjectTypeListItem.id) {
                     ItemData.projectTypeName += PIDInProjectTypeListItem.name + ','
                   }
@@ -145,10 +153,10 @@
 
               }
               ItemData.projectTypeName = ItemData.projectTypeName.substring(0, ItemData.projectTypeName.length - 1)
-              console.log(ItemData.projectTypeName)
             }
             this.totalPage = data.page.totalCount
           } else {
+            this.$message.error(data.msg)
             this.dataList = []
             this.totalPage = 0
           }
@@ -213,8 +221,33 @@
             }
           })
         })
+      },
+      //  设置顺序
+      setSortHandle (item) {
+        this.$http({
+          url: this.$http.adornUrl('/set/worktype/setSort'),
+          method: 'post',
+          data: this.$http.adornData({
+            'id': item.id
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.$message({
+              message: '改变顺序成功',
+              type: 'success',
+              duration: 1500
+            })
+            this.getDataList()
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
       }
-
     }
   }
 </script>
+
+<style scoped>
+
+
+</style>

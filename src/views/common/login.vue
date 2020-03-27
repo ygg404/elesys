@@ -3,7 +3,6 @@
     <div class="site-content__wrapper">
       <div class="login-main">
         <img src="~@/assets/img/logo.png"  class="login-main-img">
-        <!--          <h3 class="login-title">登录</h3>-->
         <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon style="margin-top: 20px;">
           <el-form-item prop="userName">
             <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>
@@ -19,40 +18,12 @@
       </div>
       <div class="site-bottom">
         <div>Copyright © 2020 gdjxch.cn All rights reserved.</div>
-        <div>粤ICP备19096985号</div>
+        <div><a href="http://www.beian.miit.gov.cn">粤ICP备19096985号</a></div>
       </div>
 
     </div>
 
   </div>
-
-
-<!--  <div class="site-content__wrapper">-->
-<!--    <div class="site-content">-->
-<!--      &lt;!&ndash;<div class="brand-info">&ndash;&gt;-->
-<!--      &lt;!&ndash;<h2 class="brand-info__text">前后分离快速开发框架</h2>&ndash;&gt;-->
-<!--      &lt;!&ndash;<p class="brand-info__intro">基于vue、element-ui构建开发，实现后台管理前端功能，提供一套更优的前端解决方案。</p>&ndash;&gt;-->
-<!--      &lt;!&ndash;</div>&ndash;&gt;-->
-<!--      <div class="login-main">-->
-<!--        <h3 class="login-title">登录</h3>-->
-<!--        <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon>-->
-<!--          <el-form-item prop="userName">-->
-<!--            <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item prop="password">-->
-<!--            <el-input v-model="dataForm.password" type="password" placeholder="密码"></el-input>-->
-<!--          </el-form-item>-->
-
-<!--          <el-form-item>-->
-<!--            <el-button  class="login-btn-submit" :icon="loading==true?'el-icon-loading':''"  type="primary" @click="dataFormSubmit()">登录</el-button>-->
-<!--          </el-form-item>-->
-<!--        </el-form>-->
-<!--      </div>-->
-
-
-<!--    </div>-->
-
-<!--  </div>-->
 </template>
 
 <script>
@@ -82,6 +53,8 @@
       }
     },
     created () {
+      this.dataForm.userAccount = this.$cookie.get('jxaccount')
+      this.dataForm.password = this.$cookie.get('jxpwd')
       // this.getCaptcha()
     },
     methods: {
@@ -103,6 +76,8 @@
               this.loading = false
               if (data && data.code === 0) {
                 this.$cookie.set('token', data.token)
+                this.$cookie.set('jxaccount' , this.dataForm.userAccount)
+                this.$cookie.set('jxpwd' , this.dataForm.password)
                 this.$cookie.set('jxrole', '') // 项目管理默认角色为空
                 this.$cookie.set('jxstartDate', '') // 选择时间（起始时间）
                 this.$cookie.set('jxendDate', '') // 选择时间（结束时间）
@@ -221,6 +196,9 @@
       width: 470px;
       bottom: 0;
       margin-bottom: 10px;
+    }
+    .site-bottom a{
+      color: white
     }
   }
 </style>

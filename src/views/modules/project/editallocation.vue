@@ -109,14 +109,14 @@
     </el-row>
 
     <el-card class="rate_info">
-      <el-table  :data="groupRateList" style="width: 100%" >
+      <el-table  :data="groupRateList" style="width: 100%"  border>
         <el-table-column type="expand" >
           <template slot-scope="props">
             <el-table  :data="props.row.projectList" style="width: 100%;" :row-class-name="getTableclass" border>
-              <el-table-column label="项目名称" prop="projectName"></el-table-column>
+              <el-table-column label="项目名称" prop="projectName" width="450"></el-table-column>
               <el-table-column label="项目启动时间" prop="projectStartDateTime"></el-table-column>
-              <el-table-column label="预算产值" prop="projectOutput"></el-table-column>
-              <el-table-column label="实际产值" prop="projectActuallyOutput"></el-table-column>
+              <el-table-column label="预算产值" prop="projectOutput" ></el-table-column>
+              <el-table-column label="实际产值" prop="projectActuallyOutput" ></el-table-column>
               <el-table-column label="进度" prop="scheduleRate">
                 <template slot-scope="scope">
                   <el-progress :text-inside="true"  :stroke-width="26" :percentage="scope.row.scheduleRate" ></el-progress>
@@ -179,8 +179,8 @@
             </el-table-column>
             <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>
           </el-table>
-          <div>
-            <span style="color: #00b7ee">预计总产值：{{totalOutPut}}</span>
+          <div style="text-align: right;">
+            <span style="color: #00b7ee;margin-right: 0px;">预计总产值：{{totalOutPut}}</span>
           </div>
         </el-col>
       </el-row>
