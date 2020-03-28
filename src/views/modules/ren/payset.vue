@@ -15,8 +15,13 @@
         <el-table-column prop="housingSalary" header-align="center" align="center" label="住房补贴"></el-table-column>
         <el-table-column prop="pcSalary" header-align="center" align="center" label="电脑补贴"></el-table-column>
         <el-table-column prop="mealSalary" header-align="center" align="center" label="餐补贴"></el-table-column>
-        <el-table-column prop="socialSalary" header-align="center" align="center" label="社保"></el-table-column>
-        <el-table-column prop="cutPay" header-align="center" align="center" label="扣款"></el-table-column>
+<!--        <el-table-column prop="socialSalary" header-align="center" align="center" label="社保"></el-table-column>-->
+<!--        <el-table-column prop="cutPay" header-align="center" align="center" label="扣款"></el-table-column>-->
+        <el-table-column  header-align="center" align="center" label="操作" width="150">
+          <template slot-scope="scope">
+            <el-button size="small" type="primary" @click="editPaysetHandle(scope.row)">编辑</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
   </div>
@@ -49,6 +54,12 @@
               reject(data.msg)
             }
           })
+        })
+      },
+      editPaysetHandle (item) {
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(item)
         })
       }
     }

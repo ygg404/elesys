@@ -163,7 +163,7 @@
           </el-card>
         </el-col>
         <el-col :span="16">
-          <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;">
+          <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;" >
             <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="130"></el-table-column>
             <el-table-column prop="unit" header-align="center" align="center"  label="工作量单位" width="110"></el-table-column>
             <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
