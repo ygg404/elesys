@@ -15,6 +15,7 @@
         <el-button v-if="isAuth('set:worktype:delete')" type="danger" @click="deleteHandle()"
                    :disabled="dataListSelections.length <= 0">批量删除
         </el-button>
+        <el-button type="success" icon="el-icon-printer" @click="exportWtypeExcel()">导出Excel</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle"
@@ -56,6 +57,8 @@
 
 <script>
   import AddOrUpdate from './worktype-add-or-update'
+  import moment from 'moment'
+  import Vue from 'vue'
 
   export default {
     data () {
@@ -242,6 +245,40 @@
             this.$message.error(data.msg)
           }
         })
+      },
+      // 导出工作类型excel
+      exportWtypeExcel () {
+        this.dataListLoading = true
+        let that = this
+        let downurl = window.SITE_CONFIG['baseUrl'] + '/set/worktype/exportExcel'
+        let xhr = new XMLHttpRequest()
+        // GET请求,请求路径url,async(是否异步)
+        xhr.open('GET', downurl, true)
+        // 设置请求头参数的方式,如果没有可忽略此行代码
+        xhr.setRequestHeader('token', Vue.cookie.get('token'))
+        // 设置响应类型为 blob
+        xhr.responseType = 'blob'
+        // 关键部分
+        xhr.onload = function (e) {
+          that.dataListLoading = false
+          // 如果请求执行成功
+          if (this.status === 200) {
+            let blob = this.response
+            console.log((e))
+            let filename = '作业类型表.xls'
+            let a = document.createElement('a')
+            // 创键临时url对象
+            var url = URL.createObjectURL(blob)
+            a.href = url
+            a.download = filename
+            a.click()
+            // 释放之前创建的URL对象
+            window.URL.revokeObjectURL(url)
+
+          }
+        }
+        // 发送请求
+        xhr.send()
       }
     }
   }
