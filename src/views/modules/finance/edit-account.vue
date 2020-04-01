@@ -141,9 +141,8 @@
   </el-dialog>
 </template>
 
-<
-<script>
 
+<script>
   export default {
     data: () => ({
       //表单
@@ -153,7 +152,7 @@
         accountNum: '',
         accountType: '',
         accountNote: '',
-        accountAddDateTime: ''
+        accountAddDateTime: new Date()
       },
       dataRule: {
         accountNum: [

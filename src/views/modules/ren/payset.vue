@@ -4,7 +4,6 @@
       <template slot="header">
         <div class="pay_item_title">
           <span>默认工资设置</span>
-          <el-button type="primary" icon="el-icon-edit" style="margin-right: 10px;">编辑</el-button>
         </div>
       </template>
       <el-table :data="dataList" border   style="width: 100%;">
@@ -14,7 +13,7 @@
         <el-table-column prop="titleSalary" header-align="center" align="center" label="职称工资"></el-table-column>
         <el-table-column prop="housingSalary" header-align="center" align="center" label="住房补贴"></el-table-column>
         <el-table-column prop="pcSalary" header-align="center" align="center" label="电脑补贴"></el-table-column>
-        <el-table-column prop="mealSalary" header-align="center" align="center" label="餐补贴"></el-table-column>
+        <el-table-column prop="createDate" header-align="center" align="center" label="修改时间"  width="170"></el-table-column>
 <!--        <el-table-column prop="socialSalary" header-align="center" align="center" label="社保"></el-table-column>-->
 <!--        <el-table-column prop="cutPay" header-align="center" align="center" label="扣款"></el-table-column>-->
         <el-table-column  header-align="center" align="center" label="操作" width="150">
@@ -24,17 +23,26 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+
+    <!-- 弹窗, 新增 / 修改  工资设置-->
+    <payset-add-or-update v-if="paysetVisible" ref="paysetAddOrUpdate" @refreshDataList="getSalarySetlist()"></payset-add-or-update>
   </div>
 </template>
 
 <script>
+  import paysetAddOrUpdate from './payset-add-or-update'
+
   export default {
     data () {
       return {
-        dataList: []
+        dataList: [],
+        paysetVisible: false
       }
     },
-
+    components: {
+      paysetAddOrUpdate
+    },
     activated () {
       this.getSalarySetlist()
     },
@@ -57,9 +65,9 @@
         })
       },
       editPaysetHandle (item) {
-        this.addOrUpdateVisible = true
+        this.paysetVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(item)
+          this.$refs.paysetAddOrUpdate.init(item)
         })
       }
     }

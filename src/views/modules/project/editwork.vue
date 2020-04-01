@@ -392,6 +392,7 @@
       goBack () {
         console.log('goBack')
         closeTab('project-editwork')
+        this.$router.push({name: 'project-project'})
       }
     },
     watch: {

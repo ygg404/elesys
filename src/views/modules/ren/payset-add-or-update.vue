@@ -1,26 +1,26 @@
 <template>
   <el-dialog
-    :title="!dataForm.id ? '新增' : '修改'"
+    :title="设置工资"
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
-      <el-form-item label="基本工资" prop="baseSalary">
-        <el-input v-model="dataForm.baseSalary" placeholder="基本工资"></el-input>
+      <el-form-item label="姓名：" prop="username">
+        <span> {{dataForm.username}} </span>
       </el-form-item>
-      <el-form-item label="职务工资" prop="workSalary">
-        <el-input v-model="dataForm.workSalary" placeholder="职务工资" type="number"></el-input>
+      <el-form-item label="基本工资：" prop="baseSalary">
+        <el-input v-model="dataForm.baseSalary" placeholder="基本工资" type="number" min="0"></el-input>
       </el-form-item>
-      <el-form-item label="职称工资" prop="titleSalary">
-        <el-input v-model="dataForm.titleSalary" placeholder="职称工资" type="number"></el-input>
+      <el-form-item label="职务工资：" prop="workSalary">
+        <el-input v-model="dataForm.workSalary" placeholder="职务工资" type="number" min="0"></el-input>
       </el-form-item>
-      <el-form-item label="住房补贴" prop="housingSalary">
-        <el-input v-model="dataForm.housingSalary" placeholder="住房补贴" type="number"></el-input>
+      <el-form-item label="职称工资：" prop="titleSalary">
+        <el-input v-model="dataForm.titleSalary" placeholder="职称工资" type="number" min="0"></el-input>
       </el-form-item>
-      <el-form-item label="电脑补贴" prop="pcSalary">
-        <el-input v-model="dataForm.pcSalary" placeholder="电脑补贴" type="number"></el-input>
+      <el-form-item label="住房补贴：" prop="housingSalary">
+        <el-input v-model="dataForm.housingSalary" placeholder="住房补贴" type="number" min="0"></el-input>
       </el-form-item>
-      <el-form-item label="餐补贴" prop="mealSalary">
-        <el-input v-model="dataForm.mealSalary" placeholder="餐补贴" type="number"></el-input>
+      <el-form-item label="电脑补贴：" prop="pcSalary">
+        <el-input v-model="dataForm.pcSalary" placeholder="电脑补贴" type="number" min="0"></el-input>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -47,9 +47,6 @@
           socialSalary: ''
         },
         dataRule: {
-          username: [
-            { required: true, message: '用户名不能为空', trigger: 'blur' }
-          ],
           baseSalary: [
             { required: true, message: '基本工资不能为空', trigger: 'blur' }
           ],
@@ -64,16 +61,13 @@
           ],
           pcSalary: [
             { required: true, message: '电脑补贴不能为空', trigger: 'blur' }
-          ],
-          mealSalary: [
-            { required: true, message: '餐补贴不能为空', trigger: 'blur' }
           ]
         }
       }
     },
     methods: {
-      init (id) {
-        this.dataForm.userId = id || 0
+      init (item) {
+        this.dataForm.userId = item.userId
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
@@ -84,15 +78,16 @@
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.username = data.rensalaryset.username
-                this.dataForm.baseSalary = data.rensalaryset.baseSalary
-                this.dataForm.workSalary = data.rensalaryset.workSalary
-                this.dataForm.titleSalary = data.rensalaryset.titleSalary
-                this.dataForm.housingSalary = data.rensalaryset.housingSalary
-                this.dataForm.pcSalary = data.rensalaryset.pcSalary
-                this.dataForm.mealSalary = data.rensalaryset.mealSalary
-                this.dataForm.socialSalary = data.rensalaryset.socialSalary
-                this.dataForm.createDate = data.rensalaryset.createDate
+                this.dataForm.username = data.username
+                if (data.salarySet != null) {
+                  this.dataForm.baseSalary = data.salarySet.baseSalary
+                  this.dataForm.workSalary = data.salarySet.workSalary
+                  this.dataForm.titleSalary = data.salarySet.titleSalary
+                  this.dataForm.housingSalary = data.salarySet.housingSalary
+                  this.dataForm.pcSalary = data.salarySet.pcSalary
+                  this.dataForm.mealSalary = data.salarySet.mealSalary
+                  this.dataForm.socialSalary = data.salarySet.socialSalary
+                }
               }
             })
           }
@@ -103,10 +98,10 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
-              url: this.$http.adornUrl(`/ren/rensalaryset/${!this.dataForm.userId ? 'save' : 'update'}`),
+              url: this.$http.adornUrl(`/ren/salaryset/save`),
               method: 'post',
               data: this.$http.adornData({
-                'userId': this.dataForm.userId || undefined,
+                'userId': this.dataForm.userId,
                 'baseSalary': this.dataForm.baseSalary,
                 'workSalary': this.dataForm.workSalary,
                 'titleSalary': this.dataForm.titleSalary,

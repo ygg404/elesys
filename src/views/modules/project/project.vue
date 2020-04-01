@@ -505,7 +505,11 @@
       editWorkHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
         if (item.scheduleRate < 90) {
-          this.$message.error('项目未完结，最高进度只可达90%，请添加进度后再进行作业编辑')
+          this.$message({
+            message: '项目进度需达到90%以上才能进行编辑，请添加进度后再进行作业编辑',
+            type: 'error',
+            duration: 2500
+          })
           return
         }
         this.$router.push({path: '/project-editwork', query: {projectNo: item.projectNo}})

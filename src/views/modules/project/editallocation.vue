@@ -718,6 +718,7 @@
       goBack () {
         console.log('goBack')
         closeTab('project-editallocation')
+        this.$router.push({name: 'project-project'})
       }
     },
     watch: {

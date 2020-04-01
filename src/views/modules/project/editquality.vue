@@ -312,6 +312,7 @@
       goBack () {
         console.log('goBack')
         closeTab('project-editquality')
+        this.$router.push({name: 'project-project'})
       }
     },
     watch: {
