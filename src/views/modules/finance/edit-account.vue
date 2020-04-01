@@ -9,14 +9,8 @@
     append-to-body>
 
     <!-- 添加收支数据 对话框-->
-    <el-dialog
-      :title="'添加收支数据' "
-      :close-on-click-modal="false"
-      :visible.sync="AccountaddVisible"
-      append-to-body>
-
-      <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
-               label-width="80px">
+    <el-dialog :title="'添加收支数据' " :close-on-click-modal="false" :visible.sync="AccountaddVisible" append-to-body>
+      <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
         <el-form-item label="金额" prop="accountNum">
           <el-input v-model="dataForm.accountNum" placeholder="金额"></el-input>
         </el-form-item>
@@ -152,7 +146,7 @@
         accountNum: '',
         accountType: '',
         accountNote: '',
-        accountAddDateTime: new Date()
+        accountAddDateTime: ''
       },
       dataRule: {
         accountNum: [
@@ -318,15 +312,16 @@
         })
       },
 
-//返回按钮点击事件
+      // 返回按钮点击事件
       CloseThisDialog () {
         this.$emit('refreshDataList')
         this.visible = false
       },
 
-//新增按钮点击事件
+      // 新增按钮点击事件
       AddAcountInfoHandle () {
         this.AccountaddVisible = true
+        this.dataForm.accountAddDateTime = new Date()
       },
       // 排序字段改变
       changeSort (val) {
