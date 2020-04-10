@@ -30,18 +30,14 @@
             </el-form-item>
             <el-row :gutter="24">
               <el-col :span="12">
-                <el-form-item label="预计工作量:" prop="projectWorkload">
-                  <el-input placeholder="工作量" style="max-width: 140px;" v-model="dataForm.projectWorkload" ></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
                 <el-form-item label="预计产值:" prop="projectOutput">
-                  <el-input placeholder="产值" type="number" style="max-width: 120px;" v-model="dataForm.projectOutput" @change="countWorkDateHandler" min="0" ></el-input>
+                  <el-input placeholder="产值" type="number" style="max-width: 140px;" v-model="dataForm.projectOutput" @change="countWorkDateHandler" min="0" ></el-input>
                   <el-tooltip class="item"  content="产值明细计算" placement="right"  >
                     <el-button type="primary"  icon="el-icon-s-platform" @click="setProjectOutputHandle()" ></el-button>
                   </el-tooltip>
                 </el-form-item>
-
+              </el-col>
+              <el-col :span="12">
               </el-col>
             </el-row>
             <el-row :gutter="24">
@@ -94,7 +90,7 @@
         <el-card style="margin-top: 10px;">
           <div slot="header" class="clearfix" style="padding: 0">
             <span class="span_title">预计产值明细  </span>
-            <span v-if="totalOutPut !== 0" style="color:#00b7ee;">(预计总产值：{{totalOutPut}})</span>
+            <span v-if="totalOutPut !== 0" style="color:#00b7ee;">(预计产值合计：{{totalOutPut}})</span>
           </div>
           <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;">
             <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" ></el-table-column>
@@ -104,6 +100,11 @@
             <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" ></el-table-column>
             <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" ></el-table-column>
           </el-table>
+          <div style="margin-top: 10px;width: 100%;" v-if="projectInfo.outputRemark != '' && projectInfo.outputRemark != null">
+            <div><span style="font-weight: 700;font-size: 11pt;">备注:</span>
+              <span style="color: #00b7ee;">{{projectInfo.outputRemark}}</span>
+            </div>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -163,7 +164,7 @@
           </el-card>
         </el-col>
         <el-col :span="16">
-          <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;" >
+          <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;" show-summary :summary-method="getSummaryMethod">
             <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="130"></el-table-column>
             <el-table-column prop="unit" header-align="center" align="center"  label="工作量单位" width="110"></el-table-column>
             <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
@@ -179,8 +180,9 @@
             </el-table-column>
             <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>
           </el-table>
-          <div style="text-align: right;margin-top: 10px;">
-            <span>预计总产值：<span style="color: #00b7ee;">{{totalOutPut}}</span> </span>
+          <div style="margin-top: 10px;width: 100%;">
+            <div><span style="font-weight: 700;font-size: 11pt;">备注填写:</span></div>
+            <el-input type="textarea" placeholder="请输入备注" maxlength="250" show-word-limit class="allo_text" v-model="projectInfo.outputRemark" ></el-input>
           </div>
         </el-col>
       </el-row>
@@ -217,7 +219,6 @@
           projectChargeAccount: '',
           projectOutput: '',
           projectOutputNote: '',
-          projectWorkload: '',
           projectBegunDateTime: '',
           projectWorkDate: '',
           projectQualityDate: '',
@@ -243,9 +244,6 @@
           ],
           projectOutput: [
             { required: true, message: '预计产值不能为空', trigger: 'blur' }
-          ],
-          projectWorkload: [
-            { required: true, message: '预计工作量不能为空', trigger: 'blur' }
           ],
           projectBegunDateTime: [
             { required: true, message: '项目开工时间不能为空', trigger: 'blur' }
@@ -285,6 +283,32 @@
         })
         this.dataForm.projectBegunDateTime = moment(new Date()).format('YYYY-MM-DD')
         // this.getProjectCharge(this.projectNo)  // 获取项目负责人
+      },
+      // 获取统计方法
+      getSummaryMethod (param) {
+        console.log(param)
+        const { columns, data } = param
+        const sums = []
+        columns.forEach((column, index) => {
+          if (index === 0) {
+            sums[index] = '预计产值合计：'
+            return
+          }
+          if (index === 1 || index === 2 || index === 3 || index === 4) {
+            sums[index] = '/'
+            return
+          }
+          if (index === 5) {
+            const values = data.map(item => Number(item[column.property]))
+            let sum = 0
+            for (let value of values) {
+              sum += value
+            }
+            sums[index] = sum
+            return
+          }
+        })
+        return sums
       },
       // 工作日期
       countWorkDateHandler () {
@@ -387,7 +411,6 @@
                 if (data.projectPlan != null) {
                   this.dataForm.id = data.projectPlan.id
                   this.dataForm.projectNo = data.projectPlan.projectNo
-                  this.dataForm.projectWorkload = data.projectPlan.projectWorkload
                   this.dataForm.projectWorkDate = data.projectPlan.projectWorkDate
                   this.dataForm.projectQualityDate = data.projectPlan.projectQualityDate
                   this.dataForm.projectOutput = data.projectPlan.projectOutput
@@ -669,11 +692,32 @@
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
+            this.updateProjectRemark()
             this.dataForm.projectOutput = this.totalOutPut
             this.countWorkDateHandler()
           } else {
             this.$message.error(data.msg)
           }
+        })
+      },
+      // 通过项目ID 更新项目预算产值备注
+      updateProjectRemark () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/project/update`),
+            method: 'post',
+            data: this.$http.adornData({
+              'id': this.projectInfo.id || undefined,
+              'outputRemark': this.projectInfo.outputRemark
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              ;
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
         })
       },
       // 工作类型在表格勾选显示
@@ -718,7 +762,6 @@
       goBack () {
         console.log('goBack')
         closeTab('project-editallocation')
-        this.$router.push({name: 'project-project'})
       }
     },
     watch: {

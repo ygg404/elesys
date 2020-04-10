@@ -58,7 +58,7 @@
     },
     created () {
       this.getSysNameHandle()
-      this.getUserDetailFromApi()
+      // this.getUserDetailFromApi()
     },
     computed: {
       navbarLayoutType: {

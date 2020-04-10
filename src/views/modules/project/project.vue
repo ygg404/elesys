@@ -51,7 +51,6 @@
               </div>
               <span slot="reference" style="cursor: pointer">{{scope.row.projectNo}}</span>
             </el-popover>
-
           </template>
         </el-table-column>
         <el-table-column prop="projectName" header-align="center" align="left" label="项目名称" :show-overflow-tooltip="true"></el-table-column>
@@ -60,7 +59,13 @@
         <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="105" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.projectStatus === 0" size="small" type="primary">启动</el-tag>
-            <el-tag v-else-if="scope.row.projectStatus === 1" size="small" type="danger">暂停</el-tag>
+            <el-popover v-else-if="scope.row.projectStatus === 1" placement="right" width="240" trigger="hover" >
+              <div style="background-color:#f0f0f0;color: #00a0e9;border:1px solid #5daf34">
+                <div>暂停缘由:<span style="color: red">{{scope.row.suspendExcuse}}</span></div>
+                <div>暂停时间:<span style="color: red">{{scope.row.suspendTime}}</span></div>
+              </div>
+              <span slot="reference" style="cursor: pointer"><el-tag size="small" type="danger">暂停</el-tag></span>
+            </el-popover>
           </template>
         </el-table-column>
         <el-table-column key="a"  prop="isPlan" header-align="center" align="center" label="安排情况" width="105" v-if="roleradio===1" :sort-orders="['descending','ascending']" sortable="custom">
@@ -213,15 +218,33 @@
       </el-dialog>
 
       <!--返修内容表-->
-      <el-dialog :title="backTip" :visible.sync="backDialogVisible" >
+      <el-dialog :title="backTip" :visible.sync="backDialogVisible" :close-on-click-modal="false" :before-close="reportDialogClose">
         <el-table :data="backWorkList">
           <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
-          <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" ></el-table-column>
+          <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" >
+            <template slot-scope="scope">
+              <div style="padding: 5px;">
+                <el-button type="primary" size="small" icon="el-icon-search" @click="checkReportHandle(scope.row)">查看内容</el-button>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column prop="submitNote" header-align="center" align="center" label="修改说明"></el-table-column>
         </el-table>
+        <el-card :class="reportVisible? 'anim_report_view' : 'anim_not_view' " class="quality_card">
+          <div class="quality_card_title">{{reportTitle}}</div>
+          <div ref="reportId" class="quality_report"></div>
+        </el-card>
         <span slot="footer" class="dialog-footer">
-        <el-button @click="backDialogVisible = false" type="primary" plain>返回</el-button>
-      </span>
+          <el-button @click="backDialogVisible = false,reportVisible=false"  plain>返回</el-button>
+        </span>
+      </el-dialog>
+      <!--暂停缘由填写-->
+      <el-dialog :title="'暂停缘由 (项目编号:' + selectedItem.projectNo + ')'"   :visible.sync="suspendVisible" >
+        <el-input v-model="suspendExcuse" placeholder="请填写暂停的缘由"></el-input>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="suspendVisible = false" >取消</el-button>
+          <el-button @click="updateStatusHandle(selectedItem)" type="primary">确定</el-button>
+        </span>
       </el-dialog>
 
     </el-card>
@@ -247,10 +270,13 @@
         pickerOptionsEnd: {},
         projectscheduleVisible: false,
         backworkVisible: false,
+        suspendVisible: false,  // 暂停项目窗口
         backTip: '',
         backDialogVisible: false,
         dateItemList: [], // 时间类型列表
         backWorkList: [], // 返修列表
+        reportVisible: false, // 返修报告弹出窗
+        reportTitle: '',  // 报告标题
         dataForm: {
           dateItemId: 0,
           key: '',
@@ -271,7 +297,9 @@
         scheduleDialogVisible: false,  // 项目进度表
         scheduleTip: '',
         scheduleList: [],
-        allocationVisible: false  // 项目安排
+        allocationVisible: false,  // 项目安排
+        suspendExcuse: '',    // 暂停缘由
+        selectedItem: '' // 暂停选中的项目
       }
     },
     components: {
@@ -469,7 +497,19 @@
             this.backWorkList = []
           }
           this.dataListLoading = false
+          this.$refs.reportId.innerHTML = '' // 清空显示返修内容
         })
+      },
+      // 查看质检反馈内容
+      checkReportHandle (item) {
+        this.reportVisible = true
+        this.reportTitle = '质检反馈报告（ 时间：' + item.backCreateTime + ')'
+        this.$refs.reportId.innerHTML = item.backNote
+      },
+      // 返修列表关闭事件
+      reportDialogClose () {
+        this.reportVisible = false
+        this.backDialogVisible = false
       },
       // 提交进度
       setScheduleHandle (item) {
@@ -507,6 +547,14 @@
         if (item.scheduleRate < 90) {
           this.$message({
             message: '项目进度需达到90%以上才能进行编辑，请添加进度后再进行作业编辑',
+            type: 'error',
+            duration: 2500
+          })
+          return
+        }
+        if (item.isWork === 2){
+          this.$message({
+            message: '当前项目处于返修状态，请添加修改说明后方可编辑。',
             type: 'error',
             duration: 2500
           })
@@ -568,13 +616,24 @@
       },
       // 暂停或启动项目
       stopProjectHandle (item) {
+        this.suspendExcuse = ''
+        if (item.projectStatus === 0) {
+          this.suspendVisible = true
+          this.selectedItem = item
+        } else {
+          this.updateStatusHandle(item)
+        }
+      },
+      // 暂停请求事件
+      updateStatusHandle (item) {
         this.$http({
           url: this.$http.adornUrl(`/project/work/updateStatus`),
           method: 'post',
           data: this.$http.adornData({
             'id': item.id,
             'projectNo': item.projectNo,
-            'projectStatus': item.projectStatus === 0 ? 1 : 0
+            'projectStatus': item.projectStatus === 0 ? 1 : 0,
+            'suspendExcuse': this.suspendExcuse
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -583,6 +642,7 @@
               type: 'success',
               duration: 1500
             })
+            this.suspendVisible = false
             this.getDataList()
           } else {
             this.$message.error(data.msg)
@@ -625,5 +685,31 @@
     user-select: none;
   }
 
+  .quality_card{
+    margin-top: 15px;
+  }
+  .quality_card .quality_card_title{
+    font-weight: 700;
+    font-size: 13pt;
+    border-bottom: 1px solid #00a0e93f;
+  }
+  .quality_report{
+    overflow: auto;
+    max-height: 500px;
+    padding: 8px;
+  }
+  .anim_not_view{
+    opacity: 0;
+  }
+  /* 下拉动画 */
+  .anim_report_view{
+    display: block;
+    animation:2s report_view 0s;
+  }
 
+  @keyframes report_view{
+    0%{opacity:0}
+    50%{opacity:.8;}
+    100%{opacity:0;}
+  }
 </style>

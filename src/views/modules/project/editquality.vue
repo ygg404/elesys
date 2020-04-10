@@ -1,7 +1,7 @@
 <template>
   <div class="mod-config">
     <el-collapse >
-      <el-collapse-item style="border: 1px solid #8c939d ">
+      <el-collapse-item>
         <template slot="title">
           <span class="span_title">项目基本信息</span>
         </template>
@@ -17,24 +17,53 @@
           <div>工作小结：{{projectInfo.briefSummary}}</div>
         </div>
       </el-collapse-item>
-      <el-collapse-item style="border: 1px solid #2D64B3 ">
+      <el-collapse-item>
         <template slot="title">
           <span class="span_title">返修记录信息</span>
         </template>
-        <el-table :data="backWorkList">
+        <el-table :data="backWorkList" border>
           <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
-          <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" ></el-table-column>
+          <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" >
+            <template slot-scope="scope">
+              <el-button type="primary" size="mini" icon="el-icon-search" @click="checkReportHandle(scope.row)">查看内容</el-button>
+            </template>
+          </el-table-column>
           <el-table-column prop="submitNote" header-align="center" align="center" label="修改说明"></el-table-column>
         </el-table>
+        <!-- 质检反馈详情-->
+        <el-card :class="reportVisible? 'anim_report_view' : 'anim_not_view' " class="quality_card">
+          <div class="quality_card_title">{{reportTitle}}</div>
+          <div ref="reportPreId" class="quality_report"></div>
+        </el-card>
       </el-collapse-item>
     </el-collapse>
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" class="form_class">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" class="form_class">
       <el-card class="box-card" >
-        <div slot="header" class="clearfix" style="padding: 0">
-          <span class="span_title">质量检查信息</span>
+        <div slot="header" class="clearfix" >
+          <div class="quality_title">
+            <span class="span_title">质量检查信息</span>
+            <div>
+              <el-button icon="el-icon-s-order" type="success" size="large" @click="editQualityReportHandler">编辑质检反馈</el-button>
+              <el-button icon="el-icon-edit" type="primary" size="large" @click="addQualityscoreHandler">编辑质量评分</el-button>
+            </div>
+          </div>
         </div>
         <el-row :gutter="24">
-          <el-col :span="20">
+          <el-col :span="22" >
+            <el-collapse >
+              <el-collapse-item style="border: 1px solid #00a0e9;" >
+                <template slot="title" >
+                  <div class="span_title back_title" >质检反馈</div>
+                </template>
+                <div style="background-color: #f0f0f0;margin-top: 20px;">
+                  <div ref="reportId"></div>
+                </div>
+              </el-collapse-item>
+            </el-collapse>
+          </el-col>
+        </el-row>
+        <el-row :gutter="24" style="margin-top: 20px;">
+          <el-col :span="22" >
             <el-select  placeholder="质量综述快捷输入" v-model="qualityNoteValue" style="width: 100%" multiple collapse-tags  @change="qualityNoteHandler()" >
               <el-option v-for="item in qualityNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
             </el-select>
@@ -47,53 +76,48 @@
         <el-form-item label="质量评分" prop="qualityScore">
           <el-input type="number" placeholder="质量评分" oninput="if(value>100)value=100;if(value<0)value=0;" max="100" min="0" size="large"  v-model="dataForm.qualityScore" style="width: 140px;"></el-input>
         </el-form-item>
-        <el-button type="primary" size="large" @click="addQualityscoreHandler">添加质量评分</el-button>
+
       </el-card>
     </el-form>
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
-      <el-button type="danger" size="large" @click="repairVisible = true" :disabled="isCheck == 2">退回返修</el-button>
+      <el-button type="danger" size="large" @click="repairNoteSubmit" :disabled="isCheck == 2">退回返修</el-button>
+      <el-button type="danger" size="large" @click="recallRepairHandle" :disabled="isCheck != 2">撤回返修</el-button>
     </div>
 
-    <el-dialog title="提出返修" :close-on-click-modal="false" width="50%" :visible.sync="repairVisible">
-      <el-select  placeholder="返修意见快捷输入" v-model="repairValue" style="width: 100%" multiple collapse-tags  @change="repairNoteHandler()" >
-        <el-option v-for="item in repairNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
-      </el-select>
-      <el-form :model="repairForm" :rules="repairRule" ref="repairForm" @keyup.enter.native="repairNoteSubmit()" class="form_class">
-        <el-form-item prop="backNote">
-          <el-input type="textarea" placeholder="请输入返修意见" maxlength="1000" size="large" show-word-limit rows="4"   v-model="repairForm.backNote" ></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="repairVisible = false">取消</el-button>
-        <el-button type="primary" @click="repairNoteSubmit()">确定</el-button>
-      </span>
-    </el-dialog>
 
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
     <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="setQualityScore"></qualityscore-add-or-update>
+    <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检编辑-->
+    <qualityedit-add-or-update v-if="editVisible" ref="qualityeditAddOrUpdate" @refreshReport="setQualityReport"></qualityedit-add-or-update>
+
   </div>
 </template>
 
 <script>
   import {closeTab} from '@/utils/tabs'
   import qualityscoreAddOrUpdate from './qualityscore-add-or-update'
+  import qualityeditAddOrUpdate from './qualityedit-add-or-update'
 
   export default {
     data () {
       return {
         projectNo: '',
+        reportVisible: false,
+        reportTitle: '',
         isCheck: 0, // 检查状态： 2为返修中
         projectInfo: '',
         qualityNotelist: [],
         qualityNoteValue: '',
-        qualityScoreVisible: false,
-        repairVisible: false,
+        qualityScoreVisible: false, // 质检分数可视图
+        repairVisible: false, // 返修可视图
+        editVisible: false,  // 编辑质检报告可视图
         backWorkList: [],
         dataForm: {
           id: '',
-          qualityNote: '',
+          qualityReport: '',    // 质检报告
+          qualityNote: '',      // 质检综述
           qualityScore: ''
         },
         dataRule: {
@@ -103,21 +127,12 @@
           qualityScore: [
             { required: true, message: '质量分数不能为空', trigger: 'blur' }
           ]
-        },
-        repairNotelist: [], // 返修快捷输入列表
-        repairValue: '', // 返修短语
-        repairForm: {
-          backNote: ''
-        },  // 返修意见
-        repairRule: {
-          backNote: [
-            { required: true, message: '返修意见不能为空', trigger: 'blur' }
-          ]
         }
       }
     },
     components: {
-      qualityscoreAddOrUpdate
+      qualityscoreAddOrUpdate,
+      qualityeditAddOrUpdate
     },
     activated () {
       this.init()
@@ -161,6 +176,17 @@
           }
         })
       },
+      // 查看质检反馈内容
+      checkReportHandle (item) {
+        this.reportVisible = true
+        this.reportTitle = '质检反馈报告（ 日期：' + item.backCreateTime + ')'
+        this.$refs.reportPreId.innerHTML = item.backNote
+      },
+      // 返修列表关闭事件
+      reportDialogClose () {
+        this.reportVisible = false
+        this.visible = false
+      },
       // 获取项目基本信息
       getInfoByProjectNo (projectNo) {
         return new Promise((resolve, reject) => {
@@ -193,6 +219,8 @@
               this.dataForm.id = data.checkQuality.id
               this.dataForm.qualityNote = data.checkQuality.qualityNote
               this.dataForm.qualityScore = data.checkQuality.qualityScore
+              this.dataForm.qualityReport = data.checkQuality.qualityReport
+              this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
               resolve(data.projectInfo)
             } else {
               this.$message.error(data.msg)
@@ -260,41 +288,37 @@
           }
         }
       },
-      repairNoteHandler () {
-        console.log(this.repairNote)
-        this.repairNote = ''
-        for (let value of this.repairValue) {
-          for (let note of this.repairNotelist) {
-            if (note.id === value) this.repairNote = this.repairNote + note.shortcutNote + ';'
-          }
-        }
-      },
-      // 提交返修意见
+      // 提交退回返修
       repairNoteSubmit () {
-        this.$refs['repairForm'].validate((valid) => {
-          if (valid) {
-            this.$http({
-              url: this.$http.adornUrl(`/project/backwork/save`),
-              method: 'post',
-              data: this.$http.adornData({
-                'projectNo': this.projectNo,
-                'backNote': this.repairForm.backNote
-              })
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.$message({
-                  message: '操作成功',
-                  type: 'success',
-                  duration: 1500
-                })
-                this.visible = false
-                this.$emit('refreshDataList')
-                this.goBack()
-              } else {
-                this.$message.error(data.msg)
-              }
-            })
+        this.$confirm('是否确定退回返修，并将质检报告反馈于作业人员？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(() => {
+          if (this.dataForm.qualityReport === null || this.dataForm.qualityReport === ''){
+            this.$message.error('质检反馈报告不能为空!')
+            return
           }
+          this.$http({
+            url: this.$http.adornUrl(`/project/backwork/save`),
+            method: 'post',
+            data: this.$http.adornData({
+              'projectNo': this.projectNo,
+              'backNote': this.dataForm.qualityReport
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.visible = false
+              this.$emit('refreshDataList')
+              this.goBack()
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
         })
       },
       // 添加质量评分
@@ -308,11 +332,47 @@
       setQualityScore (score) {
         this.dataForm.qualityScore = score
       },
+      // 设置报告内容
+      setQualityReport (content) {
+        this.dataForm.qualityReport = content
+        this.$refs.reportId.innerHTML = content
+      },
+      // 质检报告的编辑
+      editQualityReportHandler () {
+        this.editVisible = true
+        this.$nextTick(() => {
+          this.$refs.qualityeditAddOrUpdate.init(this.dataForm.qualityReport)
+        })
+      },
+      // 撤回返修
+      recallRepairHandle () {
+        this.$confirm('是否确定撤回质检反馈报告？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/backwork/delete`),
+            method: 'post',
+            data: this.projectNo
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '撤销返修成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.init()
+              this.isCheck = 0
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
       // 返回
       goBack () {
         console.log('goBack')
         closeTab('project-editquality')
-        this.$router.push({name: 'project-project'})
       }
     },
     watch: {
@@ -339,10 +399,56 @@
     font-size: 18px;
     font-weight: 700;
   }
+  .span_title :hover{
+    color: #00a0e9;
+  }
 
   .bottom_btn{
     margin: 20px;
     width: 100%;
     text-align: center;
+  }
+  .quality_title{
+    padding: 0;
+    justify-content: space-between;
+    display: flex
+  }
+
+  .col_item .el-collapse-item__header focusing is-active{
+    border-bottom: 1px solid #2D64B3;
+  }
+
+  .back_title{
+    color: #00a0e9;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid #00a0e93f;
+  }
+  .quality_card{
+    margin-top: 15px;
+  }
+  .quality_card .quality_card_title{
+    font-weight: 700;
+    font-size: 13pt;
+    border-bottom: 1px solid #00a0e93f;
+  }
+  .quality_report{
+    overflow: auto;
+    max-height: 500px;
+    padding: 8px;
+  }
+  .anim_not_view{
+    opacity: 0;
+  }
+  /* 下拉动画 */
+  .anim_report_view{
+    display: block;
+    animation:2s report_view 0s;
+  }
+
+  @keyframes report_view{
+    0%{opacity:0}
+    50%{opacity:.8;}
+    100%{opacity:0;}
   }
 </style>

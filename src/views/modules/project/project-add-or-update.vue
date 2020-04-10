@@ -190,7 +190,7 @@
                   duration: 1500
                 })
                 this.visible = false
-                this.$emit('refreshDataList')
+                this.$emit('refreshDataList' , this.dataForm.contractNo)
               } else {
                 this.$message.error(data.msg)
               }

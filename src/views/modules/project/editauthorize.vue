@@ -138,7 +138,6 @@
       goBack () {
         console.log('goBack')
         closeTab('project-editauthorize')
-        this.$router.push({name: 'project-project'})
       }
     },
     watch: {

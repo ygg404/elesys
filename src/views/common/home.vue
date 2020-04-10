@@ -560,7 +560,7 @@
 .title_of_audit_opinion_style {
   float: left;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 500;
   margin-bottom: 5px;
 }
 /**审核意见内容样式 */

@@ -52,6 +52,7 @@
               <el-radio :label="groupOutput.groupId">
                 <span class="group_card">{{groupOutput.groupName}}</span>
                 <span>(队长：{{groupOutput.headMan}})</span>
+                <span v-if="groupOutput.headMan == projectInfo.projectCharge" style="color: red">(项目负责人)</span>
               </el-radio>
             </div>
             <el-table :data="chooseRatio(groupOutput.checkOutputVoList)" border  style="width: 100%;">
@@ -375,7 +376,6 @@
       goBack () {
         console.log('goBack')
         closeTab('project-editoutput')
-        this.$router.push({name: 'project-project'})
       }
     },
     watch: {

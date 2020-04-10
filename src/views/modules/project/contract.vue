@@ -15,7 +15,8 @@
         <el-button @click="getDataList()">查询</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">
+    <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" :row-key="getRowKeys"
+              :expand-row-keys="expands" @sort-change="changeSort" @current-change="toggleRowExpansion" style="width: 100%;">
       <el-table-column type="expand" >
         <template slot-scope="props">
           <el-table  :data="props.row.projectList" style="width: 98%;margin-left: 2%;"  border>
@@ -84,6 +85,7 @@
   export default {
     data () {
       return {
+        expands: [],
         pickerOptionsStart: {},
         pickerOptionsEnd: {},
         dataForm: {
@@ -136,7 +138,7 @@
         this.getDataList()
       },
       // 获取数据列表
-      getDataList () {
+      getDataList (contractNo = '') {
         let startDate = ''
         let endDate = ''
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
@@ -158,6 +160,7 @@
           if (data && data.code === 0) {
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
+            if (contractNo !== '') this.expands.push(contractNo)
           } else {
             this.dataList = []
             this.totalPage = 0
@@ -256,6 +259,14 @@
             this.$message.error(data.msg)
           }
         })
+      },
+      toggleRowExpansion (row) {
+        this.expands = []
+        this.expands.push(row.contractNo)
+      },
+      // 获取row的key值
+      getRowKeys (row) {
+        return row.contractNo
       },
       // 下载合同文件
       downloadFile (item) {
