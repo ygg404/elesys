@@ -25,7 +25,7 @@
 <!--      <el-table-column prop="id" header-align="center" align="center" label="ID" width="80"></el-table-column>-->
       <el-table-column prop="typeName" header-align="center" align="center" label="类型名称"></el-table-column>
       <el-table-column prop="unit" header-align="center" align="center" label="单位" width="110"></el-table-column>
-      <el-table-column prop="unitOutput" header-align="center" align="center" label="单位产值" width="110"></el-table-column>
+      <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单价" width="110"></el-table-column>
       <el-table-column label="项目类型" prop="projectTypeName" header-align="center" align="center">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.projectTypeName != ''" v-for="(item,index) in scope.row.projectTypeName.split(',')"

@@ -7,13 +7,13 @@
       <el-row>
         <el-col :span="4" ><div class="form_disable_item">检查项内容:{{scoreDetail.checkcontent}}</div></el-col>
 <!--        <el-col :span="3"><div class="form_disable_item"><el-input placeholder="检查类型" v-model="scoreDetail.check_type"></el-input></div></el-col>-->
-        <el-col :span="6"><div class="form_disable_item"><el-input placeholder="检查结果" v-model="scoreDetail.check_result"></el-input></div></el-col>
+        <el-col :span="8"><div class="form_disable_item"><el-input placeholder="检查结果" v-model="scoreDetail.check_result"></el-input></div></el-col>
         <el-col :span="2"><div  style="text-align: right">错漏数量:</div></el-col>
         <el-col :span="2"><div class="form_disable_item"><el-input placeholder="A类" type="number" v-model="scoreDetail.check_a" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
         <el-col :span="2"><div class="form_disable_item"><el-input placeholder="B类" type="number" v-model="scoreDetail.check_b" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
         <el-col :span="2"><div class="form_disable_item"><el-input placeholder="C类" type="number" v-model="scoreDetail.check_c" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
         <el-col :span="2"><div class="form_disable_item"><el-input placeholder="D类" type="number" v-model="scoreDetail.check_d" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
-        <el-col :span="3"><div >检查项扣分:<span style="color: red">{{scoreDetail.score}}</span></div></el-col>
+        <el-col :span="2"><div >检查项扣分:<span style="color: red">{{scoreDetail.score}}</span></div></el-col>
       </el-row>
     </div>
     <div class="form_title">总分：<span style="color: #00b7ee">{{allScore}}</span></div>

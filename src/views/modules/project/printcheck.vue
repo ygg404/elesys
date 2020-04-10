@@ -20,7 +20,7 @@
           <div class="tdstyle" style="width: 510pt;border-top: 1px solid black;min-height: 25pt;">{{projectInfo.workRequire}}</div>
         </div>
         <div class="block">
-          <div class="ththead" style="width: 590pt;border-top: 1px solid black;text-align: left;">返修记录：</div>
+          <div class="ththead" style="width: 590pt;border-top: 1px solid black;text-align: left;">质检反馈：</div>
         </div>
         <div class="block" >
           <el-row v-if="backWorkList.length === 0" style="width: 590pt;">
@@ -29,31 +29,32 @@
             <el-col :span="2" >&nbsp;</el-col>
           </el-row>
         </div>
-        <div class="block" v-if="backWorkList.length !== 0">
-          <el-row style="width: 590pt;">
-            <el-col :span="1" >&nbsp;</el-col>
-            <el-col :span="5"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修日期</div></el-col>
-            <el-col :span="8"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修要求</div></el-col>
-            <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 修改说明</div></el-col>
-            <el-col :span="1">&nbsp;</el-col>
-          </el-row>
-        </div>
-        <div class="block" v-for="(item, index) in backWorkList" :key ="item.id">
-          <el-row  style="width: 590pt;">
-            <el-col :span="1" >&nbsp;</el-col>
-            <el-col :span="5"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backCreateTime}}</div></el-col>
-            <el-col :span="8"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backNote}}</div></el-col>
-            <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.submitNote}}</div></el-col>
-            <el-col :span="1" >&nbsp;</el-col>
-          </el-row>
-        </div>
-        <div class="block" v-if="backWorkList.length !== 0">
-          <el-row  style="width: 590pt;">
-            <el-col :span="1" >&nbsp;</el-col>
-            <el-col :span="22"><div  style="border-top:1.0000pt solid #8c939d;min-height: 21.7500pt;line-height: 150%;text-align: left;">&nbsp;</div></el-col>
-            <el-col :span="1" >&nbsp;</el-col>
-          </el-row>
-        </div>
+        <div style="text-align: left;padding: 4px;" ref="reportId"></div>
+<!--        <div class="block"  >-->
+<!--          <el-row style="width: 590pt;">-->
+<!--            <el-col :span="1" >&nbsp;</el-col>-->
+<!--            <el-col :span="5"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修日期</div></el-col>-->
+<!--            <el-col :span="8"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 返修要求</div></el-col>-->
+<!--            <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> 修改说明</div></el-col>-->
+<!--            <el-col :span="1">&nbsp;</el-col>-->
+<!--          </el-row>-->
+<!--        </div>-->
+<!--        <div class="block" v-for="(item, index) in backWorkList" :key ="item.id">-->
+<!--          <el-row  style="width: 590pt;">-->
+<!--            <el-col :span="1" >&nbsp;</el-col>-->
+<!--            <el-col :span="5"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backCreateTime}}</div></el-col>-->
+<!--            <el-col :span="8"><div class="tableborder" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.backNote}}</div></el-col>-->
+<!--            <el-col :span="9"><div class="tableborder_end" style="min-height: 21.7500pt;line-height: 150%;text-align: left;"> {{item.submitNote}}</div></el-col>-->
+<!--            <el-col :span="1" >&nbsp;</el-col>-->
+<!--          </el-row>-->
+<!--        </div>-->
+<!--        <div class="block" v-if="backWorkList.length !== 0">-->
+<!--          <el-row  style="width: 590pt;">-->
+<!--            <el-col :span="1" >&nbsp;</el-col>-->
+<!--            <el-col :span="22"><div  style="border-top:1.0000pt solid #8c939d;min-height: 21.7500pt;line-height: 150%;text-align: left;">&nbsp;</div></el-col>-->
+<!--            <el-col :span="1" >&nbsp;</el-col>-->
+<!--          </el-row>-->
+<!--        </div>-->
         <div class="block">
           <el-row  style="width: 590pt;">&nbsp;</el-row>
         </div>
@@ -65,32 +66,32 @@
             <el-col :span="1">&nbsp;</el-col>
             <el-col :span="22">
               <table style="width:100%;margin:0 auto" border="1" cellspacing="0">
-                <tr><th>检查内容</th><th>检查类型</th><th>检查结果</th><th>错漏数量A类</th><th>错漏数量B类</th><th>错漏数量C类</th><th>错漏数量D类</th><th>检查项扣分</th></tr>
+                <tr><th>检查内容</th><th>检查结果</th><th>错漏数量A类</th><th>错漏数量B类</th><th>错漏数量C类</th><th>错漏数量D类</th><th>检查项扣分</th></tr>
                 <!--19年检查项-->
                 <tr v-if="preShow"><td colspan="8">空间基准质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 0 & item.typeId < 4">
-                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                  <td> {{item.checkcontent}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
                 <tr v-if="preShow"><td colspan="8">采集、定处理质量(权:0.4) <span class="from_span">质量元素扣分: <span style="color: red">{{cjScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 4 & item.typeId < 10">
-                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                  <td> {{item.checkcontent}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
                 <tr v-if="preShow"><td colspan="8">成果质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{cgScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 10 & item.typeId <= 15">
-                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                  <td> {{item.checkcontent}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
                 <!--20年检查项-->
                 <tr v-if="nextShow"><td colspan="8">作业依据、空间基准及数学精度(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{zcScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId > 15 & item.typeId < 22">
-                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                  <td> {{item.checkcontent}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
                 <tr v-if="nextShow"><td colspan="8">数据采集、处理质量(权:0.4) <span class="from_span">质量元素扣分: <span style="color: red">{{dcScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 22 & item.typeId < 34">
-                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                  <td> {{item.checkcontent}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
                 <tr v-if="nextShow"><td colspan="8">成果资料质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{gcScore}}</span></span></td></tr>
                 <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId" v-if="item.typeId >= 34 & item.typeId < 43">
-                  <td> {{item.checkcontent}}</td><td> {{item.checkType}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
+                  <td> {{item.checkcontent}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
               </table>
             </el-col>
@@ -289,6 +290,9 @@
         }).then(({data}) => {
           if (data && data.code === 0) {
             this.backWorkList = data.list
+            if (data.list.length > 0) {
+              this.$refs.reportId.innerHTML = data.list[data.list.length - 1].backNote
+            }
           } else {
             this.backWorkList = []
           }

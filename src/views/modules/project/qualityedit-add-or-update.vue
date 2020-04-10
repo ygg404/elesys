@@ -1,11 +1,10 @@
 <template>
   <el-dialog
-    title="编辑质检报告"
+    title="编辑质检反馈"
     :close-on-click-modal="false"
     width="80%"
     :visible.sync="visible">
     <wang-editor ref="wangEditor" :content="ueContent" @refreshContent="getReportHandle"></wang-editor>
-<!--    <div style="text-align:left"  id="editorElem"></div>-->
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeHandle">取 消</el-button>
       <el-button type="primary" @click="setReportHandle">确 定</el-button>
@@ -34,7 +33,6 @@
         this.visible = true
         this.ueContent = content
         this.$refs.wangEditor.initContent(content)
-        console.log(content)
       },
       // 关闭
       closeHandle () {

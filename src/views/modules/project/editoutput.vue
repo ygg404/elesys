@@ -57,8 +57,8 @@
             </div>
             <el-table :data="chooseRatio(groupOutput.checkOutputVoList)" border  style="width: 100%;">
               <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="150"></el-table-column>
-              <el-table-column prop="unit" header-align="center" align="center"  label="工作量单位" width="120"></el-table-column>
-              <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
+              <el-table-column prop="unit" header-align="center" align="center"  label="产值单位" width="120"></el-table-column>
+              <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单价" ></el-table-column>
               <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" width="120">
                 <template slot-scope="scope">
                   <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectRatio" @change="checkOutputVoInit" ></el-input>
@@ -66,7 +66,7 @@
               </el-table-column>
               <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" width="120">
                 <template slot-scope="scope">
-                  <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.workLoad" @change="checkOutputVoInit"></el-input>
+                  <el-input type="number" :disabled="!scope.row.checked || scope.row.typeId == -99" v-model="scope.row.workLoad" min="0" @change="checkOutputVoInit"></el-input>
                 </template>
               </el-table-column>
               <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>
@@ -167,11 +167,21 @@
         this.outPutGroupList.forEach((e, index) => {
           if (e.checked) {
             e.projectActuallyOutput = 0
+            let workloadAll = 0
             e.checkOutputVoList.forEach(ele => {
               // 各组工作类型产值
               ele.typeOutput = 0
               ele.typeOutput = parseFloat((ele.projectRatio * ele.unitOutput * ele.workLoad).toFixed(2))
-              if (ele.checked)e.projectActuallyOutput = parseFloat((e.projectActuallyOutput + ele.typeOutput).toFixed(2))
+
+              if (ele.checked) {
+                e.projectActuallyOutput = parseFloat((e.projectActuallyOutput + ele.typeOutput).toFixed(2))
+                // 提取产值
+                if (ele.typeId === -99){
+                  ele.workLoad = workloadAll
+                } else {
+                  workloadAll = (parseFloat(workloadAll) + parseFloat(ele.workLoad)).toFixed(2)
+                }
+              }
               ele.isVisible = false
               this.workTypelist.forEach((work, index) => {
                 if (work.id === ele.typeId && work.isVisible) ele.isVisible = true

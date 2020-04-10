@@ -91,7 +91,6 @@
             for (let headman of this.headManList) {
               if (headman.username === projectPlan.projectCharge) {
                 this.headId = headman.userId
-                console.log('headid' + this.headId)
               }
             }
           })
@@ -202,11 +201,12 @@
         this.tOutPut = 0
         for (let group of this.groupList) {
           if (group.checked) {
-            this.tOutPut += parseFloat(group.projectOutput)
-            this.tRate += Math.round(group.outputRate, 2)
+            this.tOutPut += parseFloat(group.projectOutput == null ? 0 : group.projectOutput)
+            this.tRate += parseFloat(group.outputRate == null ? 0 : group.outputRate)
           }
         }
-        this.tOutPut = parseFloat(this.tOutPut.toFixed(2))
+        this.tRate = parseFloat( this.tRate).toFixed(2)
+        this.tOutPut = parseFloat(this.tOutPut).toFixed(2)
       },
       // 获取项目负责人列表
       getProjectChargeList () {

@@ -95,7 +95,7 @@
           <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;">
             <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" ></el-table-column>
             <el-table-column prop="unit" header-align="center" align="center"  label="量单位" ></el-table-column>
-            <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
+            <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单价" ></el-table-column>
             <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" ></el-table-column>
             <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" ></el-table-column>
             <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" ></el-table-column>
@@ -166,16 +166,16 @@
         <el-col :span="16">
           <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;" show-summary :summary-method="getSummaryMethod">
             <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="130"></el-table-column>
-            <el-table-column prop="unit" header-align="center" align="center"  label="工作量单位" width="110"></el-table-column>
+            <el-table-column prop="unit" header-align="center" align="center"  label="产值单价" width="110"></el-table-column>
             <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
             <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" width="110">
               <template slot-scope="scope">
-                <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectRatio" @change="checkOutputVoInit"  ></el-input>
+                <el-input type="number" :disabled="!scope.row.checked || scope.row.typeId == -99" v-model="scope.row.projectRatio" @change="checkOutputVoInit"  ></el-input>
               </template>
             </el-table-column>
             <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" width="110">
               <template slot-scope="scope">
-                <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.workLoad" @change="checkOutputVoInit"></el-input>
+                <el-input type="number" :disabled="!scope.row.checked || scope.row.typeId == -99" v-model="scope.row.workLoad" @change="checkOutputVoInit"></el-input>
               </template>
             </el-table-column>
             <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>

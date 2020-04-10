@@ -50,8 +50,8 @@
         </div>
         <el-row :gutter="24">
           <el-col :span="22" >
-            <el-collapse >
-              <el-collapse-item style="border: 1px solid #00a0e9;" >
+            <el-collapse v-model="activeNames">
+              <el-collapse-item style="border: 1px solid #00a0e9;" name="report">
                 <template slot="title" >
                   <div class="span_title back_title" >质检反馈</div>
                 </template>
@@ -81,7 +81,7 @@
     </el-form>
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
-      <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
+      <el-button type="primary" size="large" @click="dataFormSubmit" :disabled="isCheck == 2">提交</el-button>
       <el-button type="danger" size="large" @click="repairNoteSubmit" :disabled="isCheck == 2">退回返修</el-button>
       <el-button type="danger" size="large" @click="recallRepairHandle" :disabled="isCheck != 2">撤回返修</el-button>
     </div>
@@ -114,6 +114,7 @@
         repairVisible: false, // 返修可视图
         editVisible: false,  // 编辑质检报告可视图
         backWorkList: [],
+        activeNames: [],
         dataForm: {
           id: '',
           qualityReport: '',    // 质检报告
@@ -334,6 +335,7 @@
       },
       // 设置报告内容
       setQualityReport (content) {
+        this.activeNames = ['report']
         this.dataForm.qualityReport = content
         this.$refs.reportId.innerHTML = content
       },

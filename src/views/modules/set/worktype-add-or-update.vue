@@ -3,15 +3,15 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
-      <el-form-item label="类型姓名" prop="typeName">
-        <el-input v-model="dataForm.typeName" placeholder="类型姓名"></el-input>
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
+      <el-form-item label="工作类型名称" prop="typeName">
+        <el-input v-model="dataForm.typeName" placeholder="工作类型名称"></el-input>
       </el-form-item>
       <el-form-item label="单位" prop="unit">
         <el-input v-model="dataForm.unit" placeholder="单位"></el-input>
       </el-form-item>
-      <el-form-item label="单位产值" prop="unitOutput">
-        <el-input v-model="dataForm.unitOutput" placeholder="单位产值" type="number"></el-input>
+      <el-form-item label="产值单价" prop="unitOutput">
+        <el-input v-model="dataForm.unitOutput" placeholder="产值单价" type="number"></el-input>
       </el-form-item>
 
       <el-form-item label="项目类型" prop="ProjectTypeIdList">

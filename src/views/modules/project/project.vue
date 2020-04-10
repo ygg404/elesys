@@ -46,7 +46,8 @@
                 <div >作业工期：{{scope.row.projectWorkDate == null?'-':scope.row.projectWorkDate}}</div>
                 <div >质检工期：{{scope.row.projectQualityDate == null?'-':scope.row.projectQualityDate}}</div>
                 <div :style="scope.row.backDateNum>0?'color:red':''">返修天数：{{scope.row.backDateNum == null?'-':scope.row.backDateNum}}</div>
-                <div :style="scope.row.woverTime>0?'color:red':''">作业超时天数：{{scope.row.woverTime == null?'-':scope.row.woverTime}}</div>
+                <div :style="scope.row.suspendDay>0?'color:red':''">暂停天数：{{scope.row.suspendDay == null?'0':scope.row.suspendDay}}</div>
+                <div :style="scope.row.woverTime>0 && scope.row.projectStatus != 1?'color:red':''">作业超时天数：{{scope.row.woverTime == null || scope.row.projectStatus == 1?'-':scope.row.woverTime}}</div>
                 <div :style="scope.row.qoverTime>0?'color:red':''">质检超时天数：{{scope.row.qoverTime == null?'-':scope.row.qoverTime}}</div>
               </div>
               <span slot="reference" style="cursor: pointer">{{scope.row.projectNo}}</span>
@@ -385,6 +386,11 @@
             // 计算 质检 和 作业超时时间
             for (let data of this.dataList) {
               data.backDateNum = data.backDateNum === null ? 0 : data.backDateNum
+              data.suspendDay = data.suspendDay === null ? 0 : data.suspendDay
+              // 如果项目在暂停阶段 则当前时间 减去 暂停时间为 暂停时间
+              if (data.projectStatus === 1) {
+                data.suspendDay = parseInt((new Date() - new Date(data.suspendTime)) / (24 * 60 * 60 * 1000) )
+              }
               // 开工时间为空
               if (data.projectBegunDateTime == null) {
                 data.woverTime = null
@@ -392,11 +398,13 @@
               } else if (data.isPlan === 1) {   // 项目已经安排
                 // 作业时间为空 工作时间 为当前时间
                 if (data.wFinishDateTime === null) {
-                  let woverTime = parseInt((new Date() - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate + data.backDateNum)
+                  let woverTime = parseInt((new Date() - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate
+                                                + data.backDateNum - data.suspendDay)
                   data.woverTime = woverTime < 0 ? 0 : woverTime
                   data.qoverTime = null
                 } else {
-                  let woverTime = parseInt((new Date(data.wFinishDateTime) - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate + data.backDateNum)
+                  let woverTime = parseInt((new Date(data.wFinishDateTime) - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate
+                                                + data.backDateNum - data.suspendDay )
                   data.woverTime = woverTime < 0 ? 0 : woverTime
                   // 质检时间为空 质检时间 为当前时间
                   if (data.qFinishDateTime === null) {
