@@ -29,7 +29,7 @@
               <el-input type="textarea" placeholder="请输入作业要求" maxlength="1000" show-word-limit class="allo_text" v-model="dataForm.workRequire"></el-input>
             </el-form-item>
             <el-row :gutter="24">
-              <el-col :span="12">
+              <el-col :span="15">
                 <el-form-item label="预计产值:" prop="projectOutput">
                   <el-input placeholder="产值" type="number" style="max-width: 140px;" v-model="dataForm.projectOutput" @change="countWorkDateHandler" min="0" ></el-input>
                   <el-tooltip class="item"  content="产值明细计算" placement="right"  >
@@ -37,7 +37,7 @@
                   </el-tooltip>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <el-col :span="9">
               </el-col>
             </el-row>
             <el-row :gutter="24">
@@ -708,7 +708,7 @@
             method: 'post',
             data: this.$http.adornData({
               'id': this.projectInfo.id || undefined,
-              'outputRemark': this.projectInfo.outputRemark
+              'outputRemark': this.projectInfo.outputRemark == null ? '': this.projectInfo.outputRemark
             })
           }).then(({data}) => {
             if (data && data.code === 0) {

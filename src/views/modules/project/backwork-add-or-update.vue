@@ -149,7 +149,6 @@
   }
   .quality_report{
     overflow: auto;
-    max-height: 500px;
     padding: 8px;
   }
   .anim_not_view{

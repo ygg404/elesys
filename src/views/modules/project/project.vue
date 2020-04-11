@@ -389,7 +389,7 @@
               data.suspendDay = data.suspendDay === null ? 0 : data.suspendDay
               // 如果项目在暂停阶段 则当前时间 减去 暂停时间为 暂停时间
               if (data.projectStatus === 1) {
-                data.suspendDay = parseInt((new Date() - new Date(data.suspendTime)) / (24 * 60 * 60 * 1000) )
+                data.suspendDay = parseInt((new Date() - new Date(data.suspendTime)) / (24 * 60 * 60 * 1000) ) + data.suspendDay
               }
               // 开工时间为空
               if (data.projectBegunDateTime == null) {
@@ -703,7 +703,6 @@
   }
   .quality_report{
     overflow: auto;
-    max-height: 500px;
     padding: 8px;
   }
   .anim_not_view{
