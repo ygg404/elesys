@@ -32,7 +32,6 @@
         // if (this.editor !== '') this.editor.empty()
         this.visible = true
         this.ueContent = content
-        this.$refs.wangEditor.initContent(content)
       },
       // 关闭
       closeHandle () {

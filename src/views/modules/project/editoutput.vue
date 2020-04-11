@@ -192,7 +192,7 @@
             this.totalOutPut = parseFloat((this.totalOutPut + e.projectActuallyOutput).toFixed(2))
           }
         })
-        console.log(this.leftData)
+        // console.log(this.leftData)
       },
       // 获取工作组的产值核算
       getOutPutGroupList (projectNo) {
@@ -261,7 +261,7 @@
             if (data && data.code === 0) {
               this.projectTypelist = []
               this.projectTypelist.push({id: 0, name: '全部'})
-              console.log(this.projectTypelist)
+              // console.log(this.projectTypelist)
               for (let item of data.list) {
                 this.projectTypelist.push({id: item.id, name: item.name})
               }
@@ -345,7 +345,6 @@
       },
       // 项目类型改变
       projectTypeChangeHandler () {
-        console.log(this.ptValue)
         for (let ptvalue of this.ptValue) {
           // 选择全部项目时
           if (ptvalue === 0) {
@@ -384,7 +383,6 @@
       },
       // 返回
       goBack () {
-        console.log('goBack')
         closeTab('project-editoutput')
       }
     },
