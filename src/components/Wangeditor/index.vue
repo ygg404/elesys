@@ -42,7 +42,6 @@
     methods: {
       initEditor () {
         this.editor = new E('#WeditorId')
-        console.log(this.content)
         this.editor.customConfig.uploadImgShowBase64 = true // base 64 存储图片
         // this.editor.customConfig.uploadFileName = 'file' // 后端接受上传文件的参数名
         this.editor.customConfig.uploadImgMaxSize = 1 * 1024 * 1024 // 将图片大小限制为 1M
