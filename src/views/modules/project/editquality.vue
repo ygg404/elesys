@@ -289,7 +289,7 @@
             }
           }).then(({data}) => {
             if (data && data.code === 0) {
-              if (!spaceFlag) {
+              if (!spaceFlag && data.checkQuality != null) {
                 this.dataForm.id = data.checkQuality.id
                 this.dataForm.qualityNote = data.checkQuality.qualityNote
                 this.dataForm.qualityScore = data.checkQuality.qualityScore
