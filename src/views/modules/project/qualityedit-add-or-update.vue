@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     width="80%"
     :visible.sync="visible">
-    <wang-editor ref="wangEditor" :content="ueContent" @refreshContent="getReportHandle"></wang-editor>
+    <wang-editor :content="ueContent" :id='id' @refreshContent="getReportHandle"></wang-editor>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeHandle">取 消</el-button>
       <el-button type="primary" @click="setReportHandle">确 定</el-button>
@@ -13,12 +13,13 @@
 </template>
 
 <script>
-  import WangEditor from '@/components/WangEditor/index'
+  import WangEditor from '@/components/WangEditor'
 
   export default {
     name: 'qualityedit-add-or-update',
     data () {
       return {
+        id: 'qualityEditor',
         ueContent: '',
         projectNo: '',
         visible: false

@@ -1,6 +1,6 @@
 <template>
   <div class="mod-config">
-    <el-collapse >
+    <el-collapse v-model="activeNames">
       <el-collapse-item>
         <template slot="title">
           <span class="span_title">项目基本信息</span>
@@ -17,7 +17,7 @@
           <div>工作小结：{{projectInfo.briefSummary}}</div>
         </div>
       </el-collapse-item>
-      <el-collapse-item>
+      <el-collapse-item name="preReport">
         <template slot="title">
           <span class="span_title">返修记录信息</span>
         </template>
@@ -28,17 +28,22 @@
               <el-button type="primary" size="mini" icon="el-icon-search" @click="checkReportHandle(scope.row)">查看内容</el-button>
             </template>
           </el-table-column>
-          <el-table-column prop="submitNote" header-align="center" align="center" label="修改说明"></el-table-column>
+          <el-table-column prop="submitCreateTime" header-align="center" align="center" label="修改日期"></el-table-column>
         </el-table>
         <!-- 质检反馈详情-->
-        <el-card :class="reportVisible? 'anim_report_view' : 'anim_not_view' " class="quality_card">
+        <el-card class="quality_card" v-if="proLoading">
+          <div  class="loading_clss">
+            <el-progress type="circle" :percentage="curRate"></el-progress>
+          </div>
+        </el-card>
+        <el-card :class="proLoading == false && reportVisible? 'anim_report_view' : 'anim_not_view' " >
           <div class="quality_card_title">{{reportTitle}}</div>
-          <div ref="reportPreId" class="quality_report"></div>
+          <div ref="reportPreId" class="quality_report" ></div>
         </el-card>
       </el-collapse-item>
     </el-collapse>
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" class="form_class">
-      <el-card class="box-card" >
+      <el-card class="box-card" v-loading="dataLoading" :element-loading-text="loadingText">
         <div slot="header" class="clearfix" >
           <div class="quality_title">
             <span class="span_title">质量检查信息</span>
@@ -86,7 +91,6 @@
       <el-button type="danger" size="large" @click="recallRepairHandle" :disabled="isCheck != 2">撤回返修</el-button>
     </div>
 
-
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
     <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="setQualityScore"></qualityscore-add-or-update>
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检编辑-->
@@ -103,6 +107,12 @@
   export default {
     data () {
       return {
+        proLoading: false,
+        curRate: 0,
+        curprog: 0,
+        totalprog: 1,
+        dataLoading: false,
+        loadingText: '正在加载...',
         projectNo: '',
         reportVisible: false,
         reportTitle: '',
@@ -143,15 +153,25 @@
         this.projectNo = this.$route.query.projectNo
         this.isCheck = this.$route.query.isCheck
         this.getInfoByProjectNo(this.projectNo)
-        this.getQualityByProjectNo(this.projectNo)
+        this.dataLoading = true
+        this.loadingText = ''
+        this.getQualityByProjectNo(this.projectNo, true).then(data => {
+          this.getQualityByProjectNo(this.projectNo, false,data.space).then(data => {
+            this.dataLoading = false
+          })
+        })
         this.getBackworkHandle(this.projectNo)
         this.getQualityNotelist()
         this.getRepairNotelist()
       },
       // 提交数据
       dataFormSubmit () {
+        let that = this
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            that.dataLoading = true
+            that.loadingText = ''
+            that.activeNames = []
             this.$http({
               url: this.$http.adornUrl(`/project/quality/save`),
               method: 'post',
@@ -159,9 +179,13 @@
                 'projectNo': this.projectNo,
                 'qualityNote': this.dataForm.qualityNote,
                 'qualityScore': this.dataForm.qualityScore
-              })
+              }),
+              onUploadProgress (proEvent) {
+                that.loadingText = '正在上传中（' + parseInt(proEvent.loaded * 100 / proEvent.total).toString() + '%)'
+              }
             }).then(({data}) => {
               if (data && data.code === 0) {
+                that.dataLoading = false
                 this.$message({
                   message: '操作成功',
                   type: 'success',
@@ -181,7 +205,47 @@
       checkReportHandle (item) {
         this.reportVisible = true
         this.reportTitle = '质检反馈报告（ 日期：' + item.backCreateTime + ')'
-        this.$refs.reportPreId.innerHTML = item.backNote
+        this.curprog = 0
+        this.$refs.reportPreId.innerHTML = ''
+        this.getReportFromApi(item,true).then(data => {
+          this.curRate = 0
+          this.curprog = 0
+          this.totalprog = data.space
+          this.proLoading = true
+          this.getReportFromApi(item,false).then(bdata => {
+            this.proLoading = false
+            this.$refs.reportPreId.innerHTML = bdata.backwork.backNote
+          })
+        })
+      },
+      // 通过后台获取质检返修记录的反馈(spaceFlag为true先获取文章大小)
+      getReportFromApi (item , spaceFlag = false) {
+        let totalprog = this.totalprog
+        let that = this
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/backwork/info`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'spaceFlag': spaceFlag,
+              'id': item.id
+            }),
+            // 加载进度的事件
+            onDownloadProgress: function (progressEvent) {
+              if (!spaceFlag) {
+                this.curprog = progressEvent.loaded
+                that.curRate = parseInt( this.curprog * 100 / totalprog)
+              }
+            }
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
       },
       // 返修列表关闭事件
       reportDialogClose () {
@@ -207,22 +271,32 @@
         })
       },
       // 获取质检信息
-      getQualityByProjectNo (projectNo) {
+      getQualityByProjectNo (projectNo ,spaceFlag = false,totalPro = 1) {
+        let that = this
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl(`/project/quality/getInfo`),
             method: 'get',
             params: this.$http.adornParams({
-              'projectNo': projectNo
-            })
+              'projectNo': projectNo,
+              'spaceFlag': spaceFlag
+            }),
+            onDownloadProgress (proEvent) {
+              if (!spaceFlag) {
+                // 显示加载进度
+                that.loadingText = '正在加载中...(' + parseInt(proEvent.loaded * 100 / totalPro).toString() + '%)'
+              }
+            }
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.dataForm.id = data.checkQuality.id
-              this.dataForm.qualityNote = data.checkQuality.qualityNote
-              this.dataForm.qualityScore = data.checkQuality.qualityScore
-              this.dataForm.qualityReport = data.checkQuality.qualityReport
-              this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
-              resolve(data.projectInfo)
+              if (!spaceFlag) {
+                this.dataForm.id = data.checkQuality.id
+                this.dataForm.qualityNote = data.checkQuality.qualityNote
+                this.dataForm.qualityScore = data.checkQuality.qualityScore
+                this.dataForm.qualityReport = data.checkQuality.qualityReport
+                this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
+              }
+              resolve(data)
             } else {
               this.$message.error(data.msg)
               reject(data.msg)
@@ -281,7 +355,6 @@
         })
       },
       qualityNoteHandler () {
-        console.log(this.qualityNoteValue)
         this.dataForm.qualityNote = ''
         for (let value of this.qualityNoteValue) {
           for (let note of this.qualityNotelist) {
@@ -291,6 +364,8 @@
       },
       // 提交退回返修
       repairNoteSubmit () {
+        this.activeNames = []
+        let that = this
         this.$confirm('是否确定退回返修，并将质检报告反馈于作业人员？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消'
@@ -299,13 +374,18 @@
             this.$message.error('质检反馈报告不能为空!')
             return
           }
+          that.dataLoading = true
+          that.loadingText = ''
           this.$http({
             url: this.$http.adornUrl(`/project/backwork/save`),
             method: 'post',
             data: this.$http.adornData({
               'projectNo': this.projectNo,
               'backNote': this.dataForm.qualityReport
-            })
+            }),
+            onUploadProgress (proEvent) {
+              that.loadingText = '正在上传中（' + parseInt(proEvent.loaded * 100 / proEvent.total).toString() + '%)'
+            }
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({
@@ -313,6 +393,7 @@
                 type: 'success',
                 duration: 1500
               })
+              that.dataLoading = false
               this.visible = false
               this.$emit('refreshDataList')
               this.goBack()
@@ -352,6 +433,7 @@
           confirmButtonText: '确定',
           cancelButtonText: '取消'
         }).then(() => {
+          this.$refs.reportPreId.innerHTML = ''
           this.$http({
             url: this.$http.adornUrl(`/project/backwork/delete`),
             method: 'post',
@@ -385,6 +467,13 @@
           this.init()
         } else {
           this.goBack()
+        }
+      },
+      activeNames: function (val) {
+        if (val.indexOf('preReport') !== -1) {
+          this.reportVisible = false
+          this.proLoading = false
+          this.$refs.reportPreId.innerHTML = ''
         }
       }
     }
@@ -436,9 +525,9 @@
   }
   .quality_report{
     overflow: auto;
-    max-height: 500px;
     padding: 8px;
   }
+
   .anim_not_view{
     opacity: 0;
   }
@@ -452,5 +541,12 @@
     0%{opacity:0}
     50%{opacity:.8;}
     100%{opacity:0;}
+  }
+
+  .loading_clss{
+    width: 100%;
+    text-align: center;
+    background-color: #6f71805f;
+    opacity: 0.8;
   }
 </style>

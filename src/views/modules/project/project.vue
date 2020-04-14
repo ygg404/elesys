@@ -153,7 +153,7 @@
               </el-button>
             </el-tooltip>
             <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.submitNote == null && scope.row.backId != null & scope.row.isCharge === 1" >
-              <el-button type="warning" size="mini" icon="el-icon-s-tools" @click="setBackworkHandle(scope.row)" >
+              <el-button type="warning" size="mini" icon="el-icon-s-tools" @click="setBackworkHandle(scope.row,true)" >
               </el-button>
             </el-tooltip>
           </template>
@@ -168,7 +168,7 @@
               <el-button class="quality_btn" size="mini" icon="el-icon-printer" @click="printCheckHandle(scope.row)" v-if="isAuth('project:check:print')"></el-button>
             </el-tooltip>
             <el-tooltip class="item"  content="查看返修" placement="left-start" v-if="scope.row.backId != null">
-              <el-button class="quality_btn" size="mini" icon="el-icon-s-tools" @click="getBackworkHandle(scope.row)" >
+              <el-button class="quality_btn" size="mini" icon="el-icon-s-tools" @click="setBackworkHandle(scope.row,false)" >
               </el-button>
             </el-tooltip>
           </template>
@@ -218,27 +218,6 @@
       </span>
       </el-dialog>
 
-      <!--返修内容表-->
-      <el-dialog :title="backTip" :visible.sync="backDialogVisible" :close-on-click-modal="false" :before-close="reportDialogClose">
-        <el-table :data="backWorkList">
-          <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
-          <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" >
-            <template slot-scope="scope">
-              <div style="padding: 5px;">
-                <el-button type="primary" size="small" icon="el-icon-search" @click="checkReportHandle(scope.row)">查看内容</el-button>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="submitNote" header-align="center" align="center" label="修改说明"></el-table-column>
-        </el-table>
-        <el-card :class="reportVisible? 'anim_report_view' : 'anim_not_view' " class="quality_card">
-          <div class="quality_card_title">{{reportTitle}}</div>
-          <div ref="reportId" class="quality_report"></div>
-        </el-card>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="backDialogVisible = false,reportVisible=false"  plain>返回</el-button>
-        </span>
-      </el-dialog>
       <!--暂停缘由填写-->
       <el-dialog :title="'暂停缘由 (项目编号:' + selectedItem.projectNo + ')'"   :visible.sync="suspendVisible" >
         <el-input v-model="suspendExcuse" placeholder="请填写暂停的缘由"></el-input>
@@ -272,8 +251,6 @@
         projectscheduleVisible: false,
         backworkVisible: false,
         suspendVisible: false,  // 暂停项目窗口
-        backTip: '',
-        backDialogVisible: false,
         dateItemList: [], // 时间类型列表
         backWorkList: [], // 返修列表
         reportVisible: false, // 返修报告弹出窗
@@ -488,36 +465,11 @@
           this.dataListLoading = false
         })
       },
-      // 获取返修内容列表
-      getBackworkHandle (item) {
-        let projectNo = item.projectNo
-        this.backDialogVisible = true
-        this.backTip = '返修内容表（项目编号：' + projectNo + ')'
-        this.dataListLoading = true
-        this.$http({
-          url: this.$http.adornUrl(`/project/backwork/list/${projectNo}`),
-          method: 'get',
-          params: this.$http.adornParams({})
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.backWorkList = data.list
-          } else {
-            this.backWorkList = []
-          }
-          this.dataListLoading = false
-          this.$refs.reportId.innerHTML = '' // 清空显示返修内容
-        })
-      },
       // 查看质检反馈内容
       checkReportHandle (item) {
         this.reportVisible = true
         this.reportTitle = '质检反馈报告（ 时间：' + item.backCreateTime + ')'
         this.$refs.reportId.innerHTML = item.backNote
-      },
-      // 返修列表关闭事件
-      reportDialogClose () {
-        this.reportVisible = false
-        this.backDialogVisible = false
       },
       // 提交进度
       setScheduleHandle (item) {
@@ -536,11 +488,11 @@
           this.$refs.projectscheduleAddOrUpdate.init(item)
         })
       },
-      // 返修内容
-      setBackworkHandle (item) {
+      // 返修内容（isEdit 为true 可编辑返修）
+      setBackworkHandle (item, isEdit = true) {
         this.backworkVisible = true
         this.$nextTick(() => {
-          this.$refs.backworkAddOrUpdate.init(item.projectNo)
+          this.$refs.backworkAddOrUpdate.init(item.projectNo, isEdit)
         })
       },
       // 编辑安排
