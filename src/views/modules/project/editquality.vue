@@ -101,6 +101,7 @@
 
 <script>
   import {closeTab} from '@/utils/tabs'
+  import pako from 'pako' //引入pako解压与压缩字符串
   import qualityscoreAddOrUpdate from './qualityscore-add-or-update'
   import qualityeditAddOrUpdate from './qualityedit-add-or-update'
 
@@ -295,6 +296,9 @@
                 this.dataForm.qualityScore = data.checkQuality.qualityScore
                 this.dataForm.qualityReport = data.checkQuality.qualityReport
                 this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
+                // let strzip = this.zip(data.checkQuality.qualityReport)
+                // console.log("zip:" + strzip.length +',,org:' + data.checkQuality.qualityReport.length)
+                // console.log(this.unzip(strzip))
               }
               resolve(data)
             } else {
