@@ -161,7 +161,7 @@
       transform: translate(-50%,0);
       align-items: center;
       border-radius: 20px;
-      margin-top: 130px;
+      margin-top: 90px;
       padding: 20px 60px 50px;
       width: 470px;
       height: auto;
@@ -195,7 +195,6 @@
       font-weight: 500;
       width: 470px;
       bottom: 0;
-      margin-bottom: 10px;
     }
     .site-bottom a{
       color: white

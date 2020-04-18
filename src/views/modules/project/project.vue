@@ -21,7 +21,7 @@
           <el-date-picker v-model="dataForm.endDate"  type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
         </el-form-item>
         <el-form-item style="margin-left: 20px;">
-          <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable style="width: 150px;"  @change="getDataList"></el-input>
+          <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable style="width: 150px;"  @change="pageIndex = 1,getDataList()"></el-input>
         </el-form-item>
         <el-form-item style="margin-left: -10px;">
           <el-button @click="getDataList()">查询</el-button>
