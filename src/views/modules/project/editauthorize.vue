@@ -33,6 +33,7 @@
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="saveForm">提交</el-button>
+      <el-button type="danger" size="large"  @click="deleteAuthorizeFromApi">撤销审定</el-button>
     </div>
   </div>
 </template>
@@ -133,6 +134,18 @@
             this.$message.error(data.msg)
           }
         })
+      },
+      // 撤销审定
+      deleteAuthorizeFromApi () {
+        this.$confirm('当前项目是否撤销审定?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.dataForm.examineNote = ''
+          this.saveForm()
+        })
+
       },
       // 返回
       goBack () {

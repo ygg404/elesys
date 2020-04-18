@@ -546,10 +546,10 @@
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo,isCheck: item.isCheck}})
+            this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
           })
         } else {
-          this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo, isCheck: item.isCheck}})
+          this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
         }
       },
       // 编辑产值核算

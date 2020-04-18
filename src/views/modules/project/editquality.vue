@@ -101,7 +101,6 @@
 
 <script>
   import {closeTab} from '@/utils/tabs'
-  import pako from 'pako' //引入pako解压与压缩字符串
   import qualityscoreAddOrUpdate from './qualityscore-add-or-update'
   import qualityeditAddOrUpdate from './qualityedit-add-or-update'
 
@@ -152,14 +151,11 @@
     methods: {
       init () {
         this.projectNo = this.$route.query.projectNo
-        this.isCheck = this.$route.query.isCheck
         this.getInfoByProjectNo(this.projectNo)
         this.dataLoading = true
         this.loadingText = ''
-        this.getQualityByProjectNo(this.projectNo, true).then(data => {
-          this.getQualityByProjectNo(this.projectNo, false,data.space).then(data => {
-            this.dataLoading = false
-          })
+        this.getQualityByProjectNo(this.projectNo).then(data => {
+          this.dataLoading = false
         })
         this.getBackworkHandle(this.projectNo)
         this.getQualityNotelist()
@@ -179,7 +175,8 @@
               data: this.$http.adornData({
                 'projectNo': this.projectNo,
                 'qualityNote': this.dataForm.qualityNote,
-                'qualityScore': this.dataForm.qualityScore
+                'qualityScore': this.dataForm.qualityScore,
+                'qualityReport': this.dataForm.qualityReport
               }),
               onUploadProgress (proEvent) {
                 that.loadingText = '正在上传中（' + parseInt(proEvent.loaded * 100 / proEvent.total).toString() + '%)'
@@ -207,46 +204,7 @@
         this.reportVisible = true
         this.reportTitle = '质检反馈报告（ 日期：' + item.backCreateTime + ')'
         this.curprog = 0
-        this.$refs.reportPreId.innerHTML = ''
-        this.getReportFromApi(item,true).then(data => {
-          this.curRate = 0
-          this.curprog = 0
-          this.totalprog = data.space
-          this.proLoading = true
-          this.getReportFromApi(item,false).then(bdata => {
-            this.proLoading = false
-            this.$refs.reportPreId.innerHTML = bdata.backwork.backNote
-          })
-        })
-      },
-      // 通过后台获取质检返修记录的反馈(spaceFlag为true先获取文章大小)
-      getReportFromApi (item , spaceFlag = false) {
-        let totalprog = this.totalprog
-        let that = this
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl(`/project/backwork/info`),
-            method: 'get',
-            params: this.$http.adornParams({
-              'spaceFlag': spaceFlag,
-              'id': item.id
-            }),
-            // 加载进度的事件
-            onDownloadProgress: function (progressEvent) {
-              if (!spaceFlag) {
-                this.curprog = progressEvent.loaded
-                that.curRate = parseInt( this.curprog * 100 / totalprog)
-              }
-            }
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              resolve(data)
-            } else {
-              this.$message.error(data.msg)
-              reject(data.msg)
-            }
-          })
-        })
+        this.$refs.reportPreId.innerHTML = item.backNote
       },
       // 返修列表关闭事件
       reportDialogClose () {
@@ -272,33 +230,23 @@
         })
       },
       // 获取质检信息
-      getQualityByProjectNo (projectNo ,spaceFlag = false,totalPro = 1) {
-        let that = this
+      getQualityByProjectNo (projectNo ) {
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl(`/project/quality/getInfo`),
             method: 'get',
             params: this.$http.adornParams({
               'projectNo': projectNo,
-              'spaceFlag': spaceFlag
-            }),
-            onDownloadProgress (proEvent) {
-              if (!spaceFlag) {
-                // 显示加载进度
-                that.loadingText = '正在加载中...(' + parseInt(proEvent.loaded * 100 / totalPro).toString() + '%)'
-              }
-            }
+            })
           }).then(({data}) => {
             if (data && data.code === 0) {
-              if (!spaceFlag && data.checkQuality != null) {
+              if ( data.checkQuality != null) {
                 this.dataForm.id = data.checkQuality.id
                 this.dataForm.qualityNote = data.checkQuality.qualityNote
                 this.dataForm.qualityScore = data.checkQuality.qualityScore
                 this.dataForm.qualityReport = data.checkQuality.qualityReport
                 this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
-                // let strzip = this.zip(data.checkQuality.qualityReport)
-                // console.log("zip:" + strzip.length +',,org:' + data.checkQuality.qualityReport.length)
-                // console.log(this.unzip(strzip))
+                this.isCheck = data.isCheck
               }
               resolve(data)
             } else {
@@ -428,7 +376,7 @@
       editQualityReportHandler () {
         this.editVisible = true
         this.$nextTick(() => {
-          this.$refs.qualityeditAddOrUpdate.init(this.dataForm.qualityReport)
+          this.$refs.qualityeditAddOrUpdate.init(this.dataForm.qualityReport,this.projectNo)
         })
       },
       // 撤回返修
@@ -450,7 +398,6 @@
                 duration: 1500
               })
               this.init()
-              this.isCheck = 0
             } else {
               this.$message.error(data.msg)
             }

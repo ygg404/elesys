@@ -188,7 +188,8 @@
         gcScore: 0,   // 成果表扣分
         scoreDetailList: [], // 评分明细
         preShow: false, // 19年检查显示
-        nextShow: true  // 20年检查显示
+        nextShow: true,  // 20年检查显示
+        qualityReport: ''  // 质检反馈报告
       }
     },
     mounted () {
@@ -199,9 +200,10 @@
         let projectNo = this.$route.query.projectNo
         this.getInfoByProjectNo(projectNo)
         this.getBackworkHandle(projectNo)
-        this.getQualityScoreList(projectNo).then(data => {
-          this.initScoreTypeList(data)
-        })
+        this.getQualityByProjectNo(projectNo)
+        // this.getQualityScoreList(projectNo).then(data => {
+        //   this.initScoreTypeList(data)
+        // })
       },
       // 初始化评分列表
       initScoreTypeList (datalist) {
@@ -310,6 +312,28 @@
           }).then(({data}) => {
             if (data && data.code === 0) {
               resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取质检信息
+      getQualityByProjectNo (projectNo ) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/quality/getInfo`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'projectNo': projectNo,
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              if (data.checkQuality != null) {
+                this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
+              }
+              resolve(data)
             } else {
               this.$message.error(data.msg)
               reject(data.msg)

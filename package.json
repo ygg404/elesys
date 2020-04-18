@@ -29,6 +29,7 @@
     "lrz": "^4.9.40",
     "moment": "^2.24.0",
     "node-sass": "^4.13.1",
+    "pako": "^1.0.11",
     "sass-loader": "6.0.6",
     "svg-sprite-loader": "3.7.3",
     "v-viewer": "^1.5.1",

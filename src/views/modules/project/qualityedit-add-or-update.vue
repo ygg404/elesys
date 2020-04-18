@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     width="80%"
     :visible.sync="visible">
-    <wang-editor :content="ueContent" :id='id' @refreshContent="getReportHandle"></wang-editor>
+    <wang-editor :content="ueContent" :id='id' :projectNo="projectNo" @refreshContent="getReportHandle"></wang-editor>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeHandle">取 消</el-button>
       <el-button type="primary" @click="setReportHandle">确 定</el-button>
@@ -29,8 +29,9 @@
       WangEditor
     },
     methods: {
-      init (content) {
+      init (content,projectNo) {
         // if (this.editor !== '') this.editor.empty()
+        this.projectNo = projectNo
         this.visible = true
         this.ueContent = content
       },

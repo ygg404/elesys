@@ -15,7 +15,7 @@
     </el-collapse>
 
     <el-card class="box-card card_work">
-      <div>预计工作量：{{projectInfo.projectWorkload}}</div>
+<!--      <div>预计工作量：{{projectInfo.projectWorkload}}</div>-->
       <div>作业工作量：{{projectInfo.workLoad}}</div>
       <div>预计总产值：{{projectInfo.projectOutput}}</div>
       <div style="color: #00b7ee">实际总产值：{{totalOutPut}}</div>

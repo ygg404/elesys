@@ -1,5 +1,6 @@
 <template>
-  <el-dialog title="项目返修内容" :close-on-click-modal="false" :visible.sync="visible" :before-close="reportDialogClose" width="80%">
+  <el-dialog title="项目返修内容" :close-on-click-modal="false" :visible.sync="visible"
+             :before-close="reportDialogClose" width="80%" v-loading="proLoading" element-loading-text="加载中。。。">
     <el-table :data="dataList">
       <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
       <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" >
@@ -16,12 +17,7 @@
       </el-table-column>
     </el-table>
     <!-- 质检反馈报告-->
-    <el-card class="quality_card" v-if="proLoading">
-      <div  class="loading_clss">
-        <el-progress type="circle" :percentage="curRate"></el-progress>
-      </div>
-    </el-card>
-    <el-card :class="proLoading == false && reportVisible? 'anim_report_view' : 'anim_not_view' " >
+    <el-card :class="reportVisible? 'anim_report_view' : 'anim_not_view' "  class="quality_card">
       <div class="quality_card_title">{{reportTitle}}</div>
       <div ref="reportId" class="quality_report" ></div>
     </el-card>
@@ -35,7 +31,7 @@
         <el-progress type="circle" :percentage="curRate"></el-progress>
         <div style="color: #2D64B3">正在加载文档请稍等。。。</div>
       </div>
-      <wang-editor v-if="!editLoading && !postLoading" ref="wangEditor" :content="ueContent" @refreshContent="getReportHandle"></wang-editor>
+      <wang-editor  :id="editorId" :content="ueContent" :projectNo="dataForm.projectNo" @refreshContent="getReportHandle"></wang-editor>
       <span slot="footer" class="dialog-footer">
         <el-button @click="noteVisible = false">取消</el-button>
         <el-button @click="dataFormSubmit" type="primary">提交</el-button>
@@ -47,62 +43,12 @@
 
 <script>
   import WangEditor from '@/components/WangEditor/index'
-  import Vue from  'vue'
-  import Viewer from 'v-viewer'
   import 'viewerjs/dist/viewer.css'
-
-  Vue.use(Viewer)
-  Viewer.setDefaults({
-    'inline':true,
-    'button':true, //右上角按钮
-    "navbar": true, //底部缩略图
-    "title": true, //当前图片标题
-    "toolbar": true, //底部工具栏
-    "tooltip": true, //显示缩放百分比
-    "movable": true, //是否可以移动
-    "zoomable": true, //是否可以缩放
-    "rotatable": true, //是否可旋转
-    "scalable": true, //是否可翻转
-    "transition": true, //使用 CSS3 过度
-    "fullscreen": true, //播放时是否全屏
-    "keyboard": true, //是否支持键盘
-    "url": "data-source",
-    ready: function (e) {
-      console.log(e.type,'组件以初始化');
-    },
-    show: function (e) {
-      console.log(e.type,'图片显示开始');
-    },
-    shown: function (e) {
-      console.log(e.type,'图片显示结束');
-    },
-    hide: function (e) {
-      console.log(e.type,'图片隐藏完成');
-    },
-    hidden: function (e) {
-      console.log(e.type,'图片隐藏结束');
-    },
-    view: function (e) {
-      console.log(e.type,'视图开始');
-    },
-    viewed: function (e) {
-      console.log(e.type,'视图结束');
-      // 索引为 1 的图片旋转20度
-      if(e.detail.index === 1){
-        this.viewer.rotate(20);
-      }
-    },
-    zoom: function (e) {
-      console.log(e.type,'图片缩放开始');
-    },
-    zoomed: function (e) {
-      console.log(e.type,'图片缩放结束');
-    }
-  })
 
   export default {
     data () {
       return {
+        editorId: 'wangId',
         visible: false,
         noteVisible: false,
         reportVisible: false,
@@ -144,6 +90,7 @@
         this.visible = true
         this.isEdit = isEdit
         this.$nextTick(() => {
+          this.proLoading = true
           if (projectNo) {
             this.$http({
               url: this.$http.adornUrl(`/project/backwork/list/${projectNo}`),
@@ -153,55 +100,10 @@
               if (data && data.code === 0) {
                 this.dataList = data.list
                 this.$refs.reportId.innerHTML = ''
+                this.proLoading = false
               }
             })
           }
-        })
-      },
-      // 查看质检反馈内容
-      checkReportHandle (item) {
-        this.reportVisible = true
-        this.reportTitle = '质检反馈报告（ 日期：' + item.backCreateTime + ')'
-        this.curprog = 0
-        this.$refs.reportId.innerHTML = ''
-        this.getReportFromApi(item,true).then(data => {
-          this.curRate = 0
-          this.curprog = 0
-          this.totalprog = data.space
-          this.proLoading = true
-          this.getReportFromApi(item,false).then(bdata => {
-            this.proLoading = false
-            this.$refs.reportId.innerHTML = bdata.backwork.backNote
-          })
-        })
-      },
-      // 通过后台获取质检返修记录的反馈(spaceFlag为true先获取文章大小)
-      getReportFromApi (item , spaceFlag = false) {
-        let totalprog = this.totalprog
-        let that = this
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl(`/project/backwork/info`),
-            method: 'get',
-            params: this.$http.adornParams({
-              'spaceFlag': spaceFlag,
-              'id': item.id
-            }),
-            // 加载进度的事件
-            onDownloadProgress: function (progressEvent) {
-              if (!spaceFlag) {
-                this.curprog = progressEvent.loaded
-                that.curRate = parseInt( this.curprog * 100 / totalprog)
-              }
-            }
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              resolve(data)
-            } else {
-              this.$message.error(data.msg)
-              reject(data.msg)
-            }
-          })
         })
       },
       // 返修列表关闭事件
@@ -211,27 +113,43 @@
       },
       // 添加提交内容
       addNoteHandle (item) {
-        console.log(item)
         this.dataForm.id = item.id
         this.dataForm.projectNo = item.projectNo
         this.noteVisible = true
         this.reportVisible = false
         this.curprog = 0
         this.$refs.reportId.innerHTML = ''
-        this.getReportFromApi(item,true).then(data => {
-          this.curRate = 0
-          this.curprog = 0
-          this.totalprog = data.space
-          this.editLoading = true
-          this.getReportFromApi(item,false).then(bdata => {
-            this.editLoading = false
-            this.ueContent = bdata.backwork.backNote
-          })
-        })
+        this.ueContent = item.backNote
+      },
+      // 查看返修要求说明内容
+      checkReportHandle (item) {
+        this.reportVisible = true
+        this.reportTitle = '质检反馈报告（ 日期：' + item.backCreateTime + ')'
+        this.$refs.reportId.innerHTML = item.backNote
       },
       // 实时获取编辑报告内容
       getReportHandle (content) {
         this.ueContent = content
+      },
+      // 通过后台获取质检返修记录的反馈(spaceFlag为true先获取文章大小)
+      getReportFromApi (item) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/backwork/info`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'id': item.id
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.ueContent = data.backwork.backNote
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
       },
       // 表单提交
       dataFormSubmit () {
