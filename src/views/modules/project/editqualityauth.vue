@@ -41,56 +41,38 @@
           <div ref="reportPreId" class="quality_report" ></div>
         </el-card>
       </el-collapse-item>
+      <el-collapse-item>
+        <template slot="title">
+          <span class="span_title">质检反馈报告</span>
+        </template>
+        <div ref="reportId" class="quality_report" ></div>
+      </el-collapse-item>
     </el-collapse>
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" class="form_class">
-      <el-card class="box-card" v-loading="dataLoading" :element-loading-text="loadingText">
-        <div slot="header" class="clearfix" >
-          <div class="quality_title">
-            <span class="span_title">质量检查信息</span>
-            <div>
-              <el-button icon="el-icon-s-order" type="success" size="large" @click="editQualityReportHandler">编辑质检反馈</el-button>
-              <el-button icon="el-icon-edit" type="primary" size="large" @click="addQualityscoreHandler">编辑质量评分</el-button>
-            </div>
-          </div>
-        </div>
-        <el-row :gutter="24">
-          <el-col :span="22" >
-            <el-collapse v-model="activeNames">
-              <el-collapse-item style="border: 1px solid #00a0e9;" name="report">
-                <template slot="title" >
-                  <div class="span_title back_title" >质检反馈</div>
-                </template>
-                <div style="background-color: #f0f0f0;margin-top: 20px;">
-                  <div ref="reportId"></div>
-                </div>
-              </el-collapse-item>
-            </el-collapse>
-          </el-col>
-        </el-row>
-        <el-form-item label="质量评分" prop="qualityScore" style="margin-top:20px;">
-          <el-input type="number" placeholder="质量评分" oninput="if(value>100)value=100;if(value<0)value=0;" max="100" min="0" size="large"  v-model="dataForm.qualityScore" style="width: 140px;"></el-input>
+
+    <el-card class="card_header">
+      <div slot="header" class="header_span" >
+        <span>质量综述：  </span>
+      </div>
+      <el-form :model="dataForm" :rules="dataRule" ref="dataForm" class="form_class">
+        <el-select  placeholder="质量综述快捷输入" v-model="qualityNoteValue" style="width: 100%" multiple collapse-tags  @change="qualityNoteHandler()" >
+          <el-option v-for="item in qualityNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+        </el-select>
+        <el-form-item prop="qualityNote">
+          <el-input type="textarea" maxlength="1000" size="large" show-word-limit rows="4" v-model="dataForm.qualityNote" placeholder="请填写质量综述"></el-input>
         </el-form-item>
-      </el-card>
-    </el-form>
+      </el-form>
+    </el-card>
+
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
-      <el-button type="primary" size="large" @click="dataFormSubmit" :disabled="isCheck == 2">提交</el-button>
-      <el-button type="danger" size="large" @click="repairNoteSubmit" :disabled="isCheck == 2">退回返修</el-button>
-      <el-button type="danger" size="large" @click="recallRepairHandle" :disabled="isCheck != 2">撤回返修</el-button>
+      <el-button type="primary" size="large" @click="dataFormSubmit">提交</el-button>
     </div>
-
-    <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
-    <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="setQualityScore"></qualityscore-add-or-update>
-    <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检编辑-->
-    <qualityedit-add-or-update v-if="editVisible" ref="qualityeditAddOrUpdate" @refreshReport="setQualityReport"></qualityedit-add-or-update>
 
   </div>
 </template>
 
 <script>
   import {closeTab} from '@/utils/tabs'
-  import qualityscoreAddOrUpdate from './qualityscore-add-or-update'
-  import qualityeditAddOrUpdate from './qualityedit-add-or-update'
 
   export default {
     data () {
@@ -115,20 +97,14 @@
         activeNames: [],
         dataForm: {
           id: '',
-          qualityReport: '',    // 质检报告
           qualityNote: '',      // 质检综述
-          qualityScore: ''
         },
         dataRule: {
-          qualityScore: [
-            { required: true, message: '质量分数不能为空', trigger: 'blur' }
+          qualityNote: [
+            { required: true, message: '质量综述不能为空', trigger: 'blur' }
           ]
         }
       }
-    },
-    components: {
-      qualityscoreAddOrUpdate,
-      qualityeditAddOrUpdate
     },
     activated () {
       this.init()
@@ -155,13 +131,12 @@
             that.loadingText = ''
             that.activeNames = []
             this.$http({
-              url: this.$http.adornUrl(`/project/quality/save`),
+              url: this.$http.adornUrl(`/project/quality/update`),
               method: 'post',
               data: this.$http.adornData({
+                'id': this.dataForm.id,
                 'projectNo': this.projectNo,
-                'qualityNote': this.dataForm.qualityNote,
-                'qualityScore': this.dataForm.qualityScore,
-                'qualityReport': this.dataForm.qualityReport
+                'qualityNote': this.dataForm.qualityNote
               }),
               onUploadProgress (proEvent) {
                 that.loadingText = '正在上传中（' + parseInt(proEvent.loaded * 100 / proEvent.total).toString() + '%)'
@@ -231,7 +206,6 @@
                 this.dataForm.qualityScore = data.checkQuality.qualityScore
                 this.dataForm.qualityReport = data.checkQuality.qualityReport
                 this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
-                this.isCheck = data.isCheck
               }
               resolve(data)
             } else {
@@ -291,6 +265,7 @@
           })
         })
       },
+      // 质量审核报告
       qualityNoteHandler () {
         this.dataForm.qualityNote = ''
         for (let value of this.qualityNoteValue) {
@@ -299,99 +274,9 @@
           }
         }
       },
-      // 提交退回返修
-      repairNoteSubmit () {
-        this.activeNames = []
-        let that = this
-        this.$confirm('是否确定退回返修，并将质检报告反馈于作业人员？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消'
-        }).then(() => {
-          if (this.dataForm.qualityReport === null || this.dataForm.qualityReport === ''){
-            this.$message.error('质检反馈报告不能为空!')
-            return
-          }
-          that.dataLoading = true
-          that.loadingText = ''
-          this.$http({
-            url: this.$http.adornUrl(`/project/backwork/save`),
-            method: 'post',
-            data: this.$http.adornData({
-              'projectNo': this.projectNo,
-              'backNote': this.dataForm.qualityReport
-            }),
-            onUploadProgress (proEvent) {
-              that.loadingText = '正在上传中（' + parseInt(proEvent.loaded * 100 / proEvent.total).toString() + '%)'
-            }
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500
-              })
-              that.dataLoading = false
-              this.visible = false
-              this.$emit('refreshDataList')
-              this.goBack()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
-      },
-      // 添加质量评分
-      addQualityscoreHandler () {
-        this.qualityScoreVisible = true
-        this.$nextTick(() => {
-          this.$refs.qualityscoreAddOrUpdate.init(this.projectNo)
-        })
-      },
-      // 质量评分设置
-      setQualityScore (score) {
-        this.dataForm.qualityScore = score
-      },
-      // 设置报告内容
-      setQualityReport (content) {
-        this.activeNames = ['report']
-        this.dataForm.qualityReport = content
-        this.$refs.reportId.innerHTML = content
-      },
-      // 质检报告的编辑
-      editQualityReportHandler () {
-        this.editVisible = true
-        this.$nextTick(() => {
-          this.$refs.qualityeditAddOrUpdate.init(this.dataForm.qualityReport,this.projectNo)
-        })
-      },
-      // 撤回返修
-      recallRepairHandle () {
-        this.$confirm('是否确定撤回质检反馈报告？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消'
-        }).then(() => {
-          this.$refs.reportPreId.innerHTML = ''
-          this.$http({
-            url: this.$http.adornUrl(`/project/backwork/delete`),
-            method: 'post',
-            data: this.projectNo
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '撤销返修成功',
-                type: 'success',
-                duration: 1500
-              })
-              this.init()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
-      },
       // 返回
       goBack () {
-        closeTab('project-editquality')
+        closeTab('project-editqualityquth')
         this.$router.push('project-project')
       }
     },
@@ -399,10 +284,10 @@
       '$route': function (to, from) {
         this.projectNo = to.query['projectNo']
         // 执行数据更新查询
-        if (to.name === 'project-editquality') {
+        if (to.name === 'project-editqualityquth') {
           this.init()
         } else {
-          closeTab('project-editquality')
+          closeTab('project-editqualityauth')
         }
       },
       activeNames: function (val) {
@@ -484,5 +369,14 @@
     text-align: center;
     background-color: #6f71805f;
     opacity: 0.8;
+  }
+
+  .card_header{
+    margin-top: 18px;
+  }
+  .card_header .header_span{
+    font-weight: 700;
+    font-size: 14pt;
+
   }
 </style>

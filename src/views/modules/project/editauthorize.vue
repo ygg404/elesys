@@ -149,8 +149,8 @@
       },
       // 返回
       goBack () {
-        console.log('goBack')
         closeTab('project-editauthorize')
+        this.$router.push('project-project')
       }
     },
     watch: {
@@ -160,7 +160,7 @@
         if (to.name === 'project-editauthorize') {
           this.init()
         } else {
-          this.goBack()
+          closeTab('project-editauthorize')
         }
       }
     }

@@ -384,6 +384,7 @@
       // 返回
       goBack () {
         closeTab('project-editoutput')
+        this.$router.push('project-project')
       }
     },
     watch: {
@@ -393,7 +394,7 @@
         if (to.name === 'project-editoutput') {
           this.init()
         } else {
-          this.goBack()
+          closeTab('project-editoutput')
         }
       }
     }

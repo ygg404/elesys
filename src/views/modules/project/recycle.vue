@@ -6,10 +6,10 @@
         <el-date-picker v-model="dataForm.endDate" type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
       </el-form-item>
       <el-form-item style="margin-left: 20px;">
-        <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable @change="getDataList"></el-input>
+        <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable @change="pageIndex=1,getDataList"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="pageIndex=1,getDataList()">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle" @sort-change="changeSort" style="width: 100%;">

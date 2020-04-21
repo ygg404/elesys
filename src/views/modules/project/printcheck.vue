@@ -1,6 +1,6 @@
 <template>
   <div class="mod-config">
-    <div align="center" id="printId" >
+    <div align="center" id="printId" v-loading="loading" element-loading-text="加载中。。。">
       <p class="MsoNormal" align="center" style="text-align:center"><span style="font-size:16.0pt;font-family:黑体">质量审核单</span></p>
       <div class="tablecss">
         <div class="block">
@@ -22,14 +22,14 @@
         <div class="block">
           <div class="ththead" style="width: 590pt;border-top: 1px solid black;text-align: left;">质检反馈：</div>
         </div>
-        <div class="block" >
-          <el-row v-if="backWorkList.length === 0" style="width: 590pt;">
-            <el-col :span="2" >&nbsp;</el-col>
-            <el-col :span="20" style="text-align: left;">无</el-col>
-            <el-col :span="2" >&nbsp;</el-col>
-          </el-row>
-        </div>
-        <div style="text-align: left;padding: 4px;" ref="reportId"></div>
+<!--        <div class="block" >-->
+<!--          <el-row v-if="backWorkList.length === 0" style="width: 590pt;">-->
+<!--            <el-col :span="2" >&nbsp;</el-col>-->
+<!--            <el-col :span="20" style="text-align: left;">无</el-col>-->
+<!--            <el-col :span="2" >&nbsp;</el-col>-->
+<!--          </el-row>-->
+<!--        </div>-->
+        <div style="text-align: left;padding: 4px;" ref="reportId">无</div>
 <!--        <div class="block"  >-->
 <!--          <el-row style="width: 590pt;">-->
 <!--            <el-col :span="1" >&nbsp;</el-col>-->
@@ -189,7 +189,8 @@
         scoreDetailList: [], // 评分明细
         preShow: false, // 19年检查显示
         nextShow: true,  // 20年检查显示
-        qualityReport: ''  // 质检反馈报告
+        qualityReport: '',  // 质检反馈报告
+        loading: false // 加载显示
       }
     },
     mounted () {
@@ -197,10 +198,13 @@
     },
     methods: {
       init () {
+        this.loading = true
         let projectNo = this.$route.query.projectNo
         this.getInfoByProjectNo(projectNo)
         this.getBackworkHandle(projectNo)
-        this.getQualityByProjectNo(projectNo)
+        this.getQualityByProjectNo(projectNo).then(data => {
+          this.loading = false
+        })
         // this.getQualityScoreList(projectNo).then(data => {
         //   this.initScoreTypeList(data)
         // })
@@ -331,7 +335,7 @@
           }).then(({data}) => {
             if (data && data.code === 0) {
               if (data.checkQuality != null) {
-                this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
+                this.$refs.reportId.innerHTML = data.checkQuality.qualityReport === null ? '无' : data.checkQuality.qualityReport
               }
               resolve(data)
             } else {

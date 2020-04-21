@@ -390,8 +390,8 @@
       },
       // 返回
       goBack () {
-        console.log('goBack')
         closeTab('project-editwork')
+        this.$router.push('project-project')
       }
     },
     watch: {
@@ -401,7 +401,7 @@
         if (to.name === 'project-editwork') {
           this.init()
         } else {
-          this.goBack()
+          closeTab('project-editwork')
         }
       }
     }

@@ -16,7 +16,7 @@
           <el-input v-model="dataForm.contractname" placeholder="合同关键字搜索" clearable></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button @click="getFinance()">查询</el-button>
+          <el-button @click="pageIndex = 1,getFinance()">查询</el-button>
         </el-form-item>
       </el-form>
       <div class="chart_title">

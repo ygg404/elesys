@@ -760,8 +760,8 @@
       },
       // 返回
       goBack () {
-        console.log('goBack')
         closeTab('project-editallocation')
+        this.$router.push('project-project')
       }
     },
     watch: {
@@ -771,7 +771,7 @@
         if (to.name === 'project-editallocation') {
           this.init()
         } else {
-          this.goBack()
+          closeTab('project-editallocation')
         }
       }
     }

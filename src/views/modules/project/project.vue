@@ -2,13 +2,14 @@
   <div class="mod-config">
     <el-card class="box-card">
       <div slot="header" class="clearfixz">
-        <span style="color: #2D64B3">角色选择：  </span>
+        <span style="color: #2D64B3">阶段选择：  </span>
         <el-radio-group v-model="roleradio" style="margin-left: 10px;">
-          <el-radio :label="1" :disabled="!isAuth('project:project:plan')">项目安排员</el-radio>
-          <el-radio :label="2" :disabled="!isAuth('project:work:list')">项目作业员</el-radio>
-          <el-radio :label="3" :disabled="!isAuth('project:quality:list')">质检人员</el-radio>
-          <el-radio :label="4" :disabled="!isAuth('project:checkoutput:list')">产值核算员</el-radio>
-          <el-radio :label="5" :disabled="!isAuth('project:authorize:list')">项目审定员</el-radio>
+          <el-radio :label="1" :disabled="!isAuth('project:project:plan')">项目安排</el-radio>
+          <el-radio :label="2" :disabled="!isAuth('project:work:list')">项目作业</el-radio>
+          <el-radio :label="3" :disabled="!isAuth('project:quality:list')">质量检查</el-radio>
+          <el-radio :label="4" :disabled="!isAuth('project:quality:auth')">质量审核</el-radio>
+          <el-radio :label="5" :disabled="!isAuth('project:checkoutput:list')">产值核算</el-radio>
+          <el-radio :label="6" :disabled="!isAuth('project:authorize:list')">项目审定</el-radio>
         </el-radio-group>
       </div>
       <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()" style="width: 100%;">
@@ -25,6 +26,7 @@
         </el-form-item>
         <el-form-item style="margin-left: -10px;">
           <el-button @click="getDataList()">查询</el-button>
+          <el-button @click="exportProjectExcel()" type="success">导出Excel</el-button>
         </el-form-item>
         <el-form-item style="float: right">
           <el-button @click="outputChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartoutput')">产值表</el-button>
@@ -56,7 +58,7 @@
         </el-table-column>
         <el-table-column prop="projectName" header-align="center" align="left" label="项目名称" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" width="120" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
+        <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" width="115" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
         <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="105" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.projectStatus === 0" size="small" type="primary">启动</el-tag>
@@ -90,19 +92,25 @@
             <el-tag v-else size="small" type="info">未质检</el-tag>
           </template>
         </el-table-column>
-        <el-table-column key="d" prop="isOutput" header-align="center" align="center" label="核算情况" width="105" v-if="roleradio===4" :sort-orders="['descending','ascending']" sortable="custom">
+        <el-table-column key="d"  prop="isQauth" header-align="center" align="center" label="质审情况" width="105" v-if="roleradio===4" :sort-orders="['descending','ascending']" sortable="custom">
+          <template slot-scope="scope" >
+            <el-tag v-if="scope.row.isQauth == 1" size="small" type="success">已质审</el-tag>
+            <el-tag v-else size="small" type="info">未质审</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column key="e" prop="isOutput" header-align="center" align="center" label="核算情况" width="105" v-if="roleradio===5" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.isOutput == 1" size="small" type="success">已核算</el-tag>
             <el-tag v-if="scope.row.isOutput != 1" size="small" type="info">未核算</el-tag>
           </template>
         </el-table-column>
-        <el-table-column key="e"  prop="isAuthorize" header-align="center" align="center" label="审核情况" width="105" v-if="roleradio===5" :sort-orders="['descending','ascending']" sortable="custom">
+        <el-table-column key="f"  prop="isAuthorize" header-align="center" align="center" label="审核情况" width="105" v-if="roleradio===6" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.isAuthorize === 1" size="small" type="success">已审核</el-tag>
             <el-tag v-else size="small" type="info">未审核</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="scheduleRate" header-align="center" align="center" width="120" label="项目进度" :sort-orders="['descending','ascending']" sortable="custom">
+        <el-table-column prop="scheduleRate" header-align="center" align="center" width="105" label="项目进度" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <!--是作业人员则添加 进度-->
             <div v-if="roleradio==2 && scope.row.isCharge == 1" @click="setScheduleHandle(scope.row)">
@@ -118,16 +126,16 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="projectStartDateTime" header-align="center" align="center" width="120" label="项目启动时间"
-                         v-if="dataForm.dateItemId == 0"></el-table-column>
-        <el-table-column prop="projectBegunDateTime" header-align="center" align="center" width="120" label="项目开工时间"
-                         v-if="dataForm.dateItemId == 1"></el-table-column>
-        <el-table-column prop="wFinishDateTime" header-align="center" align="center" width="120" label="作业完成时间"
-                         v-if="dataForm.dateItemId == 2"></el-table-column>
-        <el-table-column prop="qFinishDateTime" header-align="center" align="center" width="120" label="质检完成时间"
-                         v-if="dataForm.dateItemId == 3"></el-table-column>
-        <el-table-column prop="cutOffTime" header-align="center" align="center" width="120" label="结算时间"
-                         v-if="dataForm.dateItemId == 4">
+        <el-table-column prop="projectStartDateTime" header-align="center" align="center" width="129" label="项目启动时间"
+                         v-if="dataForm.dateItemId == 0" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
+        <el-table-column prop="projectBegunDateTime" header-align="center" align="center" width="129" label="项目开工时间"
+                         v-if="dataForm.dateItemId == 1" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
+        <el-table-column prop="wFinishDateTime" header-align="center" align="center" width="129" label="作业完成时间"
+                         v-if="dataForm.dateItemId == 2" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
+        <el-table-column prop="qFinishDateTime" header-align="center" align="center" width="129" label="质检完成时间"
+                         v-if="dataForm.dateItemId == 3" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
+        <el-table-column prop="cutOffTime" header-align="center" align="center" width="129" label="结算时间"
+                         v-if="dataForm.dateItemId == 4" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">{{scope.row.cutOffTime != null? scope.row.cutOffTime.substring(0,7) : ''}}
           </template>
         </el-table-column>
@@ -173,8 +181,17 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <!--产值核算按钮-->
+        <!--质量审核按钮-->
         <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==4">
+          <template slot-scope="scope">
+            <el-tooltip class="item" content="编辑质量审核" placement="left">
+              <el-button class="qualityauth_btn" size="mini" icon="el-icon-edit-outline" @click="editQualityAuthHandle(scope.row)"
+                         v-if="isAuth('project:quality:auth') && scope.row.isCheck == 1"></el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <!--产值核算按钮-->
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==5">
           <template slot-scope="scope">
             <el-tooltip class="item" content="编辑核算" placement="left">
               <el-button class="output_btn" size="mini" icon="el-icon-edit-outline" @click="editOutputHandle(scope.row)" v-if="isAuth('project:checkoutput:update')"></el-button>
@@ -182,7 +199,7 @@
           </template>
         </el-table-column>
         <!--项目审定按钮-->
-        <el-table-column :key="Math.random()"  header-align="center" align="center" width="190" label="操作" v-if="roleradio==5">
+        <el-table-column :key="Math.random()"  header-align="center" align="center" width="190" label="操作" v-if="roleradio==6">
           <template slot-scope="scope">
             <el-tooltip class="item" content="编辑审定" placement="left">
               <el-button class="examine_btn" size="mini" icon="el-icon-edit-outline"
@@ -242,6 +259,7 @@
   import projectscheduleAddOrUpdate from './projectschedule-add-or-update'
   import backworkAddOrUpdate from './backwork-add-or-update'
   import {isAuth} from '../../../utils'
+  import Vue from 'vue'
 
   export default {
     data () {
@@ -293,8 +311,9 @@
       this.pageIndex = 1
       this.pageSize = 25
       // 角色选择初始化
-      if (isAuth('project:authorize:list')) this.roleradio = 5
-      if (isAuth('project:checkoutput:list')) this.roleradio = 4
+      if (isAuth('project:authorize:list')) this.roleradio = 6
+      if (isAuth('project:checkoutput:list')) this.roleradio = 5
+      if (isAuth('project:quality:auth')) this.roleradio = 4
       if (isAuth('project:quality:list')) this.roleradio = 3
       if (isAuth('project:work:list')) this.roleradio = 2
       if (isAuth('project:project:plan')) this.roleradio = 1
@@ -498,7 +517,6 @@
       // 编辑安排
       editProjectHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        console.log(this.$router)
         this.$router.push({path: '/project-editallocation', query: {projectNo: item.projectNo}})
       },
       // 编辑工作
@@ -551,6 +569,11 @@
         } else {
           this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
         }
+      },
+      // 编辑质量审核
+      editQualityAuthHandle (item) {
+        this.$cookie.set('jxrole', this.roleradio)
+        this.$router.push({path: '/project-editqualityauth', query: {projectNo: item.projectNo}})
       },
       // 编辑产值核算
       editOutputHandle (item) {
@@ -608,6 +631,36 @@
             this.$message.error(data.msg)
           }
         })
+      },
+      // 导出excel
+      exportProjectExcel () {
+        this.dataListLoading = true
+        let that = this
+        let startDate = moment(new Date(this.dataForm.startDate.getFullYear(), this.dataForm.startDate.getMonth(), 1)).format('YYYY-MM-DD')
+        let endDate = moment(new Date(this.dataForm.endDate.getFullYear(), this.dataForm.endDate.getMonth() + 1, 1)).format('YYYY-MM-DD')
+        this.$http({
+          url: this.$http.adornUrl('/project/manage/exportExcel'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'key': this.dataForm.key,
+            'sidx': this.dataForm.sidx,
+            'order': this.dataForm.order,
+            'startDate': startDate,
+            'endDate': endDate,
+            'dateItemId': this.dataForm.dateItemId
+          }),
+          responseType: 'blob'
+        }).then(({data}) => {
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = '项目管理列表（' + startDate + '-' + endDate + '）.xlsx' // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          this.dataListLoading = false
+        })
       }
     }
 
@@ -625,6 +678,11 @@
 
   .quality_btn {
     background-color: #006F94;
+    color: white;
+  }
+
+  .qualityauth_btn {
+    background-color: #3ec27c;
     color: white;
   }
 
