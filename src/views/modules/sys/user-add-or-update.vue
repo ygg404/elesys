@@ -4,11 +4,11 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
-      <el-form-item label="用户名" prop="userName">
-        <el-input v-model="dataForm.userName" placeholder="登录帐号"></el-input>
+      <el-form-item label="用户名" prop="userNameA">
+        <el-input v-model="dataForm.userNameA" placeholder="登录帐号"></el-input>
       </el-form-item>
-      <el-form-item label="密码" prop="password" :class="{ 'is-required': !dataForm.id }">
-        <el-input v-model="dataForm.password" type="password" placeholder="密码"></el-input>
+      <el-form-item label="密码" prop="passwordA" :class="{ 'is-required': !dataForm.id }">
+        <el-input v-model="dataForm.passwordA" type="password" placeholder="密码"></el-input>
       </el-form-item>
       <el-form-item label="确认密码" prop="comfirmPassword" :class="{ 'is-required': !dataForm.id }">
         <el-input v-model="dataForm.comfirmPassword" type="password" placeholder="确认密码"></el-input>
@@ -52,7 +52,7 @@
       var validateComfirmPassword = (rule, value, callback) => {
         if (!this.dataForm.id && !/\S/.test(value)) {
           callback(new Error('确认密码不能为空'))
-        } else if (this.dataForm.password !== value) {
+        } else if (this.dataForm.passwordA !== value) {
           callback(new Error('确认密码与密码输入不一致'))
         } else {
           callback()
@@ -77,8 +77,8 @@
         roleList: [],
         dataForm: {
           id: 0,
-          userName: '',
-          password: '',
+          userNameA: '',
+          passwordA: '',
           comfirmPassword: '',
           salt: '',
           email: '',
@@ -87,10 +87,10 @@
           status: 1
         },
         dataRule: {
-          userName: [
+          userNameA: [
             { required: true, message: '用户名不能为空', trigger: 'blur' }
           ],
-          password: [
+          passwordA: [
             { validator: validatePassword, trigger: 'blur' }
           ],
           comfirmPassword: [
@@ -129,7 +129,7 @@
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.userName = data.user.username
+                this.dataForm.userNameA = data.user.username
                 this.dataForm.salt = data.user.salt
                 this.dataForm.email = data.user.email
                 this.dataForm.mobile = data.user.mobile
@@ -149,8 +149,8 @@
               method: 'post',
               data: this.$http.adornData({
                 'userId': this.dataForm.id || undefined,
-                'username': this.dataForm.userName,
-                'password': this.dataForm.password,
+                'username': this.dataForm.userNameA,
+                'password': this.dataForm.passwordA,
                 'salt': this.dataForm.salt,
                 'email': this.dataForm.email,
                 'mobile': this.dataForm.mobile,

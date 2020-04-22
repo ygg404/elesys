@@ -1,30 +1,30 @@
 <template>
-  <el-dialog width="70%"
+  <el-dialog
     title="选择作业组" :close-on-click-modal="false" :visible.sync="visible" >
     <span class="span_output">预计产值：{{this.totalOutPut}}</span>
-    <el-table :data="groupList" border  style="width: 100%;" v-loading="loading">
+    <el-table :data="groupList" border  style="width: 800px;" v-loading="loading">
       <el-table-column prop="name" header-align="center" align="left" label="组名" width="140" >
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.checked" size="large" @change="headMenListEvent">{{scope.row.groupName}}</el-checkbox>
         </template>
       </el-table-column>
       <el-table-column prop="headMan" header-align="center" align="center" width="120" label="队长" ></el-table-column>
-      <el-table-column prop="outputRate" header-align="center" align="center" width="120" label="占比(%)" >
+      <el-table-column prop="outputRate" header-align="center" align="center" width="130" label="占比(%)" >
         <template slot-scope="scope">
           <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.outputRate" @change="addRate(scope.row)" min="0"></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="projectOutput" header-align="center" align="center" label="产值" >
+      <el-table-column prop="projectOutput" header-align="center" align="center" width="145" label="产值" >
         <template slot-scope="scope">
           <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectOutput" @change="addOutPut(scope.row)" min="0" ></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="shortDateTime" header-align="center" align="center" label="最短工期" >
+      <el-table-column prop="shortDateTime" header-align="center" align="center" width="130" label="最短工期" >
         <template slot-scope="scope">
           <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.shortDateTime" min="0"></el-input>
         </template>
       </el-table-column>
-      <el-table-column prop="lastDateTime" header-align="center" align="center" label="最长工期" >
+      <el-table-column prop="lastDateTime" header-align="center" align="center" width="130" label="最长工期" >
         <template slot-scope="scope">
           <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.lastDateTime" min="0"></el-input>
         </template>
