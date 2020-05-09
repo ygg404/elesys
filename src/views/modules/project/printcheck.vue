@@ -205,9 +205,9 @@
         this.getQualityByProjectNo(projectNo).then(data => {
           this.loading = false
         })
-        // this.getQualityScoreList(projectNo).then(data => {
-        //   this.initScoreTypeList(data)
-        // })
+        this.getQualityScoreList(projectNo).then(data => {
+          this.initScoreTypeList(data)
+        })
       },
       // 初始化评分列表
       initScoreTypeList (datalist) {

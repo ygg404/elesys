@@ -6,7 +6,7 @@
         :collapse="sidebarFold"
         :collapseTransition="false"
         class="site-sidebar__menu">
-        <el-menu-item index="home" @click="$router.push({ name: 'home' })">
+        <el-menu-item index="home" @click="homeHandle">
           <icon-svg name="shouye" class="site-sidebar__menu-icon"></icon-svg>
           <span slot="title">个人中心</span>
         </el-menu-item>
@@ -48,6 +48,10 @@
       SubMenu
     },
     computed: {
+      sysFlag: {
+        get () { return this.$store.state.common.sysFlag },
+        set (val) { this.$store.commit('common/updateSysFlag', val) }
+      },
       sidebarLayoutSkin: {
         get () { return this.$store.state.common.sidebarLayoutSkin }
       },
@@ -80,6 +84,13 @@
       this.routeHandle(this.$route)
     },
     methods: {
+      homeHandle () {
+        if (this.sysFlag === 'ren') {
+          this.$router.push({ name: 'home2' })
+        } else {
+          this.$router.push({ name: 'home' })
+        }
+      },
       // 路由操作
       routeHandle (route) {
         if (route.meta.isTab) {

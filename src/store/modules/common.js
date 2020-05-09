@@ -14,7 +14,11 @@ export default {
     menuActiveName: '',
     // 主入口标签页
     mainTabs: [],
-    mainTabsActiveName: ''
+    mainTabsActiveName: '',
+    // 系统名称 系统简称 系统标志
+    sysName: '杰信测绘',
+    simpleName: '杰信测绘',
+    sysFlag: ''
   },
   mutations: {
     updateDocumentClientHeight (state, height) {
@@ -40,6 +44,15 @@ export default {
     },
     updateMainTabsActiveName (state, name) {
       state.mainTabsActiveName = name
+    },
+    updateSysName (state, name) {
+      state.sysName = name
+    },
+    updateSimpleName (state, name) {
+      state.simpleName = name
+    },
+    updateSysFlag (state, name) {
+      state.sysFlag = name
     }
   }
 }

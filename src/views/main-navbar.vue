@@ -1,7 +1,7 @@
 <template>
   <nav class="site-navbar" :class="'site-navbar--' + navbarLayoutType" >
     <div class="site-navbar__header">
-      <h1 class="site-navbar__brand" @click="$router.push({ name: 'home' })">
+      <h1 class="site-navbar__brand" @click="homeHandle">
         <a class="site-navbar__brand-lg" href="javascript:;">{{sysName}}</a>
         <a class="site-navbar__brand-mini" href="javascript:;">杰信</a>
       </h1>
@@ -49,18 +49,25 @@
   export default {
     data () {
       return {
-        sysName: '杰信测绘管理系统',
         updatePassowrdVisible: false
       }
     },
     components: {
       UpdatePassword
     },
-    created () {
-      this.getSysNameHandle()
-      // this.getUserDetailFromApi()
-    },
     computed: {
+      simpleName: {
+        get () { return this.$store.state.common.simpleName },
+        set (val) { this.$store.commit('common/updateSimpleName', val) }
+      },
+      sysName: {
+        get () { return this.$store.state.common.sysName },
+        set (val) { this.$store.commit('common/updateSysName', val) }
+      },
+      sysFlag: {
+        get () { return this.$store.state.common.sysFlag },
+        set (val) { this.$store.commit('common/updateSysFlag', val) }
+      },
       navbarLayoutType: {
         get () { return this.$store.state.common.navbarLayoutType }
       },
@@ -84,19 +91,46 @@
         set (val) { this.$store.commit('user/updateUserDetail', val) }
       }
     },
+    created () {
+      // this.getSysNameHandle()
+      this.getSysconfigFromApi()
+      console.log(this.sysFlag)
+      if (this.sysFlag === 'ren') this.getUserDetailFromApi()
+    },
     methods: {
-      // 获取系统名称
-      getSysNameHandle () {
-        let param_key = 'sysName'
+      // 获取参数列表
+      getSysconfigFromApi () {
         this.$http({
-          url: this.$http.adornUrl(`/sys/config/getNameByKey`),
+          url: this.$http.adornUrl('/sys/config/list'),
           method: 'get',
-          params: this.$http.adornParams({
-            'key': param_key
-          })
+          params: this.$http.adornParams({})
         }).then(({data}) => {
-          this.sysName = data.config.paramValue
+          if (data && data.code === 0) {
+            for (let dat of data.list) {
+              switch (dat.paramKey) {
+                case 'sysName':
+                  this.sysName = dat.paramValue
+                  break
+                case 'sysFlag':
+                  this.sysFlag = dat.paramValue
+                  break
+                case 'simpleName':
+                  this.simpleName = dat.paramValue
+                  break
+                default:
+                  break
+              }
+            }
+          }
         })
+      },
+      // 跳转主页
+      homeHandle () {
+        if (this.sysFlag === 'ren') {
+          this.$router.push({ name: 'home2' })
+        } else {
+          this.$router.push({ name: 'home' })
+        }
       },
       // 修改密码
       updatePasswordHandle () {
@@ -125,14 +159,14 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$router.push({ name: 'login' })
+          clearLoginInfo()
           this.$http({
             url: this.$http.adornUrl('/sys/logout'),
             method: 'post',
             data: this.$http.adornData()
           }).then(({data}) => {
             if (data && data.code === 0) {
-              clearLoginInfo()
+              this.$router.push({ name: 'login' })
             }
           })
         }).catch(() => {})

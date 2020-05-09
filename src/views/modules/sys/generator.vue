@@ -78,32 +78,29 @@
           return item.tableName
         })
         if (tableNames.length > 0) {
-          // let downurl = window.SITE_CONFIG['baseUrl'] + '/sys/generator/code?tables=' + tableNames.join()
-          // let xhr = new XMLHttpRequest()
-          // // GET请求,请求路径url,async(是否异步)
-          // xhr.open('GET', downurl, true)
-          // // 设置请求头参数的方式,如果没有可忽略此行代码
-          // xhr.setRequestHeader('token', Vue.cookie.get('token'))
-          // xhr.setRequestHeader('Access-Control-Allow-Origin', '*')
-          // // 设置响应类型为 blob
-          // xhr.responseType = 'arraybuffer'
-          // // 关键部分
-          // xhr.onload = function (e) {
-          //   // 如果请求执行成功
-          //   if (this.status === 200) {
-          //     let blob = this.response
-          //     let a = document.createElement('a')
-          //     // 创键临时url对象
-          //     var url = URL.createObjectURL(blob)
-          //     a.href = url
-          //     a.click()
-          //     // 释放之前创建的URL对象
-          //     window.URL.revokeObjectURL(url)
-          //   }
-          // }
-          // // 发送请求
-          // xhr.send()
-          location.href = window.SITE_CONFIG['baseUrl'] + '/sys/generator/code?tables=' + tableNames.join()
+          this.$http({
+            url: this.$http.adornUrl('/sys/generator/code'),
+            method: 'get',
+            params: this.$http.adornParams({
+              'tables': tableNames.join()
+            }),
+            withCredentials: false, // 允许携带cookie
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+            },
+            responseType: 'blob'
+          }).then(({data}) => {
+            console.log(data)
+            var downloadElement = document.createElement('a')
+            var href = window.URL.createObjectURL(data) // 创建下载的链接
+            downloadElement.href = href
+            downloadElement.download = 'ren.zip' // 下载后文件名
+            document.body.appendChild(downloadElement)
+            downloadElement.click() // 点击下载
+            document.body.removeChild(downloadElement) // 下载完成移除元素
+            window.URL.revokeObjectURL(href) // 释放掉blob对象
+            this.dataListLoading = false
+          })
         }
       },
       // 每页数

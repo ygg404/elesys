@@ -270,32 +270,33 @@
       },
       // 下载合同文件
       downloadFile (item) {
-        let downurl = this.downContractUrl + item.contractNo
-        let xhr = new XMLHttpRequest()
-        // GET请求,请求路径url,async(是否异步)
-        xhr.open('GET', downurl, true)
-        // 设置请求头参数的方式,如果没有可忽略此行代码
-        xhr.setRequestHeader('token', Vue.cookie.get('token'))
-        // 设置响应类型为 blob
-        xhr.responseType = 'blob'
-        // 关键部分
-        xhr.onload = function (e) {
-          // 如果请求执行成功
-          if (this.status === 200) {
-            let blob = this.response
-            let filename = item.filename
-            let a = document.createElement('a')
-            // 创键临时url对象
-            var url = URL.createObjectURL(blob)
-            a.href = url
-            a.download = filename
-            a.click()
-            // 释放之前创建的URL对象
-            window.URL.revokeObjectURL(url)
-          }
-        }
-        // 发送请求
-        xhr.send()
+        window.location.href = window.SITE_CONFIG['uploadUrl'] + 'contract/' + item.filename
+        // let downurl = this.downContractUrl + item.contractNo
+        // let xhr = new XMLHttpRequest()
+        // // GET请求,请求路径url,async(是否异步)
+        // xhr.open('GET', downurl, true)
+        // // 设置请求头参数的方式,如果没有可忽略此行代码
+        // xhr.setRequestHeader('token', Vue.cookie.get('token'))
+        // // 设置响应类型为 blob
+        // xhr.responseType = 'blob'
+        // // 关键部分
+        // xhr.onload = function (e) {
+        //   // 如果请求执行成功
+        //   if (this.status === 200) {
+        //     let blob = this.response
+        //     let filename = item.filename
+        //     let a = document.createElement('a')
+        //     // 创键临时url对象
+        //     var url = URL.createObjectURL(blob)
+        //     a.href = url
+        //     a.download = filename
+        //     a.click()
+        //     // 释放之前创建的URL对象
+        //     window.URL.revokeObjectURL(url)
+        //   }
+        // }
+        // // 发送请求
+        // xhr.send()
       },
       // 删除项目将项目放入回收站
       deleteProjectHandle (item) {

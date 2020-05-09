@@ -114,7 +114,7 @@
       },
       getCaptainList () {
         this.$http({
-          url: this.$http.adornUrl('/sys/user/getCaptain'),
+          url: this.$http.adornUrl('/sys/user/getAllUserList'),
           method: 'get'
         }).then(({data}) => {
           if (data && data.code === 0) {

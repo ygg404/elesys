@@ -101,7 +101,7 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/sys/config/list'),
+          url: this.$http.adornUrl('/sys/config/page'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,

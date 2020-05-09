@@ -1,8 +1,11 @@
 <template>
   <div class="site-wrapper site-page--login">
     <div class="site-content__wrapper">
-      <div class="login-main">
-        <img src="~@/assets/img/logo.png"  class="login-main-img">
+      <div class="login-main" v-loading="loading">
+        <div>
+          <img src="~@/assets/img/hlogo.png"  class="login-main-img">
+          <span class="login-main-span">{{simpleName}}</span>
+        </div>
         <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon style="margin-top: 20px;">
           <el-form-item prop="userName">
             <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>
@@ -52,9 +55,32 @@
         captchaPath: ''
       }
     },
+    computed: {
+      simpleName: {
+        get () { return this.$store.state.common.simpleName },
+        set (val) { this.$store.commit('common/updateSimpleName', val) }
+      },
+      sysName: {
+        get () { return this.$store.state.common.sysName },
+        set (val) { this.$store.commit('common/updateSysName', val) }
+      },
+      sysFlag: {
+        get () { return this.$store.state.common.sysFlag },
+        set (val) { this.$store.commit('common/updateSysFlag', val) }
+      }
+    },
     created () {
-      this.dataForm.userAccount = this.$cookie.get('jxaccount')
-      this.dataForm.password = this.$cookie.get('jxpwd')
+      this.getSysconfigFromApi().then(success =>{
+        // 人事管理系统存放的cookie
+        if (this.sysFlag === 'ren') {
+          this.dataForm.userAccount = this.$cookie.get('jxRenAccount')
+          this.dataForm.password = this.$cookie.get('jxRenPwd')
+        } else {
+          // 项目管理系统
+          this.dataForm.userAccount = this.$cookie.get('jxaccount')
+          this.dataForm.password = this.$cookie.get('jxpwd')
+        }
+      })
       // this.getCaptcha()
     },
     methods: {
@@ -76,12 +102,18 @@
               this.loading = false
               if (data && data.code === 0) {
                 this.$cookie.set('token', data.token)
-                this.$cookie.set('jxaccount' , this.dataForm.userAccount)
-                this.$cookie.set('jxpwd' , this.dataForm.password)
                 this.$cookie.set('jxrole', '') // 项目管理默认角色为空
                 this.$cookie.set('jxstartDate', '') // 选择时间（起始时间）
                 this.$cookie.set('jxendDate', '') // 选择时间（结束时间）
-                this.$router.replace({ name: 'home' })
+                if (this.sysFlag === 'ren') {
+                  this.$cookie.set('jxRenAccount' , this.dataForm.userAccount)
+                  this.$cookie.set('jxRenPwd' , this.dataForm.password)
+                  this.$router.replace({ name: 'home2' })
+                } else {
+                  this.$cookie.set('jxaccount' , this.dataForm.userAccount)
+                  this.$cookie.set('jxpwd' , this.dataForm.password)
+                  this.$router.replace({name: 'home'})
+                }
               } else {
                 this.getCaptcha()
                 this.$message.error(data.msg)
@@ -94,6 +126,41 @@
       getCaptcha () {
         this.dataForm.uuid = getUUID()
         this.captchaPath = this.$http.adornUrl(`/captcha.jpg?uuid=${this.dataForm.uuid}`)
+      },
+      // 获取参数列表
+      getSysconfigFromApi () {
+        this.loading = true
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/sys/config/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              for (let dat of data.list) {
+                switch (dat.paramKey) {
+                  case 'sysName':
+                    this.sysName = dat.paramValue
+                    break
+                  case 'sysFlag':
+                    this.sysFlag = dat.paramValue
+                    break
+                  case 'simpleName':
+                    this.simpleName = dat.paramValue
+                    break
+                  default:
+                    break
+                }
+              }
+              resolve(data)
+              this.loading = false
+            } else {
+              this.$message.error(data.msg)
+              reject(data)
+            }
+          })
+        })
+
       }
     }
   }
@@ -168,8 +235,14 @@
       background-color: #fff;
     }
     .login-main-img{
-      width: 100%;
+      width: 120px;
       height: auto;
+    }
+    .login-main-span{
+      font-size: 40pt;
+      font-weight: 300;
+      vertical-align: middle;
+      font-family:华文琥珀,arial,微软雅黑;
     }
     .login-title {
       font-size: 16px;
