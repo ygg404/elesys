@@ -37,16 +37,16 @@
         </div>
         <el-row :gutter="24">
           <el-col :span="12">
-            <el-select  placeholder="技术交底快捷输入" v-model="disclosureValue" style="width: 100%" multiple collapse-tags  @change="disclosureValueHandler()" >
-              <el-option v-for="item in disclosureNotesList" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="技术交底快捷输入" v-model="disclosureValue" style="width: 100%" filterable multiple collapse-tags  @change="disclosureValueHandler()" >
+              <el-option v-for="item in disclosureNotesList" :label="item.shortcutNote" :key="item.id" :value="item.id" v-if="shortTypeAlive(item)" ></el-option>
             </el-select>
             <el-form-item prop="technicalDisclosureNote">
               <el-input type="textarea" placeholder="请输入技术交底" maxlength="1000" size="large" show-word-limit rows="4"   v-model="dataForm.technicalDisclosureNote" ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-select  placeholder="过程检查意见快捷输入" v-model="checkValue" style="width: 100%" collapse-tags multiple @change="checkSuggestionHandler()">
-              <el-option v-for="item in checkSuggestionsList" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="过程检查意见快捷输入" v-model="checkValue" style="width: 100%" filterable collapse-tags multiple @change="checkSuggestionHandler()">
+              <el-option v-for="item in checkSuggestionsList" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
             </el-select>
             <el-form-item prop="checkSuggestion">
               <el-input type="textarea" placeholder="请输入过程检查意见" maxlength="1000" show-word-limit rows="4"  v-model="dataForm.checkSuggestion"></el-input>
@@ -55,16 +55,16 @@
         </el-row>
         <el-row :gutter="24">
           <el-col :span="12">
-            <el-select  placeholder="上交资料快捷输入"  v-model="dataValue" collapse-tags multiple style="width: 100%;margin-top: 10px;" @change="dataNameHandler()">
-              <el-option v-for="item in dataNameList" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="上交资料快捷输入"  v-model="dataValue" filterable collapse-tags multiple style="width: 100%;margin-top: 10px;" @change="dataNameHandler()">
+              <el-option v-for="item in dataNameList" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
             </el-select>
             <el-form-item prop="dataName">
               <el-input type="textarea" placeholder="请输入上交资料" maxlength="1000" show-word-limit rows="4" v-model="dataForm.dataName"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-select  placeholder="工作小结快捷输入"  v-model="briefValue" collapse-tags multiple style="width: 100%;margin-top: 10px;" @change="briefSummaryHandler()">
-              <el-option v-for="item in briefSummarysList" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="工作小结快捷输入"  v-model="briefValue" filterable collapse-tags multiple style="width: 100%;margin-top: 10px;" @change="briefSummaryHandler()">
+              <el-option v-for="item in briefSummarysList" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
             </el-select>
             <el-form-item prop="briefSummary">
               <el-input type="textarea" placeholder="请输入工作小结" maxlength="1000" show-word-limit rows="4" v-model="dataForm.briefSummary"></el-input>
@@ -73,8 +73,8 @@
         </el-row>
         <el-row :gutter="24">
           <el-col :span="12">
-            <el-select  placeholder="工作量快捷输入"  v-model="workValue" collapse-tags multiple style="width: 100%;margin-top: 10px;" @change="workLoadHandler()">
-              <el-option v-for="item in workLoadList" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="工作量快捷输入"  v-model="workValue" collapse-tags filterable multiple style="width: 100%;margin-top: 10px;" @change="workLoadHandler()">
+              <el-option v-for="item in workLoadList" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
             </el-select>
             <el-form-item prop="workLoad">
               <el-input type="textarea" placeholder="请输入工作量" maxlength="1000" show-word-limit rows="4" v-model="dataForm.workLoad"></el-input>
@@ -92,6 +92,7 @@
 
 <script>
   import {closeTab} from '@/utils/tabs'
+  import {stringIsNull} from '@/utils'
 
   export default {
     data () {
@@ -355,6 +356,21 @@
           for (let note of this.workLoadList) {
             if (note.id === value) this.dataForm.workLoad = this.dataForm.workLoad + note.shortcutNote + ';'
           }
+        }
+      },
+      // 根据项目类型快捷输入可见或不可见
+      shortTypeAlive (item) {
+        // 当快捷短语的项目分类为空 或者 项目类型为空则短语可见
+        if (stringIsNull(item.projectType) || stringIsNull(this.projectInfo.projectType)) {
+          return true
+        } else {
+          let itemType = item.projectType.split(',')
+          for (let itype of itemType) {
+            if (this.projectInfo.projectType.indexOf(itype) !== -1) {
+              return true
+            }
+          }
+          return false
         }
       },
       // 表单提交

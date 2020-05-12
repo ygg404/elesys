@@ -14,47 +14,29 @@
     </el-form>
     <el-table
       :data="dataList"
-      border
+      border row-key="id"
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       @sort-change="changeSort"
       style="width: 100%;">
-      <el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
+      <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
+      <el-table-column prop="id" header-align="center" align="center" label="ID" sortable :sort-orders="['descending','ascending']" width="80"></el-table-column>
+      <el-table-column prop="shortcutNote" header-align="center" align="center" label="快捷输入短语内容" min-width="200"></el-table-column>
+      <el-table-column prop="shortcutName" header-align="center" align="center" sortable :sort-orders="['descending','ascending']" label="输入项">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.shortcutName != ''" v-for="(item,index) in (scope.row.shortcutName || '').split(',')" :key="index"
+                  style="margin-left: 5px;" type="success">{{item}}
+          </el-tag>
+        </template>
       </el-table-column>
-      <el-table-column
-        prop="id"
-        header-align="center"
-        align="center"
-        label="ID"
-        sortable
-        :sort-orders="['descending','ascending']"
-        width="80">
+      <el-table-column prop="projectType" header-align="center" align="center" sortable :sort-orders="['descending','ascending']" label="项目类型">
+        <template slot-scope="scope">
+          <el-tag v-if="!stringIsNull(scope.row.projectType)" v-for="(item,index) in (scope.row.projectType || '').split(',')" :key="index"
+                  style="margin-left: 5px;" >{{item}}
+          </el-tag>
+        </template>
       </el-table-column>
-      <el-table-column
-        prop="shortcutName"
-        header-align="center"
-        align="center"
-        sortable
-        :sort-orders="['descending','ascending']"
-        label="输入项">
-      </el-table-column>
-      <el-table-column
-        prop="shortcutNote"
-        header-align="center"
-        align="center"
-        label="文字内容"
-        min-width="200">
-      </el-table-column>
-      <el-table-column
-        fixed="right"
-        header-align="center"
-        align="center"
-        width="150"
-        label="操作">
+      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
@@ -76,6 +58,7 @@
 </template>
 
 <script>
+  import Sortable from 'sortablejs'
   import AddOrUpdate from './wpshortcut-add-or-update'
 
   export default {
@@ -96,10 +79,12 @@
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,
+      Sortable
     },
     activated () {
       this.getDataList()
+      this.rowDrop()
     },
     methods: {
       // 排序字段改变
@@ -196,7 +181,7 @@
             }
           })
         })
-      }
+      },
     }
   }
 </script>

@@ -97,15 +97,7 @@
           }).then(({data}) => {
             if (data && data.code === 0) {
               //项目类型数据 赋值
-              this.ProjectTypeList = data.list;
-
-              // for(let item of data.list){
-              //   let option = {
-              //     value:item.id,
-              //     label:item.name
-              //   };
-              //   this.ProjectTypeIdList.push(option);
-              // }
+              this.ProjectTypeList = data.list
               resolve(data.list)
             } else {
               //this.dataList = []

@@ -10,20 +10,20 @@
                 <el-date-picker v-model="dataForm.projectBegunDateTime" type="date" placeholder="项目开工日期" style="max-width: 150px;"></el-date-picker>
               </el-form-item>
             </div>
-            <el-select  placeholder="执行标准短语快捷输入" v-model="executeValue" multiple collapse-tags style="width: 100%;" @change="executelistHandler()" >
-              <el-option v-for="item in executelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="执行标准短语快捷输入" filterable v-model="executeValue" multiple collapse-tags style="width: 100%;" @change="executelistHandler()" >
+              <el-option v-for="item in executelist" :label="item.shortcutNote" :key="item.id" :value="item.id" v-if="shortTypeAlive(item)"  ></el-option>
             </el-select>
             <el-form-item prop="executeStandard">
               <el-input type="textarea" placeholder="请输入执行标准" maxlength="1000" show-word-limit class="allo_text" v-model="dataForm.executeStandard" ></el-input>
             </el-form-item>
-            <el-select  placeholder="作业内容短语快捷输入" v-model="worknoteValue" collapse-tags multiple style="width: 100%;margin-top: 20px;" @change="worknotelistHandler()">
-              <el-option v-for="item in worknotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="作业内容短语快捷输入" filterable  v-model="worknoteValue" collapse-tags multiple style="width: 100%;margin-top: 20px;" @change="worknotelistHandler()">
+              <el-option v-for="item in worknotelist" :label="item.shortcutNote" :key="item.id" :value="item.id" v-if="shortTypeAlive(item)" ></el-option>
             </el-select>
             <el-form-item prop="workNote">
-              <el-input type="textarea" placeholder="请输入作业内容" maxlength="1000" show-word-limit class="allo_text" v-model="dataForm.workNote"></el-input>
+              <el-input type="textarea" placeholder="请输入作业内容"  maxlength="1000" show-word-limit class="allo_text" v-model="dataForm.workNote"></el-input>
             </el-form-item>
-            <el-select  placeholder="作业要求短语快捷输入"  v-model="workrequireValue" collapse-tags multiple style="width: 100%;margin-top: 20px;" @change="workrequirelistHandler()">
-              <el-option v-for="item in workrequireList" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+            <el-select  placeholder="作业要求短语快捷输入" filterable  v-model="workrequireValue" collapse-tags multiple style="width: 100%;margin-top: 20px;" @change="workrequirelistHandler()">
+              <el-option v-for="item in workrequireList" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
             </el-select>
             <el-form-item prop="workRequire">
               <el-input type="textarea" placeholder="请输入作业要求" maxlength="1000" show-word-limit class="allo_text" v-model="dataForm.workRequire"></el-input>
@@ -166,8 +166,8 @@
         <el-col :span="16">
           <el-table :data="chooseRatio(workTypelist)" border  style="width: 100%;" show-summary :summary-method="getSummaryMethod">
             <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="130"></el-table-column>
-            <el-table-column prop="unit" header-align="center" align="center"  label="产值单价" width="110"></el-table-column>
-            <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单位" ></el-table-column>
+            <el-table-column prop="unit" header-align="center" align="center"  label="量单位" width="110"></el-table-column>
+            <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单价" ></el-table-column>
             <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" width="110">
               <template slot-scope="scope">
                 <el-input type="number" :disabled="!scope.row.checked || scope.row.typeId == -99" v-model="scope.row.projectRatio" @change="checkOutputVoInit"  ></el-input>
@@ -199,6 +199,7 @@
 <script>
   import projectgroupAddOrUpdate from './projectgroup-add-or-update'
   import {closeTab} from '@/utils/tabs'
+  import {stringIsNull} from '@/utils'
   import moment from 'moment'
 
   export default {
@@ -750,6 +751,21 @@
         })
         this.workTypelist = worktypeList
         this.totalOutPut = totalOutPut
+      },
+      // 根据项目类型快捷输入可见或不可见
+      shortTypeAlive (item) {
+        // 当快捷短语的项目分类为空 或者 项目类型为空则短语可见
+        if (stringIsNull(item.projectType) || stringIsNull(this.projectInfo.projectType)) {
+          return true
+        } else {
+          let itemType = item.projectType.split(',')
+          for (let itype of itemType) {
+            if (this.projectInfo.projectType.indexOf(itype) !== -1) {
+              return true
+            }
+          }
+          return false
+        }
       },
       // 保留小数点后两位的过滤器，尾数不四舍五入
       numFilter (value) {

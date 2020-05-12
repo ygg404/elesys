@@ -4,18 +4,28 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="100px">
-     <el-form-item label="短语类型" prop="shortcutTypeId">
-      <el-select v-model="dataForm.shortcutTypeId" placeholder="请选择短语类型" clearable="true">
-        <el-option
-          v-for="item in shortTypeList"
-          :key="item.id"
-          :label="item.typeName"
-          :value="item.id">
-        </el-option>
-      </el-select>
-     </el-form-item>
       <el-form-item label="短语内容" prop="shortcutNote">
         <el-input v-model="dataForm.shortcutNote" placeholder="短语内容"></el-input>
+      </el-form-item>
+      <el-form-item label="短语类型" prop="shortcutTypeId">
+        <el-select v-model="dataForm.shortcutTypeId" placeholder="请选择短语类型" multiple clearable="true" style="width: 100%;">
+          <el-option
+            v-for="item in shortTypeList"
+            :key="item.id"
+            :label="item.typeName"
+            :value="item.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="项目类型" >
+        <el-select v-model="dataForm.projectTypeIdList" outlined multiple placeholder="请选择项目类型" style="width: 100%;">
+          <el-option
+            v-for="item in projectTypeList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id">
+          </el-option>
+        </el-select>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -26,15 +36,20 @@
 </template>
 
 <script>
+  import {stringIsNull} from '@/utils'
+
   export default {
     data () {
       return {
         visible: false,
+        projectTypeList: [],
         dataForm: {
           id: 0,
           shortcutName: '',
           shortcutNote: '',
-          shortcutTypeId: ''
+          shortcutTypeId: '',
+          projectTypeIdList: '',
+          projectType: ''
         },
         value: '',
         dataRule: {
@@ -56,39 +71,81 @@
         this.dataForm.id = id || 0
         this.visible = true
         this.$nextTick(() => {
-          this.$refs['dataForm'].resetFields()
-          if (this.dataForm.id) {
-            this.$http({
-              url: this.$http.adornUrl(`/set/wpshortcut/info/${this.dataForm.id}`),
-              method: 'get',
-              params: this.$http.adornParams()
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.dataForm.shortcutName = data.wpShortcut.shortcutName
-                this.dataForm.shortcutNote = data.wpShortcut.shortcutNote
-                this.dataForm.shortcutTypeId = data.wpShortcut.shortcutTypeId
-              }
-            })
-          }
-          this.getShortTypeList()
+          this.getProjectTypeListFromApi()
+          this.getShortTypeList().then(success => {
+            this.$refs['dataForm'].resetFields()
+            if (this.dataForm.id) {
+              this.$http({
+                url: this.$http.adornUrl(`/set/wpshortcut/info/${this.dataForm.id}`),
+                method: 'get',
+                params: this.$http.adornParams()
+              }).then(({data}) => {
+                if (data && data.code === 0) {
+                  this.dataForm.shortcutName = data.wpShortcut.shortcutName
+                  this.dataForm.shortcutNote = data.wpShortcut.shortcutNote
+                  this.dataForm.shortcutTypeId = data.wpShortcut.shortcutTypeId.split(',').map(function (data) {return +data})
+                  this.dataForm.projectTypeIdList = stringIsNull(data.wpShortcut.projectTypeId) ? [] : data.wpShortcut.projectTypeId.split(',').map(function (data) {return +data} )
+                }
+              })
+            }
+          })
         })
       },
       // 获取短语类型列表
       getShortTypeList () {
-        this.$http({
-          url: this.$http.adornUrl('/set/shorttype/list'),
-          method: 'get'
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.shortTypeList = data.list
-          } else {
-            this.dataList = []
-          }
+        return new Promise(resolve => {
+          this.$http({
+            url: this.$http.adornUrl('/set/shorttype/list'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.shortTypeList = data.list
+              resolve(data.list)
+            } else {
+              this.dataList = []
+            }
+          })
+        })
+
+      },
+      // 从后台获得下拉列表内容  填充至选项
+      getProjectTypeListFromApi () {
+        return new Promise((resolve,reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/projecttype/selectprojecttype'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.projectTypeList = data.list
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
         })
       },
       // 表单提交
       dataFormSubmit () {
-        this.dataForm.shortcutName = this.shortTypeList.find(item => item.id === this.dataForm.shortcutTypeId)['typeName']
+        // 短语类型名称
+        this.dataForm.shortcutName = []
+        for (let shortcut of this.shortTypeList) {
+          for (let shortId of this.dataForm.shortcutTypeId) {
+            if (shortId === shortcut.id) {
+              this.dataForm.shortcutName.push(shortcut.typeName)
+            }
+          }
+        }
+        // 项目类型名称
+        console.log(this.dataForm.projectTypeIdList)
+        this.dataForm.projectType = []
+        for (let projecttype of this.projectTypeList) {
+          for (let typeId of this.dataForm.projectTypeIdList) {
+            if (typeId === projecttype.id) {
+              this.dataForm.projectType.push(projecttype.name)
+            }
+          }
+        }
+        // this.dataForm.shortcutName = this.shortTypeList.find(item => item.id === this.dataForm.shortcutTypeId)['typeName']
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
@@ -96,9 +153,11 @@
               method: 'post',
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,
-                'shortcutName': this.dataForm.shortcutName,
                 'shortcutNote': this.dataForm.shortcutNote,
-                'shortcutTypeId': this.dataForm.shortcutTypeId
+                'shortcutName': this.dataForm.shortcutName.join(','),
+                'shortcutTypeId': this.dataForm.shortcutTypeId.join(','),
+                'projectType': this.dataForm.projectType.join(','),
+                'projectTypeId': this.dataForm.projectTypeIdList.join(',')
               })
             }).then(({data}) => {
               if (data && data.code === 0) {

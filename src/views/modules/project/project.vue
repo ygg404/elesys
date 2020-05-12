@@ -636,8 +636,8 @@
       exportProjectExcel () {
         this.dataListLoading = true
         let that = this
-        let startDate = moment(new Date(this.dataForm.startDate.getFullYear(), this.dataForm.startDate.getMonth(), 1)).format('YYYY-MM-DD')
-        let endDate = moment(new Date(this.dataForm.endDate.getFullYear(), this.dataForm.endDate.getMonth() + 1, 1)).format('YYYY-MM-DD')
+        let startDate = moment(this.dataForm.startDate).format('YYYY-MM-DD')
+        let endDate = moment(this.dataForm.endDate).format('YYYY-MM-DD')
         this.$http({
           url: this.$http.adornUrl('/project/manage/exportExcel'),
           method: 'get',

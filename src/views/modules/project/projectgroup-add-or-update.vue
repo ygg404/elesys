@@ -1,5 +1,5 @@
 <template>
-  <el-dialog
+  <el-dialog customClass="customWidth"
     title="选择作业组" :close-on-click-modal="false" :visible.sync="visible" >
     <span class="span_output">预计产值：{{this.totalOutPut}}</span>
     <el-table :data="groupList" border  style="width: 800px;" v-loading="loading">
@@ -273,5 +273,8 @@
   }
   .span_error{
     color: red;
+  }
+  .customWidth{
+    width:860px;
   }
 </style>

@@ -21,6 +21,7 @@
     <el-table :data="dataList" border v-loading="dataListLoading" @selection-change="selectionChangeHandle"
               @sort-change="changeSort" style="width: 100%;">
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
+      <el-table-column prop="id" header-align="center" align="center" v-if="false"></el-table-column>
       <el-table-column prop="orderNum" header-align="center" align="center" label="序列号" width="85"></el-table-column>
 <!--      <el-table-column prop="id" header-align="center" align="center" label="ID" width="80"></el-table-column>-->
       <el-table-column prop="typeName" header-align="center" align="center" label="类型名称"></el-table-column>
@@ -33,9 +34,9 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column fixed="right" header-align="center" align="center" width="240" label="操作">
+      <el-table-column fixed="right" header-align="center" align="center" width="180" label="操作">
         <template slot-scope="scope">
-          <el-button type="warning" size="mini" @click="" icon="el-icon-top" @click="setSortHandle(scope.row)">顺序</el-button>
+<!--          <el-button type="warning" size="mini" @click="" icon="el-icon-top" @click="setSortHandle(scope.row)">顺序</el-button>-->
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -59,6 +60,7 @@
   import AddOrUpdate from './worktype-add-or-update'
   import moment from 'moment'
   import Vue from 'vue'
+  import Sortable from 'sortablejs'
 
   export default {
     data () {
@@ -81,11 +83,13 @@
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,
+      Sortable
     },
     activated () {
       this.getProjectList().then(success => {
         this.getDataList()
+        this.rowDropInit()
       })
     },
     methods: {
@@ -225,24 +229,40 @@
           })
         })
       },
-      //  设置顺序
-      setSortHandle (item) {
-        this.$http({
-          url: this.$http.adornUrl('/set/worktype/setSort'),
-          method: 'post',
-          data: this.$http.adornData({
-            'id': item.id
-          })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.$message({
-              message: '改变顺序成功',
-              type: 'success',
-              duration: 1500
-            })
-            this.getDataList()
-          } else {
-            this.$message.error(data.msg)
+      // 行拖拽 设置顺序
+      rowDropInit () {
+        const tbody = document.querySelector('.el-table__body-wrapper tbody')
+        const _this = this
+        Sortable.create(tbody, {
+          onEnd({ newIndex, oldIndex }) {
+            console.log(newIndex)
+            console.log(oldIndex)
+            let oldNum = _this.dataList[oldIndex].orderNum
+            let newNum = _this.dataList[newIndex].orderNum
+
+            if (oldNum !== newNum){
+              // 后台管理 旧的排序号和新的排序号
+              _this.$http({
+                url: _this.$http.adornUrl('/set/worktype/setSort'),
+                method: 'get',
+                params: _this.$http.adornParams({
+                  'oldNum': oldNum,
+                  'newNum': newNum
+                })
+              }).then(({data}) => {
+                if (data && data.code === 0) {
+                  _this.$message({
+                    message: '改变顺序成功',
+                    type: 'success',
+                    duration: 1500
+                  })
+                  _this.dataList = []
+                  _this.getDataList()
+                } else {
+                  _this.$message.error(data.msg)
+                }
+              })
+            }
           }
         })
       },

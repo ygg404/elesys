@@ -54,8 +54,8 @@
         <span>质量综述：  </span>
       </div>
       <el-form :model="dataForm" :rules="dataRule" ref="dataForm" class="form_class">
-        <el-select  placeholder="质量综述快捷输入" v-model="qualityNoteValue" style="width: 100%" multiple collapse-tags  @change="qualityNoteHandler()" >
-          <el-option v-for="item in qualityNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  ></el-option>
+        <el-select  filterable placeholder="质量综述快捷输入" v-model="qualityNoteValue" style="width: 100%" multiple collapse-tags  @change="qualityNoteHandler()" >
+          <el-option v-for="item in qualityNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
         </el-select>
         <el-form-item prop="qualityNote">
           <el-input type="textarea" maxlength="1000" size="large" show-word-limit rows="4" v-model="dataForm.qualityNote" placeholder="请填写质量综述"></el-input>
@@ -73,6 +73,7 @@
 
 <script>
   import {closeTab} from '@/utils/tabs'
+  import {stringIsNull} from '@/utils'
 
   export default {
     data () {
@@ -272,6 +273,21 @@
           for (let note of this.qualityNotelist) {
             if (note.id === value) this.dataForm.qualityNote = this.dataForm.qualityNote + note.shortcutNote + ';'
           }
+        }
+      },
+      // 根据项目类型快捷输入可见或不可见
+      shortTypeAlive (item) {
+        // 当快捷短语的项目分类为空 或者 项目类型为空则短语可见
+        if (stringIsNull(item.projectType) || stringIsNull(this.projectInfo.projectType)) {
+          return true
+        } else {
+          let itemType = item.projectType.split(',')
+          for (let itype of itemType) {
+            if (this.projectInfo.projectType.indexOf(itype) !== -1) {
+              return true
+            }
+          }
+          return false
         }
       },
       // 返回

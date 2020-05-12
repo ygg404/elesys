@@ -3,6 +3,13 @@ import router from '@/router'
 import store from '@/store'
 
 /**
+ * 判断字符串为空
+ */
+export function stringIsNull (val) {
+  return val === undefined || val === null || val === ''
+}
+
+/**
  * 获取uuid
  */
 export function getUUID () {

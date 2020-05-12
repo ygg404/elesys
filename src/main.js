@@ -8,7 +8,7 @@ import '@/icons'                              // api: http://www.iconfont.cn/
 import '@/element-ui-theme'
 import '@/assets/scss/index.scss'
 import httpRequest from '@/utils/httpRequest' // api: https://github.com/axios/axios
-import {isAuth, getUUID} from '@/utils'
+import {isAuth, getUUID,stringIsNull} from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import 'element-ui/lib/theme-chalk/index.css'
 // import Vue2OrgTree from 'vue2-org-tree'
@@ -26,6 +26,7 @@ if (process.env.NODE_ENV !== 'production') {
 // 挂载全局
 Vue.prototype.$http = httpRequest // ajax请求方法
 Vue.prototype.isAuth = isAuth     // 权限方法
+Vue.prototype.stringIsNull = stringIsNull // 判断字符串为空
 
 // 保存整站vuex本地储存初始状态
 window.SITE_CONFIG['storeState'] = cloneDeep(store.state)
