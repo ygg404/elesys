@@ -50,3 +50,13 @@ export function getLeaveItem () {
     {'id': 5, 'leaveItem': '婚假'}]
   return itemList
 }
+
+/**
+ * 获取上下半年
+ */
+export function getYearItem () {
+  let itemList = [
+    {'id': 0, 'yearItem': '上半年'},
+    {'id': 1, 'yearItem': '下半年'}]
+  return itemList
+}

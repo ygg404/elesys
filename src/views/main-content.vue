@@ -50,6 +50,10 @@
       }
     },
     computed: {
+      sysFlag: {
+        get () { return this.$store.state.common.sysFlag },
+        set (val) { this.$store.commit('common/updateSysFlag', val) }
+      },
       documentClientHeight: {
         get () { return this.$store.state.common.documentClientHeight }
       },
@@ -94,7 +98,11 @@
           }
         } else {
           this.menuActiveName = ''
-          this.$router.push({ name: 'home' })
+          if (this.sysFlag === 'ren') {
+            this.$router.push({ name: 'home2' })
+          } else {
+            this.$router.push({ name: 'home' })
+          }
         }
       },
       // tabs, 关闭当前
@@ -109,7 +117,12 @@
       tabsCloseAllHandle () {
         this.mainTabs = []
         this.menuActiveName = ''
-        this.$router.push({ name: 'home' })
+        if (this.sysFlag === 'ren') {
+          this.$router.push({ name: 'home2' })
+        } else {
+          this.$router.push({ name: 'home' })
+        }
+
       },
       // tabs, 刷新当前
       tabsRefreshCurrentHandle () {
