@@ -92,36 +92,38 @@
       }
     },
     created () {
-      // this.getSysNameHandle()
-      this.getSysconfigFromApi()
-      console.log(this.sysFlag)
-      if (this.sysFlag === 'ren') this.getUserDetailFromApi()
+      this.getSysconfigFromApi().then(success => {
+        if (this.sysFlag === 'ren') this.getUserDetailFromApi()
+      })
     },
     methods: {
       // 获取参数列表
       getSysconfigFromApi () {
-        this.$http({
-          url: this.$http.adornUrl('/sys/config/list'),
-          method: 'get',
-          params: this.$http.adornParams({})
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            for (let dat of data.list) {
-              switch (dat.paramKey) {
-                case 'sysName':
-                  this.sysName = dat.paramValue
-                  break
-                case 'sysFlag':
-                  this.sysFlag = dat.paramValue
-                  break
-                case 'simpleName':
-                  this.simpleName = dat.paramValue
-                  break
-                default:
-                  break
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/sys/config/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              for (let dat of data.list) {
+                switch (dat.paramKey) {
+                  case 'sysName':
+                    this.sysName = dat.paramValue
+                    break
+                  case 'sysFlag':
+                    this.sysFlag = dat.paramValue
+                    break
+                  case 'simpleName':
+                    this.simpleName = dat.paramValue
+                    break
+                  default:
+                    break
+                }
               }
             }
-          }
+            resolve(data)
+          })
         })
       },
       // 跳转主页

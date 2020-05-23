@@ -22,7 +22,8 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="workGroupName" header-align="center" align="center" label="工作组" width="170"></el-table-column>
+      <!-- 人事管理无工作组-->
+      <el-table-column prop="workGroupName" header-align="center" align="center" label="工作组" width="170" v-if="sysFlag != 'ren'"></el-table-column>
       <el-table-column prop="status" header-align="center" align="center" label="状态" width="80">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === 0" size="small" type="danger">禁用</el-tag>
@@ -78,6 +79,12 @@
         SysRoleDataList: [],
         // 工作组数据列表
         WorkGroupDataList: []
+      }
+    },
+    computed: {
+      sysFlag: {
+        get () { return this.$store.state.common.sysFlag },
+        set (val) { this.$store.commit('common/updateSysFlag', val) }
       }
     },
     components: {

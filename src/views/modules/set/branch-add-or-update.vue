@@ -125,7 +125,6 @@
             }]
             success = parentNode.concat(success)
             this.branchTreeList = treeDataTranslate(success , 'id')
-            console.log(this.branchTreeList)
             this.dataForm.id = id || 0
             this.visible = true
             this.$nextTick(() => {
@@ -145,19 +144,28 @@
                     this.dataForm.sdeputyId = data.branchVo.sdeputyId
                     this.dataForm.mdeputyName = data.branchVo.mdeputyName
                     this.dataForm.orderNum = data.branchVo.orderNum
-                    this.userValue = []
+                    let userValue = []
                     // 初始化所属成员和主副负责人
-                    this.userValueList = []
+                    let userValueList = []
                     for (let user of data.branchVo.userList) {
-                      this.userValue.push(user.userId)
+                      this.userAllList.find(item => item.userId === user.userId)['checked'] = true
+                      userValue.push(user.userId)
                       for (let userDat of this.userAllList) {
                         if (user.userId === userDat.userId) {
-                          this.userValueList.push(userDat)
-                          userDat.checked = true
+                          userValueList.push({
+                            checked: true,
+                            userId: userDat.userId,
+                            username: userDat.username,
+                            useraccount: userDat.useraccount
+                          })
                           break
                         }
                       }
                     }
+                    this.userValue = userValue
+                    console.log(this.userValue)
+                    this.userValueList = userValueList
+                    console.log(this.userValueList)
                     // 获取上级部门名称
                     if (data.branchVo.parentId === 0) this.dataForm.branchParentName = '无'
                     for (let branch of this.branchList) {
@@ -165,7 +173,6 @@
                         this.dataForm.branchParentName = branch.branchName
                         break
                       }
-
                     }
                   }
                 })

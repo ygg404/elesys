@@ -60,3 +60,20 @@ export function getYearItem () {
     {'id': 1, 'yearItem': '下半年'}]
   return itemList
 }
+
+/**
+ * 获取满意评分列表
+ */
+export function getRateItem () {
+  let itemList = [
+    {'id': 100, 'rateItem': '100(很高)'},
+    {'id': 90, 'rateItem': '90(高)'},
+    {'id': 80, 'rateItem': '80(较高)'},
+    {'id': 70, 'rateItem': '70(中上)'},
+    {'id': 60, 'rateItem': '60(中等)'},
+    {'id': 55, 'rateItem': '55(一般)'},
+    {'id': 45, 'rateItem': '45(较少)'},
+    {'id': 30, 'rateItem': '30(很少)'},
+    {'id': 0, 'rateItem': '0(没有)'}]
+  return itemList
+}

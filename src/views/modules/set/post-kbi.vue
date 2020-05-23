@@ -134,7 +134,7 @@
           let allratio = 0
           for (var prop in data) {
             if (prop.indexOf('kbi') !== -1) {
-              if ( stringIsNull(data[prop] )) data[prop] = 0
+              if (stringIsNull(data[prop])) data[prop] = 0
               allratio += parseInt(data[prop])
             }
           }

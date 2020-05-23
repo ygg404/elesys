@@ -654,7 +654,7 @@
           var downloadElement = document.createElement('a')
           var href = window.URL.createObjectURL(data) // 创建下载的链接
           downloadElement.href = href
-          downloadElement.download = '项目管理列表（' + startDate + '-' + endDate + '）.xlsx' // 下载后文件名
+          downloadElement.download = '项目管理列表（' + startDate + '-' + endDate + '）.xls' // 下载后文件名
           document.body.appendChild(downloadElement)
           downloadElement.click() // 点击下载
           document.body.removeChild(downloadElement) // 下载完成移除元素
