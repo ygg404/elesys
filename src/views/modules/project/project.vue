@@ -21,6 +21,11 @@
           <el-date-picker v-model="dataForm.startDate"   type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
           <el-date-picker v-model="dataForm.endDate"  type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
         </el-form-item>
+        <el-form-item >
+          <el-select v-model="dataForm.projectType" placeholder="项目类型选择" filterable clearable @change="pageIndex = 1,getDataList()">
+            <el-option v-for="item in projectTypeList"  :label="item.name" :key="item.id" :value="item.name"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item style="margin-left: 20px;">
           <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable style="width: 150px;"  @change="pageIndex = 1,getDataList()"></el-input>
         </el-form-item>
@@ -278,9 +283,11 @@
           key: '',
           sidx: 'id',
           order: 'desc',
+          projectType: '',
           startDate: '',
           endDate: ''
         },
+        projectTypeList: [],  // 项目类型列表
         roleradio: 0,
         dataList: [],
         pageIndex: 1,
@@ -333,6 +340,7 @@
         this.changeStart()
       }
       this.getDataList()
+      this.getProjectTypeList()
     },
     methods: {
       // 排序字段改变
@@ -371,6 +379,7 @@
             'key': this.dataForm.key,
             'sidx': this.dataForm.sidx,
             'order': this.dataForm.order,
+            'projectType': this.dataForm.projectType,
             'startDate': startDate,
             'endDate': endDate,
             'dateItemId': this.dataForm.dateItemId
@@ -419,6 +428,22 @@
             this.$message.error(data.msg)
           }
           this.dataListLoading = false
+        })
+      },
+      // 同步获取 项目类型列表数据
+      getProjectTypeList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/projecttype/selectprojecttype'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.projectTypeList = data.list
+              resolve(data.list)
+            } else {
+              this.dataList = []
+            }
+          })
         })
       },
       // 改变开始时间

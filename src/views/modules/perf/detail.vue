@@ -28,9 +28,15 @@
                 <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
                                  :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
                                  :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
-                <el-table-column label="是否部门负责人" width="120">
+                <el-table-column label="是否其领导" width="120">
                   <template slot-scope="scope">
                     <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
+                    <el-tag type="info" v-else>否</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="是否为同一部门">
+                  <template slot-scope="scope">
+                    <el-tag type="primary" v-if="scope.row.isSameBranch">是</el-tag>
                     <el-tag type="info" v-else>否</el-tag>
                   </template>
                 </el-table-column>
@@ -47,6 +53,7 @@
 
 <script>
   import {getYearItem,getRateItem} from '@/utils/selectedItem'
+  import { treeDataTranslate } from '@/utils'
   import {stringIsNull} from '../../../utils'
 
   export default {
@@ -59,7 +66,8 @@
         yearItemList: getYearItem(),
         checkUserList: [],
         attendNum: 0,
-        branchList: []   // 部门表
+        branchList: [],   // 部门列表
+        branchTree: []    // 部门树表
       }
     },
     activated () {
@@ -72,6 +80,7 @@
         // 获取部门列表
         this.getBranchList().then(success => {
           this.branchList = success
+          this.branchTree = treeDataTranslate(success)
           this.getAccessList().then(list => {
             this.acceessListInit(list)
           })
@@ -157,7 +166,8 @@
             let kbiItem = {
               userId: access.userId,
               userName: access.userName,
-              isGuider: this.isGuiderHandle(access.userId)
+              isGuider: this.isGuiderHandle(access.userId,access.checkUserId),
+              isSameBranch: this.isSameBranch(access.userId,access.checkUserId)
             }
             userId = access.userId
             checkUserList[checkUserList.length - 1].kbiList.push(kbiItem)
@@ -169,12 +179,55 @@
         console.log(checkUserList)
       },
       // 是否为部门领导
-      isGuiderHandle (userId) {
+      isGuiderHandle (userId,checkUserId) {
         let isGuider = false
-        this.branchList.map(item => {
-          if (item.mdeputyId === userId || item.sdeputyId == userId) isGuider = true
+        // 被考核人所在的所有部门
+        let inBranchList = []
+        this.branchList.map(branch => {
+          branch.recordVoList.map(record => {
+            if (record.userId === checkUserId) inBranchList.push(branch.id)
+          })
         })
+        // 获取被考核人所有的父类部门
+        let parentList = []
+        for (let branchId of inBranchList) {
+          parentList.push(branchId)
+          this.getParentBranchList(parentList, branchId)
+        }
+        console.log(parentList)
+        // 判断考核人是否为被考核人的领导
+        for (let branchId of parentList) {
+          let branchItem = this.branchList.find(branch => branch.id === branchId)
+          if (branchItem.mdeputyId === userId || branchItem.sdeputyId === userId) isGuider = true
+        }
         return isGuider
+      },
+      // 获取部门的父部门
+      getParentBranchList (parentList = [] , branchId) {
+        this.branchList.map( branch => {
+          if (branch.id === branchId && branch.parentId !== 0) {
+            parentList.push(branch.parentId)
+            this.getParentBranchList(parentList,branch.parentId)
+          }
+        })
+      },
+      // 判断 考核人与被考核人 是否为同一个部门
+      isSameBranch (userId,checkUserId) {
+        let isSame = false
+        let userBranchId = []     // 考核人的部门
+        let checkBranchId = []    // 被考核人的部门
+        this.branchList.map(branch => {
+          for (let userItem of branch.recordVoList) {
+            if (userId === userItem.userId) userBranchId.push(branch.id)
+            if (checkUserId === userItem.userId) checkBranchId.push(branch.id)
+          }
+        })
+        for (let uBranchId of userBranchId) {
+          for (let cBranchId of checkBranchId) {
+            if (uBranchId === cBranchId) isSame = true
+          }
+        }
+        return isSame
       }
     }
   }

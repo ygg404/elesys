@@ -109,34 +109,6 @@
           this.dataListLoading = false
         })
       },
-      // 删除
-      deleteHandle (id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.id
-        })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/ren/perfaccess/delete'),
-            method: 'post',
-            data: this.$http.adornData(ids, false)
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500
-              })
-              this.getDataList()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
-      },
       // 获取当前年份 用户的评分表
       getPerfAccessVoList () {
         return new Promise((resolve, reject) => {
@@ -311,6 +283,7 @@
               type: 'success',
               duration: 1500
             })
+            this.kbiRoleList = []
             this.init()
           } else {
             this.$message.error(data.msg)
