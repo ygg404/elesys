@@ -11,7 +11,7 @@
         </el-form-item>
       </el-form>
       <el-row>
-        <el-col :span="16">
+        <el-col :span="12">
           <el-card>
             <template slot="header">
               <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年': '下半年') + '加减分'}}</h1>
@@ -20,7 +20,7 @@
                       :header-cell-style="{background:'#eef1f6',color:'#606266'}" :span-method="objectSpanMethod">
               <el-table-column label="部门" prop="branchName"></el-table-column>
               <el-table-column label="用户名" prop="userName"></el-table-column>
-              <el-table-column label="个人加减分" prop=""></el-table-column>
+              <el-table-column label="个人加减分" prop="extraScore"></el-table-column>
               <el-table-column label="加减分编辑">
                 <template slot-scope="scope">
                   <el-button type="primary" size="small" @click="editExtraHandle(scope.row)">编辑</el-button>
@@ -29,25 +29,41 @@
             </el-table>
           </el-card>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="12">
           <el-card>
             <template slot="header">
-              <h1>个人加减分明细</h1>
+              <h1>个人加减分明细
+                <span v-if="extraScoreItem.userName !== undefined" style="padding: 10px;font-size: 12pt;color: #3b97d7">
+                  {{'(' + extraScoreItem.userName + ')'}}</span>
+              </h1>
             </template>
+            <div style="overflow-y: auto;max-height: 500px;">
+              <el-table :data="extraScoreItem.extraScoreList" border :span-method="objectSpanMethod" show-summary>
+                <el-table-column prop="extraType" label="类型" width="40">
+                  <template slot-scope="scope">
+                    <div v-if="scope.row.extraType == 0">加分项</div>
+                    <div v-if="scope.row.extraType == 1">减分项</div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="extraItem" label="加减分项"></el-table-column>
+                <el-table-column prop="standard" label="计分标准"></el-table-column>
+                <el-table-column prop="extraNum" label="分数" width="80"></el-table-column>
+              </el-table>
+            </div>
           </el-card>
         </el-col>
       </el-row>
     </el-card>
 
     <!-- 个人加减分 编辑 弹出窗口-->
-    <add-or-update ref="perfExtraAddOrUpdate" v-if="addOrUpdateVisible"></add-or-update>
+    <add-or-update ref="extraAddOrUpdate" v-if="addOrUpdateVisible" @refreshDataList="init"></add-or-update>
   </div>
 </template>
 
 <script>
   import {getYearItem,getRateItem} from '@/utils/selectedItem'
   import {treeDataTranslate,stringIsNull} from '@/utils'
-  import addOrUpdate from './perfextra-add-or-update'
+  import addOrUpdate from './extra-add-or-update'
 
   export default {
     data () {
@@ -64,6 +80,9 @@
         addOrUpdateVisible: false,
         userBranchList: [],
         extraList: [],  // 加减分项列表
+        extraScoreItem: {
+          extraScoreList: []
+        }  // 显示的个人加减分明细
       }
     },
     components: {
@@ -90,14 +109,19 @@
       },
       init () {
         this.dataListLoading = true
-        this.getUserList().then(userList => {
-          this.getBranchList().then(branchList => {
-            this.userBranchInit(branchList,userList)
-            this.dataListLoading = false
+        this.extraScoreItem = {
+          extraScoreList: []
+        }
+        this.getExtralist().then(extraList => {
+          this.getExtraScorelist().then(scoreList => {
+            this.getUserList().then(userList => {
+              this.getBranchList().then(branchList => {
+                this.userBranchList = this.userBranchInit(branchList,userList,extraList,scoreList)
+                this.dataListLoading = false
+              })
+            })
           })
-        })
-        this.getExtralist().then(list => {
-          this.extraList = list
+          // this.extraList = extraList
         })
       },
       // 获取所有部门
@@ -144,15 +168,26 @@
         })
       },
       // 列表初始化
-      userBranchInit (branchList,userList) {
+      userBranchInit (branchList,userList,extraList,scoreList) {
         let userBranchList = []
         let branchChildList = this.getBranchChildList(treeDataTranslate(branchList))
         for (let branch of branchChildList) {
           branch.recordVoList.map(record => {
             let userItem = userList.find(user => user.userId === record.userId)
             if (!stringIsNull(userItem)) {
+              let uscoreList = []
+              let extraScore = 0
+              for (let score of scoreList) {
+                if (score.checkUserId === userItem.userId) {
+                  uscoreList.push(score)
+                  extraScore += score.extraNum
+                }
+              }
+              console.log(uscoreList)
               userItem.branchId = branch.id
               userItem.branchName = branch.branchName
+              userItem.extraScore = extraScore
+              userItem.extraScoreList = this.extraScoreInit(extraList,uscoreList)
               userBranchList.push(userItem)
             }
           })
@@ -179,11 +214,50 @@
             index += 1
           }
         }
-        this.userBranchList = userBranchList
+        return userBranchList
+      },
+      // 评分列表初始化
+      extraScoreInit (extraList,scoreList) {
+        let sizeList = []
+        let extrascoreList = []
+        let type = -1
+        let size = 0
+        // 先计算加分项
+        for (let extra of extraList) {
+          let extraPart = {
+            extraId: extra.id,
+            extraItem: extra.extraItem,
+            standard: extra.standard,
+            remark: extra.remark,
+            extraType: extra.extraType,
+            isFirst: false
+          }
+          if (extra.extraType !== type) {
+            type = extra.extraType
+            sizeList.push(size)
+            size = 0
+            extraPart.isFirst = true
+          }
+          size += 1
+          let score = scoreList.find(scoeItem => scoeItem.extraId === extra.id)
+          if (!stringIsNull(score)) {
+            extraPart.extraNum = score.extraNum
+          } else {
+            extraPart.extraNum = 0
+          }
+          extrascoreList.push(extraPart)
+        }
+        if (size > 0) sizeList.push(size)
+        let index = 0
+        for (let extrascore of extrascoreList) {
+          if (extrascore.isFirst) extrascore.size = sizeList[++index]
+        }
+        return extrascoreList
       },
       // 点击查看一行 加减分明细
       extraRowClickHandle (row, event, column) {
-        console.log(row)
+        this.extraScoreItem = row
+        console.log(this.extraScoreItem)
       },
       // 获取加减分项列表
       getExtralist () {
@@ -202,13 +276,33 @@
           })
         })
       },
+      // 获取加减分项列表
+      getExtraScorelist () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/perf/extrascoring/list'),
+            method: 'get',
+            params: this.$http.adornParams({
+              year: this.dataForm.curYear.getFullYear(),
+              updown: this.dataForm.updown
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data)
+            }
+          })
+        })
+      },
       // 个人加减分编辑
       editExtraHandle (item) {
         item.year = this.dataForm.curYear.getFullYear()
         item.updown = this.dataForm.updown
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.perfExtraAddOrUpdate.init(item)
+          this.$refs.extraAddOrUpdate.init(item)
         })
       }
     }
