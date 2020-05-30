@@ -420,6 +420,10 @@
                   this.dataForm.workNote = data.projectPlan.workNote
                   this.dataForm.projectBegunDateTime = data.projectPlan.projectBegunDateTime
                   this.dataForm.projectCharge = data.projectPlan.projectCharge
+                  if ( (!stringIsNull(this.dataForm.projectOutput)) && stringIsNull(this.dataForm.projectWorkDate)
+                    && stringIsNull(this.dataForm.projectQualityDate) ) {
+                    this.countWorkDateHandler()
+                  }
                 }
                 resolve(data)
               } else {

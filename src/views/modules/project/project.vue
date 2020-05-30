@@ -264,7 +264,6 @@
   import projectscheduleAddOrUpdate from './projectschedule-add-or-update'
   import backworkAddOrUpdate from './backwork-add-or-update'
   import {isAuth} from '../../../utils'
-  import Vue from 'vue'
 
   export default {
     data () {

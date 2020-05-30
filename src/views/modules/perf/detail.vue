@@ -9,44 +9,74 @@
               <el-option v-for="item in yearItemList" :label="item.yearItem" :key="item.id" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item>
-            <span class="time_title">参加考核人数:  <span style="color:green">{{attendNum}}</span></span>
-          </el-form-item>
-          <el-form-item>
-            <el-button icon="el-icon-s-data" size="large" type="primary">效能评分统计表</el-button>
-          </el-form-item>
+<!--          <el-form-item>-->
+<!--            <span class="time_title">参加考核人数:  <span style="color:green">{{attendNum}}</span></span>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <el-button icon="el-icon-s-data" size="large" type="primary">效能评分统计表</el-button>-->
+<!--          </el-form-item>-->
         </el-form>
         <div style="text-align: center;margin-bottom: 10px;">
           <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核明细'}}</h1>
         </div>
-        <el-table :data="checkUserList" border>
-          <el-table-column type="expand" >
-            <template slot-scope="props">
-              <el-table  :data="props.row.kbiList" :key="props.row.checkUserId"
-                         style="width: 98%;margin-left: 2%;"  border>
-                <el-table-column label="评分人" prop="userName" width="120"></el-table-column>
-                <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
-                                 :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
-                                 :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
-                <el-table-column label="是否其领导" width="120">
-                  <template slot-scope="scope">
-                    <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
-                    <el-tag type="info" v-else>否</el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column label="是否为同一部门">
-                  <template slot-scope="scope">
-                    <el-tag type="primary" v-if="scope.row.isSameBranch">是</el-tag>
-                    <el-tag type="info" v-else>否</el-tag>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </template>
-          </el-table-column>
-          <el-table-column prop="checkUserName" label="被考核人"></el-table-column>
-          <el-table-column prop="kbiAllScore" label="效能评价分"></el-table-column>
-          <el-table-column prop="extraScore" label="加减得分"></el-table-column>
-        </el-table>
+        <div style="display: flex">
+          <div style="width: 200px">
+            <detailUser ref="detailUser"></detailUser>
+          </div>
+
+          <el-table :data="checkUserList" border style="margin-left: 10px;">
+            <el-table-column type="expand" >
+              <template slot-scope="props">
+                <el-collapse>
+                  <el-collapse-item name="1" >
+                    <template slot="title">
+                      <div class="extra_item_title">效能评分表</div>
+                    </template>
+                    <el-table  :data="props.row.kbiList" :key="props.row.checkUserId"
+                               style="width: 98%;margin-left: 2%;"  border>
+                      <el-table-column label="评分人" prop="userName" width="120"></el-table-column>
+                      <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
+                                       :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
+                                       :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
+                      <el-table-column label="是否其领导" width="120">
+                        <template slot-scope="scope">
+                          <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
+                          <el-tag type="info" v-else>否</el-tag>
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="是否为同一部门">
+                        <template slot-scope="scope">
+                          <el-tag type="primary" v-if="scope.row.isSameBranch">是</el-tag>
+                          <el-tag type="info" v-else>否</el-tag>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </el-collapse-item>
+                  <el-collapse-item name="2">
+                    <template slot="title">
+                      <div class="extra_item_title">加减分评分表</div>
+                    </template>
+                    <el-table :data="props.row.scoreList" border :span-method="objectSpanMethod" show-summary style="max-height: 400px;overflow-y:auto">
+                      <el-table-column prop="extraType" label="类型" width="40">
+                        <template slot-scope="scope">
+                          <div v-if="scope.row.extraType == 0">加分项</div>
+                          <div v-if="scope.row.extraType == 1">减分项</div>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="extraItem" label="加减分项"></el-table-column>
+                      <el-table-column prop="standard" label="计分标准"></el-table-column>
+                      <el-table-column prop="extraNum" label="分数" width="80"></el-table-column>
+                    </el-table>
+                  </el-collapse-item>
+                </el-collapse>
+              </template>
+            </el-table-column>
+            <el-table-column prop="checkUserName" label="被考核人"></el-table-column>
+            <el-table-column prop="kbiAllScore" label="效能评价分"></el-table-column>
+            <el-table-column prop="extraScore" label="加减得分"></el-table-column>
+          </el-table>
+        </div>
+
       </el-card>
     </div>
 </template>
@@ -55,6 +85,7 @@
   import {getYearItem,getRateItem} from '@/utils/selectedItem'
   import { treeDataTranslate } from '@/utils'
   import {stringIsNull} from '../../../utils'
+  import detailUser from './detail-user'
 
   export default {
     data () {
@@ -67,7 +98,8 @@
         checkUserList: [],
         attendNum: 0,
         branchList: [],   // 部门列表
-        branchTree: []    // 部门树表
+        branchTree: [],    // 部门树表
+        uScoreList: []    // 评分列表
       }
     },
     activated () {
@@ -75,16 +107,44 @@
       this.dataForm.updown = this.dataForm.curYear.getMonth() <= 6 ? 0 : 1
       this.init()
     },
+    components: {
+      detailUser
+    },
     methods: {
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex === 0) {
+          if (row.isFirst || rowIndex === 0) {
+            return {
+              rowspan: row.size,
+              colspan: 1
+            }
+          } else {
+            return {
+              rowspan: 0,
+              colspan: 0
+            }
+          }
+        }
+      },
       init () {
         // 获取部门列表
         this.getBranchList().then(success => {
           this.branchList = success
           this.branchTree = treeDataTranslate(success)
           this.getAccessList().then(list => {
-            this.acceessListInit(list)
+            this.getExtralist().then(extraList => {
+              this.getExtraScorelist().then(scoreList => {
+                let checkUserList = this.acceessListInit(list)
+                for (let checkUser of checkUserList) {
+                  checkUser.scoreList = this.extraScoreInit(checkUser, extraList, scoreList)
+                }
+                this.checkUserList = checkUserList
+                console.log(checkUserList)
+              })
+            })
           })
         })
+        this.$refs.detailUser.init(this.dataForm)
       },
       renderheader (h, { column, $index }) {
         return h('span', {}, [
@@ -175,8 +235,7 @@
           checkUserList[checkUserList.length - 1].kbiList[checkUserList[checkUserList.length - 1].kbiList.length - 1]['kbiId' + access.kbiId] = access.kbiScore
         }
         this.attendNum = checkUserList[checkUserList.length - 1] === undefined ? 0 : checkUserList[checkUserList.length - 1].kbiList.length
-        this.checkUserList = checkUserList
-        console.log(checkUserList)
+        return checkUserList
       },
       // 是否为部门领导
       isGuiderHandle (userId,checkUserId) {
@@ -194,7 +253,6 @@
           parentList.push(branchId)
           this.getParentBranchList(parentList, branchId)
         }
-        console.log(parentList)
         // 判断考核人是否为被考核人的领导
         for (let branchId of parentList) {
           let branchItem = this.branchList.find(branch => branch.id === branchId)
@@ -228,11 +286,105 @@
           }
         }
         return isSame
-      }
+      },
+      // 获取加减分项列表
+      getExtralist () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/perf/extra/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data)
+            }
+          })
+        })
+      },
+      // 获取加减分项列表
+      getExtraScorelist () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/perf/extrascoring/list'),
+            method: 'get',
+            params: this.$http.adornParams({
+              year: this.dataForm.curYear.getFullYear(),
+              updown: this.dataForm.updown
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data)
+            }
+          })
+        })
+      },
+      // 评分列表初始化
+      extraScoreInit (checkUser,extraList,scoreList) {
+        let uScoreList = []
+        for (let scoreItem of scoreList) {
+          if (scoreItem.checkUserId === checkUser.checkUserId) {
+            uScoreList.push(scoreItem)
+          }
+        }
+        let sizeList = []
+        let extrascoreList = []
+        let type = -1
+        let size = 0
+        // 先计算加分项
+        for (let extra of extraList) {
+          let extraPart = {
+            extraId: extra.id,
+            extraItem: extra.extraItem,
+            standard: extra.standard,
+            remark: extra.remark,
+            extraType: extra.extraType,
+            isFirst: false
+          }
+          if (extra.extraType !== type) {
+            type = extra.extraType
+            sizeList.push(size)
+            size = 0
+            extraPart.isFirst = true
+          }
+          size += 1
+          let score = uScoreList.find(scoeItem => scoeItem.extraId === extra.id)
+          if (!stringIsNull(score)) {
+            extraPart.extraNum = score.extraNum
+          } else {
+            extraPart.extraNum = 0
+          }
+          extrascoreList.push(extraPart)
+        }
+        if (size > 0) sizeList.push(size)
+        let index = 0
+        for (let extrascore of extrascoreList) {
+          if (extrascore.isFirst) extrascore.size = sizeList[++index]
+        }
+        return extrascoreList
+      },
     }
   }
 </script>
 
 <style scoped>
-
+  .extra_item_title{
+    width: 99%;
+    padding: 5px;
+    font-size: 11pt;
+    font-weight: 700;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+    cursor: pointer;
+  }
+  .extra_item_title:hover {
+    color: #0BB2D4;
+  }
 </style>

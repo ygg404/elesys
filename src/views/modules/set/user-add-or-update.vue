@@ -17,22 +17,34 @@
       <el-form-item label="确认密码" prop="comfirmPassword" :class="{ 'is-required': !dataForm.id }">
         <el-input v-model="dataForm.comfirmPassword" type="password" placeholder="确认密码"></el-input>
       </el-form-item>
-      <el-form-item label="角色" size="mini" prop="roleIdList">
-        <el-checkbox-group v-model="dataForm.roleIdList">
-          <el-checkbox v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}
-          </el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      <el-form-item label="工作组" prop="workGroupID">
-        <el-select v-model="dataForm.workGroupID" placeholder="请选择工作组" clearable  style="width: 50%;">
-          <el-option
-            v-for="item in WorkGroupDataList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id">
-          </el-option>
-        </el-select>
-      </el-form-item>
+      <!--人事角色的处理-->
+      <div v-if="sysFlag == 'ren'">
+        <el-form-item label="岗位" size="mini" prop="roleIdList">
+          <el-radio-group v-model="dataForm.roleIdList[0]">
+            <el-radio v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{role.roleName }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </div>
+      <!--项目的角色的处理-->
+      <div v-else>
+        <el-form-item label="角色" size="mini" prop="roleIdList">
+          <el-checkbox-group v-model="dataForm.roleIdList">
+            <el-checkbox v-for="role in roleList" :key="role.roleId" :label="role.roleId">{{ role.roleName }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="工作组" prop="workGroupID">
+          <el-select v-model="dataForm.workGroupID" placeholder="请选择工作组" clearable  style="width: 50%;">
+            <el-option
+              v-for="item in WorkGroupDataList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </div>
+
       <el-form-item label="状态" size="mini" prop="status">
         <el-radio-group v-model="dataForm.status">
           <el-radio :label="0">禁用</el-radio>
@@ -100,6 +112,12 @@
 
         // 工作组数据列表
         WorkGroupDataList: []
+      }
+    },
+    computed: {
+      sysFlag: {
+        get () { return this.$store.state.common.sysFlag },
+        set (val) { this.$store.commit('common/updateSysFlag', val) }
       }
     },
     methods: {

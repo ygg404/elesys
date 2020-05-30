@@ -87,7 +87,6 @@
       },
       // 表单提交
       dataFormSubmit () {
-        console.log(this.tempKey)
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({

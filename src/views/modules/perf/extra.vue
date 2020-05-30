@@ -20,7 +20,12 @@
                       :header-cell-style="{background:'#eef1f6',color:'#606266'}" :span-method="objectSpanMethod">
               <el-table-column label="部门" prop="branchName"></el-table-column>
               <el-table-column label="用户名" prop="userName"></el-table-column>
-              <el-table-column label="个人加减分" prop="extraScore"></el-table-column>
+              <el-table-column label="个人加减分" prop="extraScore">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.extraScore + 10 }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="最终加减分" prop="finalScore"></el-table-column>
               <el-table-column label="加减分编辑">
                 <template slot-scope="scope">
                   <el-button type="primary" size="small" @click="editExtraHandle(scope.row)">编辑</el-button>
@@ -183,7 +188,6 @@
                   extraScore += score.extraNum
                 }
               }
-              console.log(uscoreList)
               userItem.branchId = branch.id
               userItem.branchName = branch.branchName
               userItem.extraScore = extraScore
@@ -194,25 +198,37 @@
         }
         let brandId = 0
         let sizeList = []
+        let maxScorelist = []
         let size = 0
+        let maxScore = 0
         for (let uBranch of userBranchList) {
           if (brandId !== uBranch.branchId) {
             uBranch.isFirst = true
             sizeList.push(size)
+            maxScorelist.push(maxScore)
             size = 0
+            maxScore = 0
             brandId = uBranch.branchId
           } else {
             uBranch.isFirst = false
           }
           size += 1
+          // 获取每一队的最高分
+          if (uBranch.extraScore + 10 > maxScore) {
+            maxScore = uBranch.extraScore + 10
+          }
         }
         if (size !== 0) sizeList.push(size)
+        if (maxScore !== 0) maxScorelist.push(maxScore)
+        // 每人每队设置组内成员的数量和最高分数
         let index = 0
         for (let uBranch of userBranchList) {
           if (uBranch.isFirst) {
             uBranch.size = sizeList[index + 1]
             index += 1
           }
+          uBranch.maxScore = maxScorelist[index]
+          uBranch.finalScore = parseFloat((uBranch.extraScore + 10) * 9 / uBranch.maxScore).toFixed(2)
         }
         return userBranchList
       },
@@ -257,7 +273,6 @@
       // 点击查看一行 加减分明细
       extraRowClickHandle (row, event, column) {
         this.extraScoreItem = row
-        console.log(this.extraScoreItem)
       },
       // 获取加减分项列表
       getExtralist () {
