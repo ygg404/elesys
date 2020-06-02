@@ -73,7 +73,7 @@
             </el-table-column>
             <el-table-column prop="checkUserName" label="被考核人"></el-table-column>
             <el-table-column prop="kbiAllScore" label="效能评价分"></el-table-column>
-            <el-table-column prop="extraScore" label="加减得分"></el-table-column>
+            <el-table-column prop="finalExtra" label="加减得分"></el-table-column>
           </el-table>
         </div>
 
@@ -99,7 +99,8 @@
         attendNum: 0,
         branchList: [],   // 部门列表
         branchTree: [],    // 部门树表
-        uScoreList: []    // 评分列表
+        uScoreList: [],    // 评分列表
+        branchChildList: []
       }
     },
     activated () {
@@ -128,17 +129,24 @@
       },
       init () {
         // 获取部门列表
-        this.getBranchList().then(success => {
-          this.branchList = success
-          this.branchTree = treeDataTranslate(success)
+        this.getBranchList().then(branchList => {
+          this.branchList = branchList
           this.getAccessList().then(list => {
             this.getExtralist().then(extraList => {
               this.getExtraScorelist().then(scoreList => {
                 let checkUserList = this.acceessListInit(list)
                 for (let checkUser of checkUserList) {
                   checkUser.scoreList = this.extraScoreInit(checkUser, extraList, scoreList)
+                  // 计算每个人的总加减分
+                  let allScore = 0
+                  for (let score of checkUser.scoreList) {
+                    allScore += score.extraNum
+                  }
+                  checkUser.allScore = allScore
                 }
-                this.checkUserList = checkUserList
+                // 设置每成员的部门 并获取部门的最高分
+                checkUserList = this.setBranchScoreFun(checkUserList,branchList)
+                this.checkUserList = this.setKbiScore(checkUserList)
                 console.log(checkUserList)
               })
             })
@@ -203,7 +211,6 @@
               checkUserName: access.checkUserName,
               kbiAllScore: 0,
               extraScore: 0,
-              finalScore: 0,
               kbiItemList: [], // 考核项
               kbiList: []
             }
@@ -367,6 +374,99 @@
           if (extrascore.isFirst) extrascore.size = sizeList[++index]
         }
         return extrascoreList
+      },
+      // 计算最终的加减得分
+      setBranchScoreFun (checkUserList, branchList) {
+        let branchChildList = this.getBranchChildList(treeDataTranslate(branchList))
+        for (let checkUser of checkUserList) {
+          for (let branch of branchChildList) {
+            if (branch.recordVoList.find(record => record.userId === checkUser.checkUserId) !== undefined) {
+              checkUser.branchId = branch.id
+              checkUser.branchName = branch.branchName
+              break
+            }
+          }
+        }
+        // 统计每个部门的最高分
+        let branchMaxScoreList = []
+        for (let checkUser of checkUserList ) {
+          let branch = branchMaxScoreList.find(branch => branch.brandId === checkUser.branchId)
+          let branchScore = {
+            branchId: checkUser.branchId,
+            maxScore: checkUser.allScore
+          }
+          if (branch !== undefined && branch.maxScore < branchScore.maxScore) {
+            branch.maxScore = branchScore.maxScore
+          } else if (branch === undefined) {
+            branchMaxScoreList.push(branchScore)
+          }
+        }
+        // 计算加减分最终的结果
+        for (let checkUser of checkUserList ) {
+          let branch = branchMaxScoreList.find(branch => branch.branchId === checkUser.branchId)
+          if ( branch === undefined ) {
+            checkUser.maxScore = 0
+          } else {
+            checkUser.maxScore = branch.maxScore
+          }
+          checkUser.finalExtra = parseFloat((checkUser.allScore + 10) * 9 / (checkUser.maxScore + 10)).toFixed(2)
+        }
+        console.log(branchMaxScoreList)
+        return checkUserList
+      },
+      // 计算每用户的效能评价得分
+      setKbiScore (checkUserList) {
+        for (let checkUser of checkUserList) {
+          let scoreItemList = []
+          for (let scoreItem of checkUser.kbiList) {
+            let score = 0
+            for (var prop in scoreItem) {
+              if (prop.indexOf('kbiId') >= 0) {
+                let propItem = checkUser.kbiItemList.find(kbi => kbi.kbiId === parseInt(prop.replace('kbiId','')))
+                if (propItem !== undefined && (!stringIsNull(scoreItem[prop]))) {
+                  score += parseFloat(propItem.kbiRatio * scoreItem[prop] / 100)
+                }
+              }
+            }
+            let sItem = {
+              score: score,
+              ratio: 0.2
+            }
+            if (scoreItem.isGuider || scoreItem.isSameBranch) {
+              sItem.ratio = 0.4
+            }
+            scoreItemList.push(sItem)
+          }
+          checkUser.scoreItemList = scoreItemList
+          let kbiScore02 = 0
+          let kbiScore2Num = 0
+          let kbiScore04 = 0
+          let kbiScore4Num = 0
+          for (let scoreItem of checkUser.scoreItemList) {
+            if (scoreItem.ratio === 0.2) {
+              kbiScore02 += parseFloat(scoreItem.score * scoreItem.ratio)
+              kbiScore2Num += 1
+            } else {
+              kbiScore04 += parseFloat(scoreItem.score * scoreItem.ratio)
+              kbiScore4Num += 1
+            }
+          }
+          checkUser.kbiAllScore = parseFloat(kbiScore02 / (kbiScore2Num === 0 ? 1 : kbiScore2Num)
+            + kbiScore04 / (kbiScore4Num === 0 ? 1 : kbiScore4Num)).toFixed(2)
+        }
+        return checkUserList
+      },
+      // 获取所有子部门
+      getBranchChildList (branchlist) {
+        let childList = []
+        for (let branch of branchlist) {
+          if (branch.children !== undefined) {
+            childList = childList.concat(this.getBranchChildList(branch.children))
+          } else {
+            childList.push(branch)
+          }
+        }
+        return childList
       },
     }
   }

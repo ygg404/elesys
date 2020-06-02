@@ -209,7 +209,6 @@
       },
       // 获取统计方法
       getSummaryMethod (param) {
-        console.log(param)
         const { columns, data } = param
         const sums = []
         let colList = []

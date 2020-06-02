@@ -333,6 +333,22 @@
           }
         })
       },
+      // 获取教育系数列表
+      getSList () {
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl('/ren/scoreed/list'),
+          method: 'get',
+          params: this.$http.adornParams({})
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.edList = data.list
+          } else {
+            this.edList = []
+          }
+          this.dataListLoading = false
+        })
+      },
       // 表单提交
       dataFormSubmit() {
         this.$refs['dataForm'].validate((valid) => {
