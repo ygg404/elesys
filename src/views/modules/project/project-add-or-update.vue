@@ -7,10 +7,15 @@
       <el-form :model="dataForm" :rules="dataRule" ref="dataForm" label-width="120px">
         <el-row :gutter="20">
           <el-col :span="10">
-            <el-form-item label="生产负责人" prop="projectProduce" >
-              <el-select v-model="dataForm.projectProduceAccount" placeholder="生产负责人"  style="width: 100%;">
-                <el-option v-for="item in produceList" :label="item.username" :key="item.useraccount" :value="item.useraccount"  ></el-option>
-              </el-select>
+            <el-form-item label="生产负责人" prop="projectProduceId" >
+              <el-row style="display: flex">
+                <el-select v-model="dataForm.produceGroupId" placeholder="部门" style="width: 140px;" @change="groupChangeHandle">
+                  <el-option v-for="item in groupList" :label="item.name" :key="item.id" :value="item.id" ></el-option>
+                </el-select>
+                <el-select v-model="dataForm.projectProduceId" placeholder="生产负责人" style="width: 120px;"  >
+                  <el-option v-for="item in produceList" :label="item.username" :key="item.userId" :value="item.userId" ></el-option>
+                </el-select>
+              </el-row>
             </el-form-item>
             <el-form-item label="项目编号" prop="projectNo">
               <el-input v-model="dataForm.projectNo" placeholder="项目编号" disabled></el-input>
@@ -79,6 +84,7 @@
 
 <script>
   import outputAddOrUpdate from './output-add-or-update'
+  import {stringIsNull} from '../../../utils'
 
   export default {
     data () {
@@ -100,12 +106,15 @@
           projectStage: '',
           projectProduce: '',
           projectProduceAccount: '',
+          projectProduceId: '',
           projectStartDateTime: '',
           projectOutput: '',
           outputRemark: '',  // 预算产值备注
+          produceGroupId: ''
         },
         produceList: [],
         workTypelist: [],
+        groupList: [], // 一级部门列表
         dataRule: {
           projectNo: [
             { required: true, message: '项目编号不能为空', trigger: 'blur' }
@@ -137,8 +146,8 @@
           projectProduce: [
             { required: true, message: '生产负责人不能为空', trigger: 'blur' }
           ],
-          projectProduceAccount: [
-            { required: true, message: '生产负责人账号不能为空', trigger: 'blur' }
+          projectProduceId: [
+            { required: true, message: '生产负责人不能为空', trigger: 'blur' }
           ],
           projectStartDateTime: [
             { required: true, message: '项目启动时间不能为空', trigger: 'blur' }
@@ -155,6 +164,9 @@
     methods: {
       init (id, item) {
         this.getProduceList()
+        this.getWorkgroupList().then(list => {
+          this.groupList = list
+        })
         this.dataForm.id = id || 0
         this.visible = true
         this.$nextTick(() => {
@@ -179,6 +191,8 @@
                 this.dataForm.projectProduce = data.project.projectProduce
                 this.dataForm.pStage = data.project.pStage
                 this.dataForm.projectProduceAccount = data.project.projectProduceAccount
+                this.dataForm.produceGroupId = data.project.produceGroupId
+                this.dataForm.projectProduceId = data.project.projectProduceId
                 this.dataForm.projectStartDateTime = data.project.projectStartDateTime
                 this.dataForm.projectCreateDateTime = data.project.projectCreateDateTime
                 this.dataForm.createuserid = data.project.createuserid
@@ -204,7 +218,8 @@
             this.dataForm.projectNote = item.contractNote
             this.dataForm.projectBusiness = item.contractBusiness
             this.dataForm.projectType = item.projectType
-            this.dataForm.projectProduceAccount = ''
+            this.dataForm.projectProduceId = ''
+            this.dataForm.produceGroupId = ''
             this.dataForm.projectProduce = ''
           }
         })
@@ -218,13 +233,11 @@
       },
       // 表单提交
       dataFormSubmit () {
-        // 项目负责人
-        console.log(this.dataForm.projectProduceAccount)
-        for (let produce of this.produceList) {
-          if (this.dataForm.projectProduceAccount === produce.useraccount) { this.dataForm.projectProduce = produce.username }
-        }
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            // 项目负责人
+            this.dataForm.projectProduce = this.produceList.find(produce => produce.userId === this.dataForm.projectProduceId)['username']
+            console.log(this.dataForm.projectProduceId,this.dataForm.projectProduce)
             this.$http({
               url: this.$http.adornUrl(`/project/project/${!this.dataForm.id ? 'save' : 'update'}`),
               method: 'post',
@@ -243,6 +256,8 @@
                 'projectStage': this.dataForm.projectStage,
                 'projectProduce': this.dataForm.projectProduce,
                 'projectProduceAccount': this.dataForm.projectProduceAccount,
+                'projectProduceId': this.dataForm.projectProduceId,
+                'produceGroupId': this.dataForm.produceGroupId,
                 'projectStartDateTime': this.dataForm.projectStartDateTime,
                 'outputRemark': this.dataForm.outputRemark,
                 'createuserid': this.dataForm.createuserid
@@ -298,6 +313,47 @@
             }
           })
         })
+      },
+      // 获取一级部门列表
+      getWorkgroupList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/set/workgroup/list`),
+            method: 'get',
+            params: this.$http.adornParams({
+              pid: 12
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 选择部门发生的事件，默认选择生产负责人的是经理或副经理
+      groupChangeHandle () {
+        for (let group of this.groupList) {
+          if ( group.id === this.dataForm.produceGroupId) {
+            this.produceList = []
+            if (!stringIsNull(group.headId)) {
+              this.produceList.push({
+                userId: group.headId,
+                username: group.headMan
+              })
+            }
+            if (!stringIsNull(group.deputyId)) {
+              this.produceList.push({
+                userId: group.deputyId,
+                username: group.deputyLeader
+              })
+            }
+          }
+        }
+        console.log(this.produceList)
+        this.dataForm.projectProduceId = ''
       },
       // 获取预算产值工作类型列表
       getWorkTypelist (projectNo) {
@@ -398,7 +454,7 @@
 
 <style>
   .customWidth {
-    width: 900px;
+    width: 1000px;
   }
   .span_title{
     font-weight: 700;

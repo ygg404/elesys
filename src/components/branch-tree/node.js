@@ -61,15 +61,16 @@ export const renderLabel = (h, data, context) => {
   const mouseOverHandler = listeners['on-node-mouseover']
   const mouseOutHandler = listeners['on-node-mouseout']
 
-  const childNodes = []
+  const otherNodes = []
   if (typeof renderContent === 'function') {
     let vnode = renderContent(h, data)
 
-    vnode && childNodes.push(vnode)
+    vnode && otherNodes.push(vnode)
   } else {
-    childNodes.push(label)
+    otherNodes.push(label)
   }
 
+  const childNodes = []
   if (props.collapsable && !isLeaf(data, props.props.children)) {
     childNodes.push(renderBtn(h, data, context))
   }
@@ -121,7 +122,7 @@ export const renderLabel = (h, data, context) => {
         'click': e => sortHandler && sortHandler(e, data),
       }
     }),
-    childNodes])
+    childNodes]),h('div',otherNodes)
   ])
 }
 

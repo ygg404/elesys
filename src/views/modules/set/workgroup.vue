@@ -1,135 +1,128 @@
 <template>
   <div class="mod-config">
-    <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-      <!--<el-form-item>-->
-        <!--<el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>-->
-      <!--</el-form-item>-->
-      <el-form-item>
-        <!--<el-button @click="getDataList()">查询</el-button>-->
-        <el-button v-if="isAuth('set:workgroup:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('set:workgroup:delete')" type="danger" @click="deleteHandle()"
-                   :disabled="dataListSelections.length <= 0">批量删除
-        </el-button>
-      </el-form-item>
-    </el-form>
-    <el-table
-      :data="dataList"
-      border
-      v-loading="dataListLoading"
-      @selection-change="selectionChangeHandle"
-      style="width: 100%;">
-      <el-table-column
-        type="selection"
-        header-align="center"
-        align="center"
-        width="50">
-      </el-table-column>
-      <el-table-column
-        header-align="center"
-        align="center"
-        width="90"
-        label="顺序">
-        <template slot-scope="scope">
-          <i class="el-icon-top el-i-top" @click="ChangeOrderNum(scope.$index,scope.row.id)"></i>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="id"
-        header-align="center"
-        align="center"
-        width="80"
-        label="ID">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        header-align="center"
-        align="center"
-        treeKey="groupId"
-        label="部门名称">
-      </el-table-column>
-      <el-table-column
-        prop="headMan"
-        header-align="center"
-        align="center"
-        label="队长名称">
-      </el-table-column>
-      <el-table-column
-        prop="deputyLeader"
-        header-align="center"
-        align="center"
-        label="副队长名称">
-      </el-table-column>
-      <el-table-column
-        fixed="right"
-        header-align="center"
-        align="center"
-        width="150"
-        label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <!-- 弹窗, 新增 / 修改 -->
-    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <el-card>
+      <div slot="header" class="clearfix">
+        <el-button v-if="isAuth('set:workgroup:save')" size="large" type="primary" icon="el-icon-plus" @click="addWorkGroupHandle()">添加工作组</el-button>
+      </div>
+
+      <div class="col-md-10 col-md-offset-1" v-loading="dataListLoading">
+        <el-row>
+          <el-card>
+            <div slot="header" class="clearfix">
+              <span class="card_title"> 工作组结构图表</span>
+            </div>
+            <div class="text-center" v-for="group in groupTreeDat">
+              <branch-tree name="test"
+                           :data="group"
+                           :horizontal="true"
+                           :collapsable="false"
+                           :props="groupTreeProps"
+                           :label-class-name="labelClassName"
+                           :render-content="renderContent"
+                           @on-node-click="onNodeClick"
+                           @on-node-itop="sortClickHandle"/>
+              <!--                             @on-node-mouseover="showNodeClick"-->
+
+            </div>
+          </el-card>
+
+        </el-row>
+
+      </div>
+    </el-card>
+    <!-- 弹窗, 新增 / 修改 个人资料 -->
+    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="init" ></add-or-update>
   </div>
 </template>
 
 <script>
-  import AddOrUpdate from './workgroup-add-or-update'
+  import BranchTree from '@/components/branch-tree/index'
+  import addOrUpdate from './workgroup-add-or-update'
+  import { treeDataTranslate } from '@/utils'
+  import {stringIsNull} from '../../../utils'
 
   export default {
     data () {
       return {
-        dataForm: {
-          key: '',
-          sidx: 'id',
-          order: 'desc'
+        groupTreeDat: {},
+        groupTreeProps: {
+          id: 'id',
+          label: 'name',
+          children: 'children'
         },
         dataList: [],
-        pageIndex: 1,
-        pageSize: 25,
-        totalPage: 0,
         dataListLoading: false,
-        dataListSelections: [],
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        labelClassName: 'bg-white',
+        horizontal: false,
+        collapsable: true,
+        expandAll: false,
       }
     },
     components: {
-      AddOrUpdate
+      addOrUpdate,
+      BranchTree
     },
     activated () {
-      this.getDataList()
+      this.init()
     },
     methods: {
-      // 排序字段改变
-      changeSort (val) {
-        console.log(val)
-        switch (val.order) {
-          case 'ascending':
-            this.dataForm.order = 'asc'
-            break
-          case 'descending':
-            this.dataForm.order = 'desc'
-            break
-          default:
-            this.dataForm.order = 'desc'
-        }
-        this.dataForm.sidx = val.prop
-        this.getDataList()
+      init () {
+        this.getDataList().then( groupList => {
+          this.groupTreeDat = treeDataTranslate(groupList , 'id', 'pid')
+        })
       },
-
-      // 调整Oder_num 传递ID
-      ChangeOrderNum (index, id) {
-        if (index === 0) {
-          return
-        }
+      // 获取数据列表
+      getDataList () {
+        this.dataListLoading = true
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/workgroup/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.dataList = []
+            }
+            this.dataListLoading = false
+          })
+        })
+      },
+      renderContent (h, data) {
+        return h('div', {
+          domProps: {
+            className: 'span_detail'
+          }
+        },[
+          stringIsNull(data.headId) ? h() : h('div',[h('span', '队长:'),h('span',data.headMan )]),
+          stringIsNull(data.deputyId) ? h() : h('div',[h('span', '副队:'), ,h('span',data.deputyLeader )])
+        ])
+      },
+      // 新增 / 修改
+      addWorkGroupHandle (id) {
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(id)
+        })
+      },
+      onNodeClick(e, data) {
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(data.id)
+        })
+      },
+      // 调整顺序
+      sortClickHandle (e,data) {
+        console.log(data)
         this.$http({
-
-          url: this.$http.adornUrl('/set/workgroup/changeordernum'),
+          url: this.$http.adornUrl('/set/workgroup/sort'),
           method: 'post',
-          data: this.$http.adornData(id, false)
+          data: this.$http.adornData({
+            id: data.id,
+            pid: data.pid
+          })
         }).then(({data}) => {
           if (data && data.code === 0) {
             // 成功
@@ -138,97 +131,116 @@
               type: 'success',
               duration: 1500
             })
+            // 更新数据
+            this.init()
           } else {
             // 失败
             this.$message.error(data.msg)
           }
-          // 更新数据
-          this.getDataList()
         })
       },
 
-      // 获取数据列表
-      getDataList () {
-        this.dataListLoading = true
-        this.$http({
-          url: this.$http.adornUrl('/set/workgroup/list'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'page': this.pageIndex,
-            'limit': this.pageSize,
-            'key': this.dataForm.key,
-            'sidx': this.dataForm.sidx,
-            'order': this.dataForm.order
-          })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.dataList = data.list
-          } else {
-            this.dataList = []
-          }
-          this.dataListLoading = false
-        })
-      },
-      // 每页数
-      sizeChangeHandle (val) {
-        this.pageSize = val
-        this.pageIndex = 1
-        this.getDataList()
-      },
-      // 当前页
-      currentChangeHandle (val) {
-        this.pageIndex = val
-        this.getDataList()
-      },
-      // 多选
-      selectionChangeHandle (val) {
-        this.dataListSelections = val
-      },
-      // 新增 / 修改
-      addOrUpdateHandle (id) {
-        this.addOrUpdateVisible = true
-        this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id)
-        })
-      },
-      // 删除
-      deleteHandle (id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.id
-        })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl('/set/workgroup/delete'),
-            method: 'post',
-            data: this.$http.adornData(ids, false)
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1500
-              })
-              this.getDataList()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
-      }
     }
   }
 </script>
 
-<style scoped>
-  .el-i-top {
-    color: #2D64B3;
+<style>
+  .span_detail {
+    margin-top: 2px;
+    font-size: 10pt;
+    color: #6f7180;
+  }
+  .branch {
+    border: 2px solid #0BB2D4;
+    box-shadow: 5px 5px 3px rgba(73, 148, 204, 0.15);
+    width: 145px;
+    height: auto;
+    font-size: 17pt;
+    padding: 5px;
+    border-radius: 5px;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
     cursor: pointer;
-    width: 80px;
+  }
+  .branch>.branch_header{
+    display: flex;
+    justify-content: space-between;
+  }
+  .branch>.branch_header>.branch_name{
+    font-size: 13pt;
+    vertical-align: middle;
+    min-width: 70%;
+  }
+  .branch>.branch_detail_show{
+    height: auto;
+    display: block;
+  }
+  .branch>.branch_detail_close{
+    height: 0;
+    display: none;
+  }
+
+  .branch>.branch_header:hover{
+    color: #00a2d4;
+  }
+  .branch>.branch_header i:hover{
+    color: red;
+  }
+
+  .card_title{
+    font-size: 19pt;
     font-weight: 700;
-    font-size: 19px;
+  }
+  .detail_content{
+    font-size: 11pt;
+  }
+  .detail_content .content_row{
+    margin-bottom: 10px;
+  }
+
+  .detail_content .content_row .maintag{
+    font-size: 10pt;
+    height: 100%;
+    max-width: 100px;
+    text-align: center;
+    color: #ff2a2c;
+    background-color: #ffd2dc;
+    border-radius: 3px;
+  }
+  .detail_content .content_row .secondtag{
+    font-size: 10pt;
+    height: 100%;
+    max-width: 100px;
+    text-align: center;
+    color: #67c23a;
+    background-color: #f0f9e6;
+    border-radius: 3px;
+  }
+  .detail_footer{
+    margin-top: 32px;
+    border-top: 1px dashed silver;
+    display: flex;
+    padding: 12px 0px 0px 0px;
+    justify-content: flex-end;
+  }
+  .on-node-itop {
+    margin-left: 7px;
+    font-size: 14pt;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .on-node-itop:hover{
+    color: red;
+  }
+  .org-tree-node-label .org-tree-node-label-inner span{
+    font-size: 11pt;
+  }
+  .org-tree-node-label .org-tree-node-label-inner span:hover{
+    border-bottom: 1px double #00a0e9;
+    color: red;
+    font-size: 11pt;
+    text-decoration: underline;
   }
 </style>

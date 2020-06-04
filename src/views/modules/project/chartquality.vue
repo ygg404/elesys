@@ -64,6 +64,7 @@
 
 <script>
   import moment from 'moment'
+  import {treeDataTranslate} from '@/utils'
   import Vue from 'vue'
 
   export default {
@@ -85,7 +86,9 @@
     },
     activated () {
       this.dataForm.startDate = moment(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).format('YYYY-MM-DD')
-      this.getWorkGroupDataListFromApi()
+      this.getWorkGroupDataListFromApi().then(list => {
+        this.workGroupList = this.getBranchChildList(treeDataTranslate(list,'id','pid'))
+      })
       this.getOutputQuality()
     },
 
@@ -94,17 +97,28 @@
       getWorkGroupDataListFromApi () {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
+            url: this.$http.adornUrl('/set/workgroup/list'),
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.workGroupList = data.list
               resolve(data.list)
             } else {
               this.workGroupList = []
             }
           })
         })
+      },
+      // 获取所有子部门
+      getBranchChildList (branchlist) {
+        let childList = []
+        for (let branch of branchlist) {
+          if (branch.children !== undefined) {
+            childList = childList.concat(this.getBranchChildList(branch.children))
+          } else {
+            childList.push(branch)
+          }
+        }
+        return childList
       },
       // 表格初始化
       tableDataInit (datalist) {

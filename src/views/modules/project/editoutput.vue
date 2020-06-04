@@ -198,9 +198,11 @@
       getOutPutGroupList (projectNo) {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl(`/project/checkoutput/getOutPutGroup/${projectNo}`),
+            url: this.$http.adornUrl(`/project/checkoutput/getOutPutGroup`),
             method: 'get',
-            params: this.$http.adornParams()
+            params: this.$http.adornParams({
+              projectNo: projectNo
+            })
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.outPutGroupList = data.list

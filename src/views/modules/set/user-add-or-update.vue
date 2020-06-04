@@ -60,7 +60,8 @@
 </template>
 
 <script>
-  // import { isEmail, isMobile } from '@/utils/validate'
+  import {treeDataTranslate} from '@/utils'
+
   export default {
     data () {
       var validatePassword = (rule, value, callback) => {
@@ -135,7 +136,9 @@
             this.$refs['dataForm'].resetFields()
           })
         }).then(() => {
-          this.getWorkGroupDataListFromApi()
+          this.getWorkGroupDataListFromApi().then( grouplist => {
+            this.WorkGroupDataList = this.getBranchChildList(treeDataTranslate(grouplist, 'id', 'pid') )
+          })
           if (this.dataForm.id) {
             this.$http({
               url: this.$http.adornUrl(`/sys/user/info/${this.dataForm.id}`),
@@ -160,11 +163,10 @@
       getWorkGroupDataListFromApi () {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
-            method: 'get'
+            url: this.$http.adornUrl('/set/workgroup/list'),
+            method: 'get',
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.WorkGroupDataList = data.list
               resolve(data.list)
             } else {
               // this.dataList = []
@@ -172,7 +174,18 @@
           })
         })
       },
-
+      // 获取所有子部门
+      getBranchChildList (branchlist) {
+        let childList = []
+        for (let branch of branchlist) {
+          if (branch.children !== undefined) {
+            childList = childList.concat(this.getBranchChildList(branch.children))
+          } else {
+            childList.push(branch)
+          }
+        }
+        return childList
+      },
       // 表单提交
       dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {

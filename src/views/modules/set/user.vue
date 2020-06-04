@@ -158,8 +158,9 @@
       getWorkGroupDataListFromApi () {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
-            method: 'get'
+            url: this.$http.adornUrl('/set/workgroup/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.WorkGroupDataList = data.list

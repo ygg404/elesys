@@ -79,20 +79,22 @@
       init (projectNo, totalOutPut = 0) {
         this.projectNo = projectNo
         this.totalOutPut = totalOutPut
-        this.getProjectWorkList(projectNo).then(grouplist => {
-          this.groupList = grouplist
-          this.loading = false
-          this.getProjectChargeList().then(data => {
-            this.headManList = data
-            this.headMenListEvent()
-          })
-          // 获取项目负责人列表
-          this.getProjectCharge(projectNo).then(projectPlan => {
-            for (let headman of this.headManList) {
-              if (headman.username === projectPlan.projectCharge) {
-                this.headId = headman.userId
+        this.getProjectByNo(projectNo).then(project => {
+          this.getProjectWorkList(project).then(grouplist => {
+            this.groupList = grouplist
+            this.loading = false
+            this.getProjectChargeList().then(data => {
+              this.headManList = data
+              this.headMenListEvent()
+            })
+            // 获取项目负责人列表
+            this.getProjectCharge(projectNo).then(projectPlan => {
+              for (let headman of this.headManList) {
+                if (headman.username === projectPlan.projectCharge) {
+                  this.headId = headman.userId
+                }
               }
-            }
+            })
           })
         })
         this.visible = true
@@ -134,17 +136,6 @@
         // this.headManList = []
         for (let group of this.groupList) {
           if (group.checked) {
-            // this.headId = group.headId
-            // let isheadIdin = false
-            // for (let user of this.headManList) {
-            //   if (user.userId === group.headId) isheadIdin = true
-            // }
-            // if (!isheadIdin) {
-            //   this.headManList.push({
-            //     userId : group.headId,
-            //     username: group.headMan
-            //   })
-            // }
             this.headId = group.headId
           }
         }
@@ -243,12 +234,15 @@
         })
       },
       // 获取作业分组数据
-      getProjectWorkList (projectNo) {
+      getProjectWorkList (project) {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl(`/project/group/getListByProjectNo/${projectNo}`),
+            url: this.$http.adornUrl(`/project/group/getListByProjectNo`),
             method: 'get',
-            params: this.$http.adornParams()
+            params: this.$http.adornParams({
+              projectNo: project.projectNo,
+              pid: project.produceGroupId
+            })
           }).then(({data}) => {
             if (data && data.code === 0) {
               resolve(data.list)
@@ -258,7 +252,24 @@
             }
           })
         })
-      }
+      },
+      // 项目分组信息
+      getProjectByNo (projectNo) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/project/getByProjectNo/${projectNo}`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.project)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
     }
   }
 </script>

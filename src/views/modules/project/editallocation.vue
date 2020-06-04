@@ -66,6 +66,7 @@
             <el-row :gutter="24"><el-col :span="8"><span>项目类型：</span></el-col> <el-col :span="16"><span>{{projectInfo.projectType}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>委托单位：</span></el-col> <el-col :span="16"><span>{{projectInfo.projectAuthorize}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>委托要求：</span></el-col> <el-col :span="16"><span>{{projectInfo.projectNote}}</span></el-col></el-row>
+            <el-row :gutter="24"><el-col :span="8"><span>生产负责人：</span></el-col> <el-col :span="16"><span>{{projectInfo.projectProduce}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>业务负责人：</span></el-col> <el-col :span="16"><span>{{projectInfo.contractBusiness}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>项目立项人：</span></el-col> <el-col :span="16"><span>{{projectInfo.createUserName}}</span></el-col></el-row>
             <el-row :gutter="24"><el-col :span="8"><span>联系人：</span></el-col> <el-col :span="16"><span>{{projectInfo.userName}}</span></el-col></el-row>
@@ -110,7 +111,7 @@
     </el-row>
 
     <el-card class="rate_info">
-      <el-table  :data="groupRateList" style="width: 100%"  border>
+      <el-table  :data="groupRateList" style="width: 100%"  border :span-method="objectSpanMethod">
         <el-table-column type="expand" >
           <template slot-scope="props">
             <el-table  :data="props.row.projectList" style="width: 100%;" :row-class-name="getTableclass" border>
@@ -126,6 +127,7 @@
             </el-table>
           </template>
         </el-table-column>
+        <el-table-column label="上级部门" prop="parentGroup"></el-table-column>
         <el-table-column label="组名" prop="groupName"></el-table-column>
         <el-table-column label="已安排产值" prop="isSetOutput"></el-table-column>
         <el-table-column label="未完成产值" prop="isNotOutput"></el-table-column>
@@ -199,7 +201,7 @@
 <script>
   import projectgroupAddOrUpdate from './projectgroup-add-or-update'
   import {closeTab} from '@/utils/tabs'
-  import {stringIsNull} from '@/utils'
+  import {stringIsNull,treeDataTranslate} from '@/utils'
   import moment from 'moment'
 
   export default {
@@ -270,15 +272,38 @@
       this.init()
     },
     methods: {
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex === 1) {
+          if (row.isFirst || rowIndex === 0) {
+            return {
+              rowspan: row.size,
+              colspan: 1
+            }
+          } else {
+            return {
+              rowspan: 0,
+              colspan: 0
+            }
+          }
+        }
+      },
       init () {
         // this.$refs['dataForm'].resetFields()
         this.getPlanByProjectNo()
         this.getExecutelist()
         this.getWorkNotelist()
         this.getWorkRequireList()
-        this.getProjectDataCoe()
-        this.getInfoByProjectNo(this.projectNo)  // 获取项目基本信息
-        this.getGroupByProjectNo(this.projectNo) // 获取项目分组情况
+        this.getWorkGroupDataListFromApi().then( grouplist => {
+          this.getProjectDataCoe().then(coeList => {
+            this.projectCoeInit(grouplist, coeList)
+          })
+        })
+        // 获取项目基本信息
+        this.getInfoByProjectNo(this.projectNo).then(projectInfo => {
+          this.projectInfo = projectInfo
+          // 获取项目分组情况
+          this.getGroupByProjectNo(this.projectNo)
+        })
         this.getWorkTypelist(this.projectNo).then(success => {
           this.checkOutputVoInit()
         })
@@ -287,7 +312,6 @@
       },
       // 获取统计方法
       getSummaryMethod (param) {
-        console.log(param)
         const { columns, data } = param
         const sums = []
         columns.forEach((column, index) => {
@@ -344,6 +368,78 @@
           }
         })
       },
+      // 从后台获得工作组数据列表内容
+      getWorkGroupDataListFromApi () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/workgroup/list'),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+            }
+          })
+        })
+      },
+      // 获取所有子部门
+      getBranchChildList (branchlist) {
+        let childList = []
+        for (let branch of branchlist) {
+          if (branch.children !== undefined) {
+            childList = childList.concat(this.getBranchChildList(branch.children))
+          } else {
+            childList.push(branch)
+          }
+        }
+        return childList
+      },
+      // 组内安排产值与未安排产值表格 初始化
+      projectCoeInit (grouplist,coelist) {
+        let branchChildList = this.getBranchChildList(treeDataTranslate(grouplist, 'id','pid'))
+        let groupRateList = []
+        let indexList = []
+        for (let i = 0; i < coelist.length; i++) {
+          if (!stringIsNull(branchChildList.find(branch => branch.id === coelist[i].groupId))) {
+            indexList.push(i)
+          }
+        }
+        indexList.forEach(value => {
+          groupRateList.push(coelist[value])
+        })
+        for (let branch of branchChildList) {
+          let groupItem = grouplist.find(group => group.id === branch.pid)
+          if (!stringIsNull(groupItem)) {
+            branch.parentGroup = groupItem.name
+            branch.pid = groupItem.id
+          }
+        }
+        let pid = 0
+        let sizeList = []
+        let size = 0
+        for (let groupRate of groupRateList) {
+          let groupItem = branchChildList.find(group => group.id === groupRate.groupId)
+          if (!stringIsNull(groupItem)) {
+            groupRate.parentGroup = groupItem.parentGroup
+            groupRate.pid = groupItem.pid
+          }
+          if (groupRate.pid !== pid) {
+            groupRate.isFirst = true
+            pid = groupRate.pid
+            sizeList.push(size)
+            size = 0
+          } else {
+            size += 1
+          }
+        }
+        if (size > 0) sizeList.push(size)
+        console.log(sizeList)
+        let index = 0
+        for (let groupRate of groupRateList){
+          if (groupRate.isFirst === true) groupRate.size = sizeList[++index] + 1
+        }
+        console.log(this.groupRateList = groupRateList)
+      },
       // 表单提交
       dataFormSubmit (goback = true) {
         this.$refs['dataForm'].validate((valid) => {
@@ -385,9 +481,12 @@
       getGroupByProjectNo (projectNo) {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl(`/project/group/getListByProjectNo/${projectNo}`),
+            url: this.$http.adornUrl(`/project/group/getListByProjectNo`),
             method: 'get',
-            params: this.$http.adornParams()
+            params: this.$http.adornParams({
+              projectNo: projectNo,
+              pid: this.projectInfo.produceGroupId
+            })
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.groupWorkList = data.list
@@ -418,7 +517,7 @@
                   this.dataForm.executeStandard = data.projectPlan.executeStandard
                   this.dataForm.workRequire = data.projectPlan.workRequire
                   this.dataForm.workNote = data.projectPlan.workNote
-                  this.dataForm.projectBegunDateTime = data.projectPlan.projectBegunDateTime
+                  this.dataForm.projectBegunDateTime = data.projectPlan.projectBegunDateTime == null ? new Date() : data.projectPlan.projectBegunDateTime
                   this.dataForm.projectCharge = data.projectPlan.projectCharge
                   if ( (!stringIsNull(this.dataForm.projectOutput)) && stringIsNull(this.dataForm.projectWorkDate)
                     && stringIsNull(this.dataForm.projectQualityDate) ) {
@@ -445,7 +544,6 @@
             params: this.$http.adornParams()
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
             } else {
               this.$message.error(data.msg)
@@ -581,7 +679,6 @@
             params: this.$http.adornParams()
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.groupRateList = data.list
               resolve(data.list)
             } else {
               this.$message.error(data.msg)

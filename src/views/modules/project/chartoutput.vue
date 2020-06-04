@@ -64,7 +64,7 @@
 
 <script>
   import moment from 'moment'
-  import index from '../../../icons'
+  import {treeDataTranslate} from '@/utils'
   import Vue from 'vue'
 
   export default {
@@ -161,17 +161,30 @@
       getWorkGroupDataListFromApi () {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl('/set/workgroup/selectworkgroup'),
+            url: this.$http.adornUrl('/set/workgroup/list'),
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.workGroupList = data.list
+              this.workGroupList = this.getBranchChildList( treeDataTranslate(data.list , 'id' , 'pid') )
+              console.log(this.workGroupList)
               resolve(data.list)
             } else {
               this.workGroupList = []
             }
           })
         })
+      },
+      // 获取所有子部门
+      getBranchChildList (branchlist) {
+        let childList = []
+        for (let branch of branchlist) {
+          if (branch.children !== undefined) {
+            childList = childList.concat(this.getBranchChildList(branch.children))
+          } else {
+            childList.push(branch)
+          }
+        }
+        return childList
       },
       // 打印报表
       printChartHandle () {

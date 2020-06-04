@@ -10,6 +10,7 @@
           <div>项目类型：{{projectInfo.projectType}}</div>
           <div>委托单位：{{projectInfo.projectAuthorize}}</div>
           <div>委托要求：{{projectInfo.projectNote}}</div>
+          <div>生产负责人：{{projectInfo.projectProduce}}</div>
           <div>业务负责人：{{projectInfo.contractBusiness}}</div>
           <div>项目负责人：{{projectInfo.projectCharge}}</div>
           <div>工作内容：{{projectInfo.workNote}}</div>
