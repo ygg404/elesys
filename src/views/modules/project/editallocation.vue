@@ -128,6 +128,9 @@
           </template>
         </el-table-column>
         <el-table-column label="上级部门" prop="parentGroup"></el-table-column>
+        <el-table-column label="总安排产值" prop="allSetOutput"></el-table-column>
+        <el-table-column label="总未完成产值" prop="allNotOutput"></el-table-column>
+        <el-table-column label="总未完成项目数" prop="allUndoneNum"></el-table-column>
         <el-table-column label="组名" prop="groupName"></el-table-column>
         <el-table-column label="已安排产值" prop="isSetOutput"></el-table-column>
         <el-table-column label="未完成产值" prop="isNotOutput"></el-table-column>
@@ -273,7 +276,7 @@
     },
     methods: {
       objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-        if (columnIndex === 1) {
+        if (columnIndex >= 1 && columnIndex <= 4) {
           if (row.isFirst || rowIndex === 0) {
             return {
               rowspan: row.size,
@@ -415,8 +418,11 @@
           }
         }
         let pid = 0
-        let sizeList = []
         let size = 0
+        let allNotOutput = 0 // 各中心所有未完成产值
+        let allSetOutput = 0 // 各中心所有已安排产值
+        let allUndoneNum = 0  // 各中心未完成项目数
+        let numList = []
         for (let groupRate of groupRateList) {
           let groupItem = branchChildList.find(group => group.id === groupRate.groupId)
           if (!stringIsNull(groupItem)) {
@@ -426,17 +432,37 @@
           if (groupRate.pid !== pid) {
             groupRate.isFirst = true
             pid = groupRate.pid
-            sizeList.push(size)
+            numList.push({
+              size: size,
+              allNotOutput: allNotOutput,
+              allSetOutput: allSetOutput,
+              allUndoneNum: allUndoneNum
+            })
             size = 0
-          } else {
-            size += 1
+            allNotOutput = 0
+            allSetOutput = 0
+            allUndoneNum = 0
           }
+          size += 1
+          allNotOutput += groupRate.isNotOutput
+          allSetOutput += groupRate.isSetOutput
+          allUndoneNum += groupRate.undoneNum
         }
-        if (size > 0) sizeList.push(size)
-        console.log(sizeList)
+        if (size > 0) numList.push({
+          size: size,
+          allNotOutput: allNotOutput,
+          allSetOutput: allSetOutput,
+          allUndoneNum: allUndoneNum
+        })
+        console.log(numList)
         let index = 0
         for (let groupRate of groupRateList){
-          if (groupRate.isFirst === true) groupRate.size = sizeList[++index] + 1
+          if (groupRate.isFirst === true) {
+            groupRate.size = numList[++index].size
+            groupRate.allNotOutput = numList[index].allNotOutput
+            groupRate.allSetOutput = numList[index].allSetOutput
+            groupRate.allUndoneNum = numList[index].allUndoneNum
+          }
         }
         console.log(this.groupRateList = groupRateList)
       },

@@ -1,6 +1,8 @@
 <template>
-  <el-dialog customClass="customWidth"
-    title="选择作业组" :close-on-click-modal="false" :visible.sync="visible" >
+  <el-dialog customClass="customWidth" :close-on-click-modal="false" :visible.sync="visible" >
+    <template slot="title">
+      <div class="dialog_title"> 选择工作组：<span v-if="groupName !== ''">({{groupName}})</span></div>
+    </template>
     <span class="span_output">预计产值：{{this.totalOutPut}}</span>
     <el-table :data="groupList" border  style="width: 800px;" v-loading="loading">
       <el-table-column prop="name" header-align="center" align="left" label="组名" width="140" >
@@ -48,6 +50,8 @@
 </template>
 
 <script>
+  import {stringIsNull} from '../../../utils'
+
   export default {
     data () {
       return {
@@ -70,7 +74,8 @@
         groupList: [],
         projectworkList: [],
         headManList: [],  // 项目负责人列表
-        headId: ''
+        headId: '',
+        groupName: ''
       }
     },
     mounted () {
@@ -81,6 +86,7 @@
         this.totalOutPut = totalOutPut
         this.getProjectByNo(projectNo).then(project => {
           this.getProjectWorkList(project).then(grouplist => {
+            this.getWorkGroupById(project.produceGroupId)
             this.groupList = grouplist
             this.loading = false
             this.getProjectChargeList().then(data => {
@@ -270,11 +276,38 @@
           })
         })
       },
+      // 获取工作组跟标题
+      getWorkGroupById (id) {
+        if (stringIsNull(id)) {
+          return
+        }
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/set/workgroup/info/${id}`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.groupName = data.workGroup.name
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      }
     }
   }
 </script>
 
 <style>
+  .dialog_title{
+    font-weight: 700;
+    font-size: 14pt;
+  }
+  .dialog_title span{
+    color: #3b97d7;
+  }
   .span_output{
     font-size: 15px;
     font-weight: 500;
