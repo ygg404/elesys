@@ -112,7 +112,7 @@ export const renderLabel = (h, data, context) => {
       on: {
         'click': e => clickHandler && clickHandler(e, data)
         }
-      }, data.branchName ),
+      }, label ),
     h('i',{
       domProps: {
         className: 'el-icon-top on-node-itop'
