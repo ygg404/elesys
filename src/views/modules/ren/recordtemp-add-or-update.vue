@@ -1,18 +1,37 @@
 <template>
-  <el-dialog width="80%"
-             :title="'编辑档案  （姓名：' + dataForm.username + '）'"
-             :close-on-click-modal="false"
-             :visible.sync="visible">
+  <el-dialog width="80%" title='编辑个人档案'
+             :close-on-click-modal="false" :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
              v-loading="loading" :element-loading-text="loadingtext"  label-width="100px">
       <el-row>
-        <el-col :span="14">
+        <el-col :span="8">
+          <el-form-item label="姓名" prop="username">
+            <span style="color: #3b97d7">{{dataForm.username}}</span>
+          </el-form-item>
           <el-form-item label="性别" prop="sex">
             <el-radio-group v-model="dataForm.sex">
               <el-radio :label="1">男</el-radio>
               <el-radio :label="2">女</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="籍贯" prop="nativePlace">
+            <el-cascader size="large" :options="placeOptions" v-model="dataForm.nativePlace" clearable
+                         placeholder="请选择籍贯" @change="placeChangeHandle"></el-cascader>
+          </el-form-item>
+          <el-form-item label="邮箱" prop="email">
+            <el-input v-model="dataForm.email" placeholder="邮箱" class="card_detail_input"></el-input>
+          </el-form-item>
+          <el-form-item label="入职时间" prop="entryTime">
+            <el-date-picker v-model="dataForm.entryTime" type="date" value-format="yyyy-MM-dd" placeholder="入职时间"
+                            class="card_detail_input"></el-date-picker>
+          </el-form-item>
+          <el-form-item label="工作类型" prop="jobType">
+            <el-select v-model="dataForm.jobType" placeholder="请选择工作类型"  class="select_btn">
+              <el-option v-for="item in jobItemList" :label="item.dateItem" :key="item.id" :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
           <el-form-item label="身份证号" prop="idNo">
             <el-input v-model="dataForm.idNo" placeholder="身份证号" class="card_detail_input"></el-input>
           </el-form-item>
@@ -20,45 +39,19 @@
             <el-date-picker v-model="dataForm.birthday" type="date" value-format="yyyy-MM-dd" placeholder="出生日期"
                             class="card_detail_input"></el-date-picker>
           </el-form-item>
-          <el-form-item label="邮箱" prop="email">
-            <el-input v-model="dataForm.email" placeholder="邮箱" class="card_detail_input"></el-input>
+          <el-form-item label="婚姻状况" prop="maritalStatus">
+            <el-select v-model="dataForm.maritalStatus" placeholder="请选择婚姻状况" class="select_btn">
+              <el-option v-for="item in maritalItemList" :label="item.dateItem" :key="item.id"
+                         :value="item.id"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="手机号" prop="mobile">
             <el-input v-model="dataForm.mobile" placeholder="手机号" class="card_detail_input"></el-input>
           </el-form-item>
-        </el-col>
-        <el-col :span="10">
-          <div class="card_detail_img">
-            <img :src="dataForm.headImg" alt="" class="card_detail_img_content"/>
-            <div class="card_detail_img_add"><i class="el-icon-plus addplus"></i></div>
-            <input type="file" class="card_detail_img_input" accept="image/*" @change="compressImgHandle"/>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="入职时间" prop="entryTime">
-            <el-date-picker v-model="dataForm.entryTime" type="date" value-format="yyyy-MM-dd" placeholder="入职时间"
-                            class="card_detail_input"></el-date-picker>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="试用期(月)" prop="trialPeriod" v-if="dataForm.isAudit == 1">
+          <el-form-item label="试用期(月)" prop="trialPeriod">
             <el-input v-model="dataForm.trialPeriod" type="number" min="0" max="12" placeholder="试用期（月）"
                       class="card_detail_input"></el-input>
           </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="工作类型" prop="jobType">
-            <el-radio-group v-model="dataForm.jobType">
-              <el-radio :label="1">全职</el-radio>
-              <el-radio :label="2">兼职</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item label="住房类型" prop="houseType">
             <el-radio-group v-model="dataForm.houseType">
               <el-radio :label="1">本地居民</el-radio>
@@ -66,40 +59,54 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="籍贯" prop="nativePlace">
-            <el-cascader size="large" :options="placeOptions" v-model="dataForm.nativePlace" clearable
-                         placeholder="请选择籍贯" @change="placeChangeHandle"></el-cascader>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="婚姻状况" prop="maritalStatus">
-            <el-select v-model="dataForm.maritalStatus" placeholder="请选择婚姻状况" style="width: 135px;" class="select_btn">
-              <el-option v-for="item in maritalItemList" :label="item.dateItem" :key="item.id"
-                         :value="item.id"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="最高学历" prop="education">
-            <el-select v-model="dataForm.education" placeholder="请选择最高学历" class="card_detail_input">
-              <el-option v-for="item in educationItemList" :label="item.dateItem" :key="item.id"
-                         :value="item.id"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="职称等级" prop="titleLever">
+        <el-col :span="8">
+          <div class="person_img" v-loading="imgLoading">
+            <div class="img_content">
+              <img :src="dataForm.headImg" alt="" />
+              <div class="card_detail_img_add" >
+                <i class="el-icon-plus addplus"></i>
+                <div class="img_input">
+                  <input type="file" accept="image/*" @change="compressImgHandle" ></input>
+                </div>
+              </div>
+            </div>
+          </div>
+          <el-form-item label="职称等级" prop="titleLever" style="margin-top: 20px;">
             <el-select v-model="dataForm.titleLever" placeholder="请选择职称等级" class="card_detail_input">
-              <el-option v-for="item in titleItemList" :label="item.dateItem" :key="item.id"
+              <el-option v-for="item in titleItemList" :label="item.jobTitle" :key="item.id"
+                         :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="职务" prop="titleLever" style="margin-top: 20px;">
+            <el-select v-model="dataForm.dutyId" placeholder="请选择职务" class="card_detail_input">
+              <el-option v-for="item in dutyItemList" :label="item.duty" :key="item.id" :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="11">
+          <el-form-item label="最高学历" prop="education">
+            <el-select v-model="dataForm.education" placeholder="最高学历" class="card_detail_input"  style="width: 106px">
+              <el-option v-for="item in edItemList" :label="item.scoreName" :key="item.id"
+                         :value="item.id"></el-option>
+            </el-select>
+            <el-select v-model="dataForm.educationType" placeholder="学制类型" class="card_detail_input" style="width: 110px">
+              <el-option v-for="item in edTypeItemList" :label="item.scoreName" :key="item.id"
+                         :value="item.id"></el-option>
+            </el-select>
+            <el-select v-model="dataForm.proRatio" placeholder="专业系数" class="card_detail_input" style="width: 110px">
+              <el-option v-for="item in proItemList" :label="item.scoreName" :key="item.id"
                          :value="item.id"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
+        <el-col :span="8">
+          <el-form-item label="毕业时间" prop="educationTime">
+            <el-date-picker v-model="dataForm.educationTime" type="month"></el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="3"></el-col>
       </el-row>
       <el-row class="card_table_title">
         <div class="header">
@@ -182,7 +189,6 @@
 
     <!--档案审核返退内容表-->
     <el-dialog title="档案退回重改意见" :visible.sync="returnAuditVisible" :close-on-click-modal="false" append-to-body >
-
       <el-input type="textarea" placeholder="请输入返退重改意见" maxlength="1000" size="large" show-word-limit rows="4"
                 v-model="dataForm.auditMsg" ></el-input>
 
@@ -198,34 +204,44 @@
   import {provinceAndCityData} from 'element-china-area-data'
   import moment from 'moment'
   import lrz from 'lrz'
-  import { getUUID } from "@/utils"
-  import {getEducationItem, getMaritalItem, getTitleItem} from "@/utils/selectedItem"
+  import { getUUID } from '@/utils'
+  import {getJobItem, getMaritalItem} from '@/utils/selectedItem'
 
   export default {
-    data() {
+    data () {
       return {
         visible: false,
         recordeductionVisible: false,
         recordworkVisible: false,
         returnAuditVisible: false,
         loading: true,
+        imgLoading: false,
         loadingtext: '正在加载中',
+        proItemList: [],
+        edItemList: [],
+        edTypeItemList: [],
+        dutyItemList: [], // 职务列表
+        titleItemList: [], // 职称列表
+        jobItemList: getJobItem(),
         maritalItemList: getMaritalItem(),
-        titleItemList: getTitleItem(),
-        educationItemList: getEducationItem(),
         placeOptions: provinceAndCityData,
         auditForm: {
           auditMsg: ''
         },
         dataForm: {
           userId: 0,
+          username: '',
           sex: 1,
           idNo: '',
           birthday: '',
           entryTime: '',
           jobType: '',
           houseType: '',
+          dutyId: '',
+          proRatio: '',
           education: '',
+          educationType: '',
+          educationTime: '',
           titleLever: '',
           email: '',
           mobile: '',
@@ -278,16 +294,35 @@
             {required: true, message: '婚姻状况不能为空', trigger: 'blur'}
           ],
           trialPeriod: [
-            {required: true, message: '审核时试用期需管理员填写，试用期不能为空！', trigger: 'blur'}
+            {required: true, message: '试用期不能为空！', trigger: 'blur'}
+          ],
+          educationTime: [
+            {required: true, message: '毕业时间不能为空！', trigger: 'blur'}
           ]
         }
       }
     },
     methods: {
       init( id ,isaudit = 0) {
-        this.dataForm.userId = id
+        this.dataForm.userId = id || 0
         this.visible = true
         this.$nextTick(() => {
+          // 学历对照表信息
+          this.getScoreEdList(1).then(list => {
+            this.edTypeItemList = list
+          })
+          this.getScoreEdList(2).then(list => {
+            this.proItemList = list
+          })
+          this.getScoreEdList(3).then(list => {
+            this.edItemList = list
+          })
+          this.getJobTypeList().then(list => {
+            this.titleItemList = list
+          })
+          this.getScoreDutyList().then(list => {
+            this.dutyItemList = list
+          })
           this.$refs['dataForm'].resetFields()
           this.loading = true
           this.loadingtext = '正在加载中...'
@@ -304,9 +339,12 @@
                 this.dataForm.sex = data.renRecordVo.sex
                 this.dataForm.birthday = data.renRecordVo.birthday
                 this.dataForm.entryTime = data.renRecordVo.entryTime
+                this.dataForm.educationTime = data.renRecordVo.educationTime
+                this.dataForm.educationType = data.renRecordVo.educationType
                 this.dataForm.jobType = data.renRecordVo.jobType
                 this.dataForm.houseType = data.renRecordVo.houseType
                 this.dataForm.education = data.renRecordVo.education
+                this.dataForm.proRatio = data.renRecordVo.proRatio
                 this.dataForm.titleLever = data.renRecordVo.titleLever
                 this.dataForm.email = data.renRecordVo.email
                 this.dataForm.mobile = data.renRecordVo.mobile
@@ -315,6 +353,7 @@
                 this.dataForm.nativeCity = data.renRecordVo.nativeCity
                 this.dataForm.nativePlace = [data.renRecordVo.nativeProvince, data.renRecordVo.nativeCity]
                 this.dataForm.maritalStatus = data.renRecordVo.maritalStatus
+                this.dataForm.dutyId = data.renRecordVo.dutyId
                 this.dataForm.headImg = data.renRecordVo.headImg
                 this.dataForm.isAudit = isaudit
                 this.dataForm.auditMsg = data.renRecordVo.auditMsg
@@ -367,23 +406,7 @@
               url: this.$http.adornUrl(`/ren/recordtemp/save`),
               method: 'post',
               data: this.$http.adornData({
-                'userId': this.dataForm.userId,
-                'idNo': this.dataForm.idNo,
-                'sex': this.dataForm.sex,
-                'birthday': this.dataForm.birthday,
-                'entryTime': this.dataForm.entryTime,
-                'jobType': this.dataForm.jobType,
-                'houseType': this.dataForm.houseType,
-                'education': this.dataForm.education,
-                'titleLever': this.dataForm.titleLever,
-                'email': this.dataForm.email,
-                'mobile': this.dataForm.mobile,
-                'trialPeriod': this.dataForm.trialPeriod,
-                'nativeProvince': this.dataForm.nativeProvince,
-                'nativeCity': this.dataForm.nativeCity,
-                'maritalStatus': this.dataForm.maritalStatus,
-                'headImg': this.dataForm.headImg,
-                'isAudit': this.dataForm.isAudit,
+                'renRecordTempEntity': this.dataForm,
                 'edBackgroundList': this.dataForm.edBackgroundList,
                 'workBackgroundList': this.dataForm.workBackgroundList
               })
@@ -443,6 +466,59 @@
         this.dataForm.nativeProvince = this.dataForm.nativePlace[0]
         this.dataForm.nativeCity = this.dataForm.nativePlace[1]
       },
+      // 获取学历对照表
+      getScoreEdList (cateId) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoreed/list'),
+            method: 'get',
+            params: this.$http.adornParams({
+              cateId: cateId
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
+      // 获取职称表
+      getJobTypeList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoretitle/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
+      // 获取职务列表
+      getScoreDutyList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoreduty/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
       // 添加教育背景
       edBackgroundAddHandle () {
         this.dataForm.edBackgroundList.push({
@@ -500,7 +576,6 @@
             .then(function (rst) {
               // 成功时执行
               that.dataForm.headImg = rst.base64
-              console.log(rst.base64)
             }).catch(function (error) {
             // 失败时执行
             that.$message.error('上传图片有误，请重新上传！')
@@ -514,35 +589,52 @@
 </script>
 
 <style scoped>
-  .card_detail_img {
-    width: 180px;
-    height: 243px;
+  .person_img {
+    width: 100%;
+    text-align: center;
+    display: block;
     position: relative;
   }
-
-  .card_detail_img_content {
-    width: 100%;
-    height: 100%;
-    border: 2px solid #00b7ee;
+  .person_img .img_content {
+    width:160px;
+    height:213px;
+    border: 2px solid dodgerblue;
+    border-radius: 10px;
+    display:inline-block;
+  }
+  .person_img .img_content img{
+    width:156px;
+    height:210px;
     border-radius: 10px;
     position: absolute;
-    z-index: 1;
+    transform: translate(-50%,0%);
+  }
+  .person_img .img_input {
+    position: absolute;
+    cursor: pointer;
+    bottom: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .person_img .img_input input{
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
   }
 
   .card_detail_img_add {
+    cursor: pointer;
     height: 40px;
-    width: 178px;
-    margin-left: 1px;
+    width: 157px;
     position: absolute;
-    bottom: 2px;
+    bottom: 7px;
     z-index: 2;
     background: #3b4249;
     opacity: 0.5;
     border-radius: 0px 0px 10px 10px;
     -moz-border-radius-bottomleft: 10px;
     -moz-border-radius-bottomright: 10px;
-    text-align: center;
-    vertical-align: center;
   }
 
   .card_detail_img_add .addplus {
@@ -557,8 +649,7 @@
   .card_detail_img_input {
     width: 100%;
     height: 100%;
-    z-index: 3;
-    position: absolute;
+    z-index: 4;
     opacity: 0;
     cursor: pointer;
   }

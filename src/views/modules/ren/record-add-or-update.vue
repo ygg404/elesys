@@ -1,18 +1,39 @@
 <template>
   <el-dialog width="80%"
-             :title="'编辑档案  （姓名：' + dataForm.username + '）'"
+             title='编辑档案'
              :close-on-click-modal="false"
              :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
              v-loading="loading" :element-loading-text="loadingtext"  label-width="100px">
       <el-row>
-        <el-col :span="14">
+        <el-col :span="8">
+          <el-form-item label="姓名" prop="username">
+            <span style="color: #3b97d7">{{dataForm.username}}</span>
+          </el-form-item>
           <el-form-item label="性别" prop="sex">
             <el-radio-group v-model="dataForm.sex">
               <el-radio :label="1">男</el-radio>
               <el-radio :label="2">女</el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="籍贯" prop="nativePlace">
+            <el-cascader size="large" :options="placeOptions" v-model="dataForm.nativePlace" clearable
+                         placeholder="请选择籍贯" @change="placeChangeHandle"></el-cascader>
+          </el-form-item>
+          <el-form-item label="邮箱" prop="email">
+            <el-input v-model="dataForm.email" placeholder="邮箱" class="card_detail_input"></el-input>
+          </el-form-item>
+          <el-form-item label="入职时间" prop="entryTime">
+            <el-date-picker v-model="dataForm.entryTime" type="date" value-format="yyyy-MM-dd" placeholder="入职时间"
+                            class="card_detail_input"></el-date-picker>
+          </el-form-item>
+          <el-form-item label="工作类型" prop="jobType">
+            <el-select v-model="dataForm.jobType" placeholder="请选择工作类型"  class="select_btn">
+              <el-option v-for="item in jobItemList" :label="item.dateItem" :key="item.id" :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
           <el-form-item label="身份证号" prop="idNo">
             <el-input v-model="dataForm.idNo" placeholder="身份证号" class="card_detail_input"></el-input>
           </el-form-item>
@@ -20,45 +41,19 @@
             <el-date-picker v-model="dataForm.birthday" type="date" value-format="yyyy-MM-dd" placeholder="出生日期"
                             class="card_detail_input"></el-date-picker>
           </el-form-item>
-          <el-form-item label="邮箱" prop="email">
-            <el-input v-model="dataForm.email" placeholder="邮箱" class="card_detail_input"></el-input>
+          <el-form-item label="婚姻状况" prop="maritalStatus">
+            <el-select v-model="dataForm.maritalStatus" placeholder="请选择婚姻状况" class="select_btn">
+              <el-option v-for="item in maritalItemList" :label="item.dateItem" :key="item.id"
+                         :value="item.id"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="手机号" prop="mobile">
             <el-input v-model="dataForm.mobile" placeholder="手机号" class="card_detail_input"></el-input>
           </el-form-item>
-        </el-col>
-        <el-col :span="10">
-          <div class="card_detail_img" v-loading="imgLoading">
-            <img :src="dataForm.headImg" alt="" class="card_detail_img_content"/>
-            <div class="card_detail_img_add"><i class="el-icon-plus addplus"></i></div>
-            <input type="file" class="card_detail_img_input" accept="image/*" @change="compressImgHandle"/>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="入职时间" prop="entryTime">
-            <el-date-picker v-model="dataForm.entryTime" type="date" value-format="yyyy-MM-dd" placeholder="入职时间"
-                            class="card_detail_input"></el-date-picker>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item label="试用期(月)" prop="trialPeriod">
             <el-input v-model="dataForm.trialPeriod" type="number" min="0" max="12" placeholder="试用期（月）"
                       class="card_detail_input"></el-input>
           </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="工作类型" prop="jobType">
-            <el-radio-group v-model="dataForm.jobType">
-              <el-radio :label="1">全职</el-radio>
-              <el-radio :label="2">兼职</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item label="住房类型" prop="houseType">
             <el-radio-group v-model="dataForm.houseType">
               <el-radio :label="1">本地居民</el-radio>
@@ -66,40 +61,47 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="籍贯" prop="nativePlace">
-            <el-cascader size="large" :options="placeOptions" v-model="dataForm.nativePlace" clearable
-                         placeholder="请选择籍贯" @change="placeChangeHandle"></el-cascader>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="婚姻状况" prop="maritalStatus">
-            <el-select v-model="dataForm.maritalStatus" placeholder="请选择婚姻状况" style="width: 135px;" class="select_btn">
-              <el-option v-for="item in maritalItemList" :label="item.dateItem" :key="item.id"
-                         :value="item.id"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="最高学历" prop="education">
-            <el-select v-model="dataForm.education" placeholder="请选择最高学历" class="card_detail_input">
-              <el-option v-for="item in educationItemList" :label="item.dateItem" :key="item.id"
-                         :value="item.id"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="职称等级" prop="titleLever">
+        <el-col :span="8">
+          <div class="card_detail_img" v-loading="imgLoading">
+            <img :src="dataForm.headImg" alt="" class="card_detail_img_content"/>
+            <div class="card_detail_img_add"><i class="el-icon-plus addplus"></i></div>
+            <input type="file" class="card_detail_img_input" accept="image/*" @change="compressImgHandle"/>
+          </div>
+          <el-form-item label="职称等级" prop="titleLever" style="margin-top: 20px;">
             <el-select v-model="dataForm.titleLever" placeholder="请选择职称等级" class="card_detail_input">
-              <el-option v-for="item in titleItemList" :label="item.dateItem" :key="item.id"
+              <el-option v-for="item in titleItemList" :label="item.jobTitle" :key="item.id"
+                         :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="职务" prop="titleLever" style="margin-top: 20px;">
+            <el-select v-model="dataForm.dutyId" placeholder="请选择职务" class="card_detail_input">
+              <el-option v-for="item in dutyItemList" :label="item.duty" :key="item.id" :value="item.id"></el-option>
+            </el-select>
+          </el-form-item>
+
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="11">
+          <el-form-item label="最高学历" prop="education">
+            <el-select v-model="dataForm.education" placeholder="最高学历" class="card_detail_input"  style="width: 106px">
+              <el-option v-for="item in edItemList" :label="item.scoreName" :key="item.id" :value="item.id"></el-option>
+            </el-select>
+            <el-select v-model="dataForm.educationType" placeholder="学制类型" class="card_detail_input" style="width: 110px">
+              <el-option v-for="item in edTypeItemList" :label="item.scoreName" :key="item.id" :value="item.id"></el-option>
+            </el-select>
+            <el-select v-model="dataForm.proRatio" placeholder="专业系数" class="card_detail_input" style="width: 110px">
+              <el-option v-for="item in proItemList" :label="item.scoreName" :key="item.id"
                          :value="item.id"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
+        <el-col :span="8">
+          <el-form-item label="毕业时间" prop="educationTime">
+            <el-date-picker v-model="dataForm.educationTime" type="month"></el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="3"></el-col>
       </el-row>
       <el-row class="card_table_title">
         <div class="header">
@@ -185,7 +187,7 @@
   import moment from 'moment'
   import lrz from 'lrz'
   import { getUUID } from "@/utils"
-  import {getEducationItem, getMaritalItem, getTitleItem} from "@/utils/selectedItem"
+  import {getMaritalItem, getJobItem} from "@/utils/selectedItem"
 
   export default {
     data() {
@@ -197,8 +199,12 @@
         loadingtext: '正在加载中',
         imgLoading: false,   // 图片加载
         maritalItemList: getMaritalItem(),
-        titleItemList: getTitleItem(),
-        educationItemList: getEducationItem(),
+        jobItemList: getJobItem(),
+        proItemList: [],
+        edItemList: [],
+        edTypeItemList: [],
+        dutyItemList: [], // 职务列表
+        titleItemList: [], // 职称列表
         placeOptions: provinceAndCityData,
         dataForm: {
           userId: 0,
@@ -208,7 +214,11 @@
           entryTime: '',
           jobType: '',
           houseType: '',
+          dutyId: '',
+          proRatio: '',
           education: '',
+          educationType: '',
+          educationTime: '',
           titleLever: '',
           email: '',
           mobile: '',
@@ -240,6 +250,9 @@
           education: [
             {required: true, message: '最高学历不能为空', trigger: 'blur'}
           ],
+          educationTime: [
+            {required: true, message: '毕业时间不能为空', trigger: 'blur'}
+          ],
           titleLever: [
             {required: true, message: '职称等级不能为空', trigger: 'blur'}
           ],
@@ -266,6 +279,22 @@
         this.dataForm.userId = id || 0
         this.visible = true
         this.$nextTick(() => {
+          // 学历对照表信息
+          this.getScoreEdList(1).then(list => {
+            this.edTypeItemList = list
+          })
+          this.getScoreEdList(2).then(list => {
+            this.proItemList = list
+          })
+          this.getScoreEdList(3).then(list => {
+            this.edItemList = list
+          })
+          this.getJobTypeList().then(list => {
+            this.titleItemList = list
+          })
+          this.getScoreDutyList().then(list => {
+            this.dutyItemList = list
+          })
           this.$refs['dataForm'].resetFields()
           this.loading = true
           this.loadingtext = '正在加载中'
@@ -285,7 +314,11 @@
                 this.dataForm.jobType = data.renRecordVo.jobType
                 this.dataForm.houseType = data.renRecordVo.houseType
                 this.dataForm.education = data.renRecordVo.education
+                this.dataForm.educationType = data.renRecordVo.educationType
+                this.dataForm.educationTime = data.renRecordVo.educationTime
+                this.dataForm.proRatio = data.renRecordVo.proRatio
                 this.dataForm.titleLever = data.renRecordVo.titleLever
+                this.dataForm.dutyId = data.renRecordVo.dutyId
                 this.dataForm.email = data.renRecordVo.email
                 this.dataForm.mobile = data.renRecordVo.mobile
                 this.dataForm.trialPeriod = data.renRecordVo.trialPeriod
@@ -411,8 +444,61 @@
         }
         this.dataForm.workBackgroundList = workBackTempList
       },
+      // 获取学历对照表
+      getScoreEdList (cateId) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoreed/list'),
+            method: 'get',
+            params: this.$http.adornParams({
+              cateId: cateId
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
+      // 获取职称表
+      getJobTypeList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoretitle/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
+      // 获取职务列表
+      getScoreDutyList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoreduty/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
       // 图片压缩处理
-      compressImgHandle(e) {
+      compressImgHandle (e) {
         let that = this
         if (e.target.files && e.target.files.length === 1) {
           let options = {
@@ -439,12 +525,14 @@
 
 <style scoped>
   .card_detail_img {
-    width: 180px;
-    height: 243px;
+    width: 160px;
+    height: 213px;
     position: relative;
+    text-align: center;
   }
 
   .card_detail_img_content {
+    text-align: center;
     width: 100%;
     height: 100%;
     border: 2px solid #00b7ee;
@@ -454,8 +542,9 @@
   }
 
   .card_detail_img_add {
+    transform: translate(+50%,0%);
     height: 40px;
-    width: 178px;
+    width: 159px;
     margin-left: 1px;
     position: absolute;
     bottom: 2px;

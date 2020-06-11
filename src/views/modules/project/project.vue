@@ -63,8 +63,8 @@
         </el-table-column>
         <el-table-column prop="projectName" header-align="center" align="left" label="项目名称" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="projectAuthorize" header-align="center" align="center" label="委托单位" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" width="115" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
-        <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="105" :sort-orders="['descending','ascending']" sortable="custom">
+        <el-table-column prop="projectCharge" header-align="center" align="center" label="项目负责人" width="117" :sort-orders="['descending','ascending']" sortable="custom"></el-table-column>
+        <el-table-column prop="projectStatus" header-align="center" align="center" label="项目状态" width="107" :sort-orders="['descending','ascending']" sortable="custom">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.projectStatus === 0" size="small" type="primary">启动</el-tag>
             <el-popover v-else-if="scope.row.projectStatus === 1" placement="right" width="240" trigger="hover" >

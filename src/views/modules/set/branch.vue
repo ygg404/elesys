@@ -69,7 +69,7 @@
         branchTreeDat: {},
         branchTreeProps: {
           id: 'id',
-          branchName: 'label',
+          label: 'branchName',
           children: 'children'
         },
         horizontal: false,

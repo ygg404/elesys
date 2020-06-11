@@ -171,7 +171,6 @@
           })
         })
       },
-
       // 同步获取 角色组列表数据
       getSysRoleList () {
         return new Promise((resolve, reject) => {

@@ -26,6 +26,7 @@
           <el-tag  v-if="userDetail.isAudit == 0" type="warning">未审核</el-tag>
           <el-button v-if="userDetail.isAudit == 0" type="warning" size="small" @click="deleteAudit()"> 撤销审核 </el-button>
         </div>
+        <!-- 基本信息表 -->
         <table border="1" bordercolor="black" width="300" cellspacing="0" cellpadding="3">
           <tr>
             <td colspan="6" style="height:70px;">
@@ -43,10 +44,7 @@
               <div class="titlepstyle">姓名</div>
             </td>
             <td>
-              <div
-                class="contentpstyle"
-                style="width: 80px;margin-left:35px;"
-              >{{userDetail.username}}</div>
+              <div class="contentpstyle" style="width: 80px;margin-left:35px;">{{userDetail.username}}</div>
             </td>
             <td>
               <div class="titlepstyle">性别</div>
@@ -56,21 +54,18 @@
               <div class="contentpstyle" style="width:70px;" v-if="userDetail.sex == 2">女</div>
             </td>
             <td>
-              <div class="titlepstyle">出生年月</div>
+              <div class="titlepstyle">出生日期</div>
             </td>
             <td>
               <div class="contentpstyle" style="width:140px;">{{userDetail.birthday}}</div>
             </td>
           </tr>
-
           <tr>
             <td>
               <div class="titlepstyle">身份证号码</div>
             </td>
             <td colspan="2">
-              <div
-                class="contentpstyle"
-                style="width: 250px; font-size: 18px;"
+              <div class="contentpstyle" style="width: 250px; font-size: 18px;"
               >{{userDetail.idNo}}</div>
             </td>
             <td>
@@ -86,12 +81,10 @@
 
           <tr>
             <td>
-              <div class="titlepstyle">联系方式</div>
+              <div class="titlepstyle">联系电话</div>
             </td>
             <td colspan="2">
-              <div
-                class="contentpstyle" style="width: 250px; font-size: 18px;"
-              >{{userDetail.mobile}}</div>
+              <div class="contentpstyle" style="width: 250px; font-size: 18px;">{{userDetail.mobile}}</div>
             </td>
             <td>
               <div class="titlepstyle">邮箱</div>
@@ -106,183 +99,53 @@
               <div class="titlepstyle">婚姻状况</div>
             </td>
             <td>
-              <div
-                class="contentpstyle"
-                style="width:140px;"
-                v-if="userDetail.maritalStatus == 0"
-              >未婚</div>
-              <div
-                class="contentpstyle"
-                style="width:140px;"
-                v-if="userDetail.maritalStatus == 1"
-              >已婚</div>
-              <div
-                class="contentpstyle"
-                style="width:140px;"
-                v-if="userDetail.maritalStatus == 2"
-              >离异</div>
-              <div
-                class="contentpstyle"
-                style="width:140px;"
-                v-if="userDetail.maritalStatus == 3"
-              >丧偶</div>
+              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 0">未婚</div>
+              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 1">已婚</div>
+              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 2">离异</div>
+              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 3">丧偶</div>
             </td>
             <td>
               <div class="titlepstyle">工作类型</div>
             </td>
             <td colspan="2">
-              <!-- <div class="contentpstyle" style="width:170px;">全职</div> -->
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.jobType == 1"
-              >全职</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.jobType == 2"
-              >兼职</div>
+              <div class="contentpstyle" style="width:170px;" v-if="userDetail.jobType == 1">全职</div>
+              <div class="contentpstyle" style="width:170px;" v-if="userDetail.jobType == 2">兼职</div>
+              <div class="contentpstyle" style="width:170px;" v-if="userDetail.jobType == 3">实习</div>
             </td>
             <td>
               <div class="titlepstyle">住房类型</div>
             </td>
             <td>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.houseType == 1"
-              >本地居民</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.houseType == 2"
-              >租房</div>
+              <div class="contentpstyle" style="width:170px;" v-if="userDetail.houseType == 1">本地居民</div>
+              <div class="contentpstyle" style="width:170px;" v-if="userDetail.houseType == 2">租房</div>
             </td>
           </tr>
-
           <tr>
-            <td>
-              <div class="titlepstyle">入职时间</div>
-            </td>
-            <td>
-              <div class="contentpstyle" style="margin-left:20px;font-size: 18px;">{{userDetail.entryTime}}</div>
-            </td>
-            <td>
-              <div class="titlepstyle">最高学历</div>
-            </td>
-            <td colspan="2">
-              <!-- <div class="contentpstyle" style="width:170px;">{{userDetail.education}}</div> -->
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 0"
-              >无</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 1"
-              >小学</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 2"
-              >初中</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 3"
-              >中专</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 4"
-              >高中</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 5"
-              >职高</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 6"
-              >专科</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 7"
-              >本科</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 8"
-              >硕士研究生</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.education == 9"
-              >博士研究生</div>
-            </td>
-            <td>
-              <div class="titlepstyle">职位</div>
-            </td>
-            <td>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.titleLever == 0"
-              >无</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.titleLever == 1"
-              >技术员</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.titleLever == 2"
-              >助理工程师</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.titleLever == 3"
-              >中级工程师</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.titleLever == 4"
-              >高级工程师</div>
-              <div
-                class="contentpstyle"
-                style="width:170px;"
-                v-if="userDetail.titleLever == 5"
-              >正高级工程师</div>
-            </td>
+            <td><div class="titlepstyle">入职时间</div></td>
+            <td><div class="contentpstyle" style="margin-left:20px;font-size: 18px;">{{userDetail.entryTime}}</div></td>
+            <td><div class="titlepstyle">职称</div></td>
+            <td colspan="2"><div class="contentpstyle" style="width:170px;">{{userDetail.titleName}}</div></td>
+            <td><div class="titlepstyle">职务</div></td>
+            <td><div class="contentpstyle" style="width:170px;" >{{userDetail.duty}}</div></td>
+          </tr>
+          <tr>
+            <td><div class="titlepstyle">最高学历</div></td>
+            <td><div class="contentpstyle" style="margin-left:20px;font-size: 18px;">{{userDetail.edName}}</div></td>
+            <td><div class="titlepstyle">学制</div></td>
+            <td colspan="2"><div class="contentpstyle" style="margin-left:10px;text-align: center">{{userDetail.edType}}</div></td>
+            <td><div class="titlepstyle">专业系数</div></td>
+            <td><div class="contentpstyle" style="margin-left:20px;font-size: 18px;">{{userDetail.proItem}}</div></td>
           </tr>
 
           <!--教育背景模块-->
           <tr>
-            <td colspan="7">
-              <div class="onetdtitlestyle">教育背景</div>
-            </td>
+            <td colspan="7"><div class="onetdtitlestyle">教育背景</div></td>
           </tr>
           <tr>
-            <td colspan="2">
-              <div class="titlepstyle" style="margin-left:80px;">起止时间</div>
-            </td>
-            <td colspan="3">
-              <div class="titlepstyle" style="margin-left:100px;">毕业学校</div>
-            </td>
-            <td colspan="1">
-              <div class="titlepstyle" >
-                <p style="width:140px;">学历</p>
-              </div>
-            </td>
-            <td colspan="1">
-              <div class="titlepstyle" >
-                <p style="width:140px;"> 专业</p>
-              </div>
-            </td>
+            <td colspan="2"><div class="titlepstyle" style="margin-left:80px;">起止时间</div></td>
+            <td colspan="3"><div class="titlepstyle" style="margin-left:100px;">毕业学校</div></td>
+            <td colspan="1"><div class="titlepstyle" ><p style="width:140px;">学历</p></div></td>
+            <td colspan="1"><div class="titlepstyle" ><p style="width:140px;"> 专业</p></div></td>
           </tr>
           <!--教育背景动态数据-->
           <tr v-for="(v,i) in edBackgroundList" :key="i">
@@ -388,6 +251,11 @@
         auditvisible: false,
         edBackgroundList:[],
         workBackgroundList:[],
+        proItemList: [],
+        edItemList: [],
+        edTypeItemList: [],
+        dutyItemList: [], // 职务列表
+        titleItemList: [], // 职称列表
         loadTime: momnet(new Date()).format('YYYY-MM-DD hh:mm:ss')
       }
     },
@@ -406,9 +274,23 @@
       }
     },
     activated () {
-      this.edBackgroundList = this.userDetail.edBackgroundList
-      this.workBackgroundList = this.userDetail.workBackgroundList
-      if (this.userDetail === '') this.getUserDetailFromApi()
+      // 学历对照表信息
+      this.getScoreEdList(1).then(edTypeList => {
+        this.getScoreEdList(2).then(proList => {
+          this.getScoreEdList(3).then(edItemList => {
+            this.getTitleList().then(titleList => {
+              this.getScoreDutyList().then(dutyList => {
+                this.edTypeItemList = edTypeList
+                this.proItemList = proList
+                this.edItemList = edItemList
+                this.titleItemList = titleList
+                this.dutyItemList = dutyList
+                this.getUserDetailFromApi()
+              })
+            })
+          })
+        })
+      })
     },
     methods: {
       // 获取个人信息
@@ -420,6 +302,13 @@
         }).then(({ data }) => {
           if (data && data.code === 0) {
             this.userDetail = data.renRecordVo
+            this.userDetail.edName = this.edItemList.find(item => item.id === data.renRecordVo.education).scoreName
+            this.userDetail.edType = this.edTypeItemList.find(item => item.id === data.renRecordVo.educationType).scoreName
+            this.userDetail.proItem = this.proItemList.find(item => item.id === data.renRecordVo.proRatio).scoreName
+            this.userDetail.titleName = this.titleItemList.find(item => item.id === data.renRecordVo.titleLever).jobTitle
+            this.userDetail.duty = this.dutyItemList.find(item => item.id === data.renRecordVo.dutyId).duty
+            this.edBackgroundList = this.userDetail.edBackgroundList
+            this.workBackgroundList = this.userDetail.workBackgroundList
           } else {
             this.$message.error(data.msg)
           }
@@ -450,6 +339,59 @@
           })
         })
       },
+      // 获取学历对照表
+      getScoreEdList (cateId) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoreed/list'),
+            method: 'get',
+            params: this.$http.adornParams({
+              cateId: cateId
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
+      // 获取职称表
+      getTitleList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoretitle/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
+      // 获取职务列表
+      getScoreDutyList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/scoreduty/list'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.list)
+            }
+          })
+        })
+      },
       // 编辑个人资料
       editRecordHandle () {
         this.rencordTempVisible = true
@@ -471,14 +413,14 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$router.push({ name: 'login' })
+          clearLoginInfo()
           this.$http({
             url: this.$http.adornUrl('/sys/logout'),
             method: 'post',
             data: this.$http.adornData()
           }).then(({data}) => {
             if (data && data.code === 0) {
-              clearLoginInfo()
+              this.$router.push({ name: 'login' })
             }
           })
         }).catch(() => {})

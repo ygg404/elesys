@@ -14,8 +14,8 @@
       <tr class="field">
         <td>职称</td><td>分数</td><td>操作</td>
       </tr>
-      <draggable v-model="dataList" element="tbody" :move="getdata" @update="datadragEnd">
-        <tr v-for="(item,id) in dataList" :key="item.id" class="content">
+      <draggable v-model="jobList" element="tbody" :move="getdata" @update="datadragEnd">
+        <tr v-for="(item,id) in jobList" :key="item.id" class="content">
           <td>{{item.jobTitle}}</td>
           <td>{{item.score}}</td>
           <td width="150">
@@ -34,12 +34,12 @@
 
 <script>
   import draggable from 'vuedraggable'
-  import AddOrUpdate from './scorejob-add-or-update'
+  import AddOrUpdate from './scoretitle-add-or-update'
 
   export default {
     data () {
       return {
-        dataList: [],
+        jobList: [],
         dataListLoading: false,
         dataListSelections: [],
         addOrUpdateVisible: false
@@ -57,14 +57,14 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/ren/scorejob/list'),
+          url: this.$http.adornUrl('/set/scoretitle/list'),
           method: 'get',
           params: this.$http.adornParams({})
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.dataList = data.list
+            this.jobList = data.list
           } else {
-            this.dataList = []
+            this.jobList = []
           }
           this.dataListLoading = false
         })
@@ -77,19 +77,16 @@
         })
       },
       // 删除
-      deleteHandle (id) {
-        var ids = id ? [id] : this.dataListSelections.map(item => {
-          return item.id
-        })
-        this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+      deleteHandle (item) {
+        this.$confirm(`确定对[职称：${item.jobTitle}]进行[删除]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/ren/renscorejob/delete'),
+            url: this.$http.adornUrl('/set/scoretitle/delete'),
             method: 'post',
-            data: this.$http.adornData(ids, false)
+            data: this.$http.adornData([item.id], false)
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({
@@ -109,10 +106,11 @@
         this.dragItem = evt.draggedContext.element
       },
       datadragEnd (evt) {
+        console.log(evt)
         let preItem = this.dragItem
         let nextItem = this.dragItem
         let index = -1
-        for (let dat of this.edList) {
+        for (let dat of this.jobList) {
           if (dat.cateid === this.dragItem.cateid) {
             index += 1
             // 顺序上升
@@ -128,7 +126,7 @@
         console.log('拖动前的索引 :' + preItem.orderNum)
         console.log('拖动后的索引 :' + nextItem.orderNum)
         this.$http({
-          url: this.$http.adornUrl('/ren/scorejob/changeSort'),
+          url: this.$http.adornUrl('/set/scoretitle/changeSort'),
           method: 'get',
           params: this.$http.adornParams({
             preOrderNum: preItem.orderNum,

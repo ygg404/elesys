@@ -99,7 +99,7 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/ren/scoreed/list'),
+          url: this.$http.adornUrl('/set/scoreed/list'),
           method: 'get',
           params: this.$http.adornParams({})
         }).then(({data}) => {
@@ -129,7 +129,7 @@
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/ren/scoreed/delete'),
+            url: this.$http.adornUrl('/set/scoreed/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {
@@ -170,7 +170,7 @@
         console.log('拖动前的索引 :' + preItem.orderNum)
         console.log('拖动后的索引 :' + nextItem.orderNum)
         this.$http({
-          url: this.$http.adornUrl('/ren/scoreed/changeSort'),
+          url: this.$http.adornUrl('/set/scoreed/changeSort'),
           method: 'get',
           params: this.$http.adornParams({
             preOrderNum: preItem.orderNum,

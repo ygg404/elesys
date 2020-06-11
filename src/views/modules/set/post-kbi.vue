@@ -2,7 +2,7 @@
   <div class="role_mod">
     <el-form :inline="true" >
       <el-form-item>
-        <el-button type="primary" icon="el-icon-plus" size="large" @click="addOrUpdateHandle()">新增考核项</el-button>
+        <el-button type="primary" icon="el-icon-edit" size="large" @click="editKbiHandle()">编辑考核项</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" style="width: 100%;">
@@ -24,11 +24,14 @@
 
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="init"></add-or-update>
+    <!-- 弹窗, 编辑考核项目 -->
+    <post-kbi-list v-if="kbiListVisible" ref="postKbiList" @refreshDataList="init"></post-kbi-list>
   </div>
 </template>
 
 <script>
   import AddOrUpdate from './post-kbi-add-or-update'
+  import PostKbiList from './post-kbi-list'
   import {stringIsNull} from '../../../utils'
 
   export default {
@@ -36,13 +39,15 @@
       return {
         dataListLoading: false,
         addOrUpdateVisible: false,
+        kbiListVisible: false,
         dataList: [],
         kbiList: [],
         roleList: [],
       }
     },
     components: {
-      AddOrUpdate
+      AddOrUpdate,
+      PostKbiList
     },
     methods: {
       // 初始化
@@ -146,6 +151,13 @@
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init(id)
+        })
+      },
+      // 编辑考核项
+      editKbiHandle () {
+        this.kbiListVisible = true
+        this.$nextTick(() => {
+          this.$refs.postKbiList.init()
         })
       },
       dataFormSubmit () {

@@ -47,14 +47,14 @@
           this.$refs['dataForm'].resetFields()
           if (this.dataForm.id) {
             this.$http({
-              url: this.$http.adornUrl(`/ren/scorejob/info/${this.dataForm.id}`),
+              url: this.$http.adornUrl(`/set/scoretitle/info/${this.dataForm.id}`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.jobTitle = data.renScoreJob.jobTitle
-                this.dataForm.score = data.renScoreJob.score
-                this.dataForm.orderNum = data.renScoreJob.orderNum
+                this.dataForm.jobTitle = data.renScoreTitle.jobTitle
+                this.dataForm.score = data.renScoreTitle.score
+                this.dataForm.orderNum = data.renScoreTitle.orderNum
               }
             })
           }
@@ -65,7 +65,7 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
-              url: this.$http.adornUrl(`/ren/scorejob/${!this.dataForm.id ? 'save' : 'update'}`),
+              url: this.$http.adornUrl(`/set/scoretitle/${!this.dataForm.id ? 'save' : 'update'}`),
               method: 'post',
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,

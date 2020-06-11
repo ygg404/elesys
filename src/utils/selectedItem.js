@@ -13,13 +13,10 @@ export function getMaritalItem () {
 /**
  * 获取职称等级选项
  */
-export function getTitleItem () {
-  return [{'id': 0, 'dateItem': '无'},
-            {'id': 1, 'dateItem': '技术员'},
-            {'id': 2, 'dateItem': '助理工程师'},
-            {'id': 3, 'dateItem': '中级工程师'},
-            {'id': 4, 'dateItem': '高级工程师'},
-            {'id': 4, 'dateItem': '正高级工程师'}]
+export function getJobItem () {
+  return [{'id': 1, 'dateItem': '全职'},
+            {'id': 2, 'dateItem': '兼职'},
+            {'id': 3, 'dateItem': '实习'}]
 }
 
 /**

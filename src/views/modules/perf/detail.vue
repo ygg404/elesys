@@ -24,51 +24,53 @@
             <detailUser ref="detailUser"></detailUser>
           </div>
 
-          <el-table :data="checkUserList" border style="margin-left: 10px;">
+          <el-table :data="checkUserList" border style="margin-left: 10px;" :header-cell-style="{background:'#F4F5F6',color:'#131D34',padding: '5px 0'}">
             <el-table-column type="expand" >
               <template slot-scope="props">
-                <el-collapse>
-                  <el-collapse-item name="1" >
-                    <template slot="title">
-                      <div class="extra_item_title">效能评分表</div>
-                    </template>
-                    <el-table  :data="props.row.kbiList" :key="props.row.checkUserId"
-                               style="width: 98%;margin-left: 2%;"  border>
-                      <el-table-column label="评分人" prop="userName" width="120"></el-table-column>
-                      <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
-                                       :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
-                                       :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
-                      <el-table-column label="是否其领导" width="120">
-                        <template slot-scope="scope">
-                          <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
-                          <el-tag type="info" v-else>否</el-tag>
-                        </template>
-                      </el-table-column>
-                      <el-table-column label="是否为同一部门">
-                        <template slot-scope="scope">
-                          <el-tag type="primary" v-if="scope.row.isSameBranch">是</el-tag>
-                          <el-tag type="info" v-else>否</el-tag>
-                        </template>
-                      </el-table-column>
-                    </el-table>
-                  </el-collapse-item>
-                  <el-collapse-item name="2">
-                    <template slot="title">
-                      <div class="extra_item_title">加减分评分表</div>
-                    </template>
-                    <el-table :data="props.row.scoreList" border :span-method="objectSpanMethod" show-summary style="max-height: 400px;overflow-y:auto">
-                      <el-table-column prop="extraType" label="类型" width="40">
-                        <template slot-scope="scope">
-                          <div v-if="scope.row.extraType == 0">加分项</div>
-                          <div v-if="scope.row.extraType == 1">减分项</div>
-                        </template>
-                      </el-table-column>
-                      <el-table-column prop="extraItem" label="加减分项"></el-table-column>
-                      <el-table-column prop="standard" label="计分标准"></el-table-column>
-                      <el-table-column prop="extraNum" label="分数" width="80"></el-table-column>
-                    </el-table>
-                  </el-collapse-item>
-                </el-collapse>
+                <div>
+                  <el-collapse>
+                    <el-collapse-item name="1" >
+                      <template slot="title">
+                        <div class="extra_item_title">效能评分表</div>
+                      </template>
+                      <el-table  :data="props.row.kbiList" :key="props.row.checkUserId"
+                                 style="width: 98%;margin-left: 2%;"  border>
+                        <el-table-column label="评分人" prop="userName" width="110"></el-table-column>
+                        <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
+                                         :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
+                                         :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
+                        <el-table-column label="是否其领导" width="120">
+                          <template slot-scope="scope">
+                            <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
+                            <el-tag type="info" v-else>否</el-tag>
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="是否为同一部门">
+                          <template slot-scope="scope">
+                            <el-tag type="primary" v-if="scope.row.isSameBranch">是</el-tag>
+                            <el-tag type="info" v-else>否</el-tag>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </el-collapse-item>
+                    <el-collapse-item name="2">
+                      <template slot="title">
+                        <div class="extra_item_title">加减分评分表</div>
+                      </template>
+                      <el-table :data="props.row.scoreList" border :span-method="objectSpanMethod" show-summary style="max-height: 400px;overflow-y:auto">
+                        <el-table-column prop="extraType" label="类型" width="40">
+                          <template slot-scope="scope">
+                            <div v-if="scope.row.extraType == 0">加分项</div>
+                            <div v-if="scope.row.extraType == 1">减分项</div>
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="extraItem" label="加减分项"></el-table-column>
+                        <el-table-column prop="standard" label="计分标准"></el-table-column>
+                        <el-table-column prop="extraNum" label="分数" width="80"></el-table-column>
+                      </el-table>
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
               </template>
             </el-table-column>
             <el-table-column prop="checkUserName" label="被考核人"></el-table-column>

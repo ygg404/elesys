@@ -8,18 +8,16 @@
     <table class="dataTabble" border="1">
       <thead>
       <tr class="header">
-        <th colspan="5">职级认定及其房补对照表</th>
+        <th colspan="3">职务评分对照表</th>
       </tr>
       </thead>
       <tr class="field">
-        <td>分数下限(>=)</td><td>分数上限(<)</td><td>职级</td><td>房补</td><td>操作</td>
+        <td>职务</td><td>分数</td><td>操作</td>
       </tr>
       <draggable v-model="dataList" element="tbody" :move="getdata" @update="datadragEnd">
         <tr v-for="(item,id) in dataList" :key="item.id" class="content">
-          <td>{{item.lowScore}}</td>
-          <td>{{item.highScore}}</td>
-          <td>{{item.jobRank}}</td>
-          <td>{{item.houseAdd}}</td>
+          <td>{{item.duty}}</td>
+          <td>{{item.score}}</td>
           <td width="150">
             <div class="tabopa">
               <el-button @click="addOrUpdateHandle(item.id)" size="small" type="primary">修改</el-button>
@@ -36,18 +34,28 @@
 
 <script>
   import draggable from 'vuedraggable'
-  import AddOrUpdate from './scorehouse-add-or-update'
+  import AddOrUpdate from './scoreduty-add-or-update'
+
   export default {
     data () {
       return {
+        dataForm: {
+          key: '',
+          sidx: 'id',
+          order: 'desc'
+        },
         dataList: [],
+        pageIndex: 1,
+        pageSize: 25,
+        totalPage: 0,
         dataListLoading: false,
+        dataListSelections: [],
         addOrUpdateVisible: false
       }
     },
     components: {
-      draggable,
-      AddOrUpdate
+      AddOrUpdate,
+      draggable
     },
     created () {
       this.getDataList()
@@ -57,7 +65,7 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/ren/scorehouse/list'),
+          url: this.$http.adornUrl('/set/scoreduty/list'),
           method: 'get',
           params: this.$http.adornParams({})
         }).then(({data}) => {
@@ -81,13 +89,13 @@
         var ids = item.id ? [item.id] : this.dataListSelections.map(item => {
           return item.id
         })
-        this.$confirm(`确定对选项 [${item.jobRank}] 进行[${ids ? '删除' : '批量删除'}]操作?`, '提示', {
+        this.$confirm(`确定对职务[${item.duty}]进行[${ids ? '删除' : '批量删除'}]操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/ren/scorehouse/delete'),
+            url: this.$http.adornUrl('/set/scoreduty/delete'),
             method: 'post',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {
@@ -124,7 +132,7 @@
           }
         }
         this.$http({
-          url: this.$http.adornUrl('/ren/scorehouse/changeSort'),
+          url: this.$http.adornUrl('/set/scoreduty/changeSort'),
           method: 'get',
           params: this.$http.adornParams({
             preOrderNum: preItem.orderNum,
@@ -152,7 +160,7 @@
     padding: 10px;
   }
   .dataTabble{
-    width: 570px;
+    width: 320px;
   }
 
   .dataTabble .header{
