@@ -9,12 +9,6 @@
               <el-option v-for="item in yearItemList" :label="item.yearItem" :key="item.id" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
-<!--          <el-form-item>-->
-<!--            <span class="time_title">参加考核人数:  <span style="color:green">{{attendNum}}</span></span>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item>-->
-<!--            <el-button icon="el-icon-s-data" size="large" type="primary">效能评分统计表</el-button>-->
-<!--          </el-form-item>-->
         </el-form>
         <div style="text-align: center;margin-bottom: 10px;">
           <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核明细'}}</h1>
@@ -25,7 +19,7 @@
           </div>
 
           <el-table :data="checkUserList" border style="margin-left: 10px;" :header-cell-style="{background:'#F4F5F6',color:'#131D34',padding: '5px 0'}">
-            <el-table-column type="expand" >
+            <el-table-column type="expand" v-if="isAuth('perf:assess:detial')" >
               <template slot-scope="props">
                 <div>
                   <el-collapse>
@@ -76,6 +70,12 @@
             <el-table-column prop="checkUserName" label="被考核人"></el-table-column>
             <el-table-column prop="kbiAllScore" label="效能评价分"></el-table-column>
             <el-table-column prop="finalExtra" label="加减得分"></el-table-column>
+            <el-table-column prop="standardScore" label="效能基准分"></el-table-column>
+            <el-table-column label="最终效能得分">
+              <template slot-scope="scope">
+                <span>{{getFinalKbiScore(scope.row)}}</span>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
 
@@ -84,7 +84,7 @@
 </template>
 
 <script>
-  import {getYearItem,getRateItem} from '@/utils/selectedItem'
+  import {getYearItem} from '@/utils/selectedItem'
   import { treeDataTranslate } from '@/utils'
   import {stringIsNull} from '../../../utils'
   import detailUser from './detail-user'
@@ -132,24 +132,28 @@
       init () {
         // 获取部门列表
         this.getBranchList().then(branchList => {
-          this.branchList = branchList
-          this.getAccessList().then(list => {
-            this.getExtralist().then(extraList => {
-              this.getExtraScorelist().then(scoreList => {
-                let checkUserList = this.acceessListInit(list)
-                for (let checkUser of checkUserList) {
-                  checkUser.scoreList = this.extraScoreInit(checkUser, extraList, scoreList)
-                  // 计算每个人的总加减分
-                  let allScore = 0
-                  for (let score of checkUser.scoreList) {
-                    allScore += score.extraNum
+          this.getUaccessList().then(uRoleList => {
+            this.branchList = branchList
+            this.getAccessList().then(list => {
+              this.getExtralist().then(extraList => {
+                this.getExtraScorelist().then(scoreList => {
+                  let checkUserList = this.acceessListInit(list)
+                  for (let checkUser of checkUserList) {
+                    // 设置每个人的效能基准分
+                    checkUser.standardScore = uRoleList.find( item => item.userId === checkUser.checkUserId).standardScore
+                    checkUser.scoreList = this.extraScoreInit(checkUser, extraList, scoreList)
+                    // 计算每个人的总加减分
+                    let allScore = 0
+                    for (let score of checkUser.scoreList) {
+                      allScore += score.extraNum
+                    }
+                    checkUser.allScore = allScore
                   }
-                  checkUser.allScore = allScore
-                }
-                // 设置每成员的部门 并获取部门的最高分
-                checkUserList = this.setBranchScoreFun(checkUserList,branchList)
-                this.checkUserList = this.setKbiScore(checkUserList)
-                console.log(checkUserList)
+                  // 设置每成员的部门 并获取部门的最高分
+                  checkUserList = this.setBranchScoreFun(checkUserList,branchList)
+                  this.checkUserList = this.setKbiScore(checkUserList)
+                  console.log(checkUserList)
+                })
               })
             })
           })
@@ -185,6 +189,26 @@
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl(`/perf/access/list`),
+            method: 'get',
+            params: this.$http.adornParams({
+              year: this.dataForm.curYear.getFullYear(),
+              updown: this.dataForm.updown
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取已经评分的用户列表
+      getUaccessList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/perf/access/uAssessList`),
             method: 'get',
             params: this.$http.adornParams({
               year: this.dataForm.curYear.getFullYear(),
@@ -470,6 +494,14 @@
         }
         return childList
       },
+      getFinalKbiScore (item) {
+        console.log(item)
+        if (stringIsNull(item.standardScore)) {
+          return ''
+        } else {
+          return Math.round(parseInt((1 + (item.kbiAllScore + item.extraScore - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
+        }
+      }
     }
   }
 </script>

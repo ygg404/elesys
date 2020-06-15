@@ -34,16 +34,6 @@
                 <el-option v-for="item in rateList" :label="item.rateItem" :key="item.id" :value="item.id">
                 </el-option>
               </el-select>
-<!--              <el-popover placement="bottom" width="200" trigger="click">-->
-<!--                <el-rate v-model="scope.row.kbiScore" show-text-->
-<!--                         :icon-classes="['el-icon-star-off','el-icon-star-off','el-icon-star-off']"-->
-<!--                         void-icon-class="icon-rate-face-off"-->
-<!--                         :colors="['#99A9BF','#F7BA2A','#FF9900']"></el-rate>-->
-<!--                <span style="cursor: pointer;width: 100%;min-height: 25px;" slot="reference">-->
-<!--                  <i class="el-icon-star-on" style="font-size: 15pt;color: #3b97d7" ></i>-->
-<!--              </span>-->
-<!--              </el-popover>-->
-<!--              :texts="['很高', '高', '较高', '中上', '中等','一般']"-->
             </template>
           </el-table-column>
         </el-table>

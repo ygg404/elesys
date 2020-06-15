@@ -4,11 +4,11 @@
       <el-tab-pane label="学历分对照表" name="first">
         <scoreed></scoreed>
       </el-tab-pane>
-      <el-tab-pane label="职称基准分表" name="second">
-        <scoretitle></scoretitle>
-      </el-tab-pane>
-      <el-tab-pane label="职级及房补表" name="third">
+      <el-tab-pane label="职级及房补表" name="second">
         <scorehouse></scorehouse>
+      </el-tab-pane>
+      <el-tab-pane label="职称基准分表" name="third">
+        <scoretitle></scoretitle>
       </el-tab-pane>
       <el-tab-pane label="职务评分表" name="fourth">
         <scoreduty></scoreduty>

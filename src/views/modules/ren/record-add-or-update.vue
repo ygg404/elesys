@@ -360,22 +360,7 @@
               url: this.$http.adornUrl(`/ren/record/save`),
               method: 'post',
               data: this.$http.adornData({
-                'userId': this.dataForm.userId,
-                'idNo': this.dataForm.idNo,
-                'sex': this.dataForm.sex,
-                'birthday': this.dataForm.birthday,
-                'entryTime': this.dataForm.entryTime,
-                'jobType': this.dataForm.jobType,
-                'houseType': this.dataForm.houseType,
-                'education': this.dataForm.education,
-                'titleLever': this.dataForm.titleLever,
-                'email': this.dataForm.email,
-                'mobile': this.dataForm.mobile,
-                'trialPeriod': this.dataForm.trialPeriod,
-                'nativeProvince': this.dataForm.nativeProvince,
-                'nativeCity': this.dataForm.nativeCity,
-                'maritalStatus': this.dataForm.maritalStatus,
-                'headImg': this.dataForm.headImg,
+                'renRecordEntity': this.dataForm,
                 'edBackgroundList': this.dataForm.edBackgroundList,
                 'workBackgroundList': this.dataForm.workBackgroundList
               })
