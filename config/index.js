@@ -4,6 +4,7 @@
 
 const path = require('path')
 const devEnv = require('./dev.env')
+const renEnv = require('./ren.env')
 
 module.exports = {
   dev: {
