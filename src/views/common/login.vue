@@ -6,18 +6,20 @@
           <img src="~@/assets/img/hlogo.png"  class="login-main-img">
           <span class="login-main-span">{{simpleName}}</span>
         </div>
-        <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon style="margin-top: 20px;">
-          <el-form-item prop="userName">
+        <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon style="margin-top: 20px;" >
+          <el-form-item prop="userAccount">
             <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>
           </el-form-item>
           <el-form-item prop="password">
             <el-input v-model="dataForm.password" type="password" placeholder="密码"></el-input>
           </el-form-item>
-
           <el-form-item>
             <el-button  class="login-btn-submit" :icon="loading==true?'el-icon-loading':''"  type="primary" @click="dataFormSubmit()">登录</el-button>
           </el-form-item>
         </el-form>
+        <div class="index-span">
+          <div><a href="/#/index"> 《《 返回首页</a></div>
+        </div>
       </div>
       <div class="site-bottom">
         <div>Copyright © 2020 gdjxch.cn All rights reserved.</div>
@@ -229,10 +231,22 @@
       align-items: center;
       border-radius: 20px;
       margin-top: 90px;
-      padding: 20px 60px 50px;
+      padding: 20px 50px 20px;
       width: 470px;
       height: auto;
       background-color: #fff;
+    }
+    .login-main .index-span{
+      color: #3b97d7;
+      font-weight: 500;
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .login-main .index-span a{
+      line-height: 200%;
+      cursor: pointer;
+      text-decoration:underline;
     }
     .login-main-img{
       width: 120px;
@@ -256,7 +270,7 @@
     }
     .login-btn-submit {
       width: 100%;
-      margin-top: 30px;
+      margin-top: 10px;
     }
     .site-bottom{
       margin-left: 50%;
