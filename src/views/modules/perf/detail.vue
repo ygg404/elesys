@@ -1,6 +1,6 @@
 <template>
-    <div class="mod-config">
-      <el-card>
+    <div class="mod-config" >
+      <el-card  v-loading="dataLoading">
         <el-form :inline="true" :model="dataForm" style="display:flex;justify-content: space-between">
           <el-form-item>
             <span class="time_title">考核时间:</span>
@@ -92,6 +92,7 @@
   export default {
     data () {
       return {
+        dataLoading: false,
         dataForm: {
           curYear: new Date(2020 , 1 ,1),   // 当前年份
           updown: 0 // 上下半年
@@ -131,6 +132,7 @@
       },
       init () {
         // 获取部门列表
+        this.dataLoading = true
         this.getBranchList().then(branchList => {
           this.getUaccessList().then(uRoleList => {
             this.branchList = branchList
@@ -152,7 +154,7 @@
                   // 设置每成员的部门 并获取部门的最高分
                   checkUserList = this.setBranchScoreFun(checkUserList,branchList)
                   this.checkUserList = this.setKbiScore(checkUserList)
-                  console.log(checkUserList)
+                  this.dataLoading = false
                 })
               })
             })

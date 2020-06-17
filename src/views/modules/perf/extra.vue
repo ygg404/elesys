@@ -122,6 +122,7 @@
             this.getUserList().then(userList => {
               this.getBranchList().then(branchList => {
                 this.userBranchList = this.userBranchInit(branchList,userList,extraList,scoreList)
+                console.log(this.userBranchList)
                 this.dataListLoading = false
               })
             })
@@ -179,7 +180,7 @@
         for (let branch of branchChildList) {
           branch.recordVoList.map(record => {
             let userItem = userList.find(user => user.userId === record.userId)
-            if (!stringIsNull(userItem)) {
+            if (!stringIsNull(userItem) && userBranchList.find(user => user.userId === userItem.userId) === undefined) {
               let uscoreList = []
               let extraScore = 0
               for (let score of scoreList) {
@@ -195,6 +196,7 @@
               userBranchList.push(userItem)
             }
           })
+          console.log(userBranchList)
         }
         let brandId = 0
         let sizeList = []
