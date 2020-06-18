@@ -28,24 +28,34 @@
           <el-input v-model="dataForm.branchParentName" v-popover:menuListPopover :readonly="true" placeholder="点击选择上级部门" class="menu-list__input"></el-input>
         </el-form-item>
         <el-form-item label="部门成员">
-          <div class="branch_line">
+          <div class="branch_line" >
             <div class="check_branch" >
-              <el-input prefix-icon="el-icon-search" placeholder="搜索成员关键字"
-                        v-model="keySearch" style="padding: 5px"></el-input>
-              <div class="check_content">
-                <el-checkbox
-                  v-for="(item, index) in userAllList"
+              <el-select v-model="userValueId" multiple filterable placeholder="请选择" :id="Math.random()"
+                         style="width: 100%" @change="chooseUserHandle()">
+                <el-option
+                  v-for="item in userAllList"
                   :key="item.userId"
                   :label="item.username"
-                  v-if="item.username.indexOf(keySearch.trim()) != -1"
-                  v-model="item.checked"
-                  @change="chooseUserHandle()"
-                  class="checkbox_class"
-                ></el-checkbox>
+                  :value="item.userId">
+                </el-option>
+              </el-select>
+
+<!--              <el-input prefix-icon="el-icon-search" placeholder="搜索成员关键字"-->
+<!--                        v-model="keySearch" style="padding: 5px"></el-input>-->
+<!--              <div class="check_content">-->
+<!--                <el-checkbox-->
+<!--                  v-for="(item, index) in userAllList"-->
+<!--                  :key="item.userId"-->
+<!--                  :label="item.username"-->
+<!--                  v-if="item.username.indexOf(keySearch.trim()) != -1"-->
+<!--                  v-model="item.checked"-->
+<!--                  @change="chooseUserHandle()"-->
+<!--                  class="checkbox_class"-->
+<!--                ></el-checkbox>-->
               </div>
             </div>
             <div class="table_set">
-              <el-table border :data="userValueList">
+              <el-table border :data="userValueList" :id="Math.random()">
                 <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>
                 <el-table-column prop="mdeputyId" header-align="center" align="center" label="是否为主负责人" >
                   <template  slot-scope="scope">
@@ -61,7 +71,7 @@
                 </el-table-column>
               </el-table>
             </div>
-          </div>
+
 
         </el-form-item>
       </el-form>
@@ -87,7 +97,7 @@
         branchList: [], // 部门列表
         branchTreeList: [], // 部门树形表
         userAllList: [], // 用户列表
-        userValue: [],   // 选中的用户
+        userValueId: [],   // 选中的用户
         userValueList: [],
         dataForm: {
           id: 0,
@@ -148,30 +158,31 @@
 
                   // 初始化所属成员和主副负责人
                   let userValueList = []
+                  let userValueId = []
                   // 获取该部门的所有成员并勾选
                   for (let user of info.userList) {
                     let userItem = userAllList.find(item => item.userId === user.userId)
                     if (!stringIsNull(userItem)) {
-                      userItem['checked'] = true
-                      userValueList.push({
-                        checked: true,
-                        userId: userItem.userId,
-                        username: userItem.username,
-                        useraccount: userItem.useraccount
-                      })
+                      userValueId.push(userItem.userId)
+                      // userValueList.push({
+                      //   userId: userItem.userId,
+                      //   username: userItem.username,
+                      //   useraccount: userItem.useraccount
+                      // })
                     }
                   }
+                  console.log(userValueId)
                   // 获取上级部门名称
                   if (info.parentId === 0) this.dataForm.branchParentName = '无'
                   for (let branch of branchList) {
                     if (branch.id === this.dataForm.parentId) {
                       this.dataForm.branchParentName = branch.branchName
-                      break
                     }
                   }
-
                   this.userAllList = userAllList
-                  this.userValueList = userValueList
+                  // this.userValueList = userValueList
+                  this.userValueId = userValueId
+                  this.branchList = branchList
                   this.branchTreeList = treeDataTranslate(branchList , 'id')
                 })
               } else {
@@ -183,6 +194,7 @@
                 this.dataForm.mdeputyId = ''
                 this.dataForm.sdeputyId = ''
                 this.userValueList = []
+                this.userValueId = []
                 this.branchList = branchList
                 this.userAllList = userAllList
                 this.branchTreeList = treeDataTranslate(branchList , 'id')
@@ -295,15 +307,18 @@
       },
       // 选中用户改变
       chooseUserHandle () {
+        console.log(this.userValueId)
         let userValueList = []
         // 判断主副负责人 是否在所选中的列表中
         let mdeputyFlag = false
         let sdeputyFlag = false
         this.userAllList.forEach((item, index) => {
-          if ( item.checked ) {
-            userValueList.push(item)
-            if(item.userId === this.dataForm.mdeputyId) mdeputyFlag = true
-            if(item.userId === this.dataForm.sdeputyId) sdeputyFlag = true
+          for (let userId of this.userValueId) {
+            if (item.userId === userId) {
+              userValueList.push(item)
+              if (item.userId === this.dataForm.mdeputyId) mdeputyFlag = true
+              if (item.userId === this.dataForm.sdeputyId) sdeputyFlag = true
+            }
           }
         })
         if(!mdeputyFlag) this.dataForm.mdeputyId = ''
@@ -369,11 +384,11 @@
 
   .check_branch{
     margin-top: 10px;
-    border: 1px solid #167cdd;
-    height: 250px;
+    /*border: 1px solid #167cdd;*/
+    /*height: 250px;*/
     border-radius: 5px;
     text-align: center;
-    width: 200px;
+    width: 100%;
   }
   .check_branch .check_content{
     border: 1px solid #bec2dd;
