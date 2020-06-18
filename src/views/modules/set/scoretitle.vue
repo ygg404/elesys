@@ -5,7 +5,7 @@
         <el-button type="primary" icon="el-icon-plus" size="large" @click="addOrUpdateHandle()">新增</el-button>
       </el-form-item>
     </el-form>
-    <table class="dataTabble" border="1">
+    <table class="dataTabble" border="1" cellspacing="0">
       <thead>
       <tr class="header">
         <th colspan="5">职称基准分对照表</th>
@@ -155,7 +155,7 @@
     padding: 10px;
   }
   .dataTabble{
-    width: 500px;
+    width: 550px;
   }
 
   .dataTabble .header{

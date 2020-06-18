@@ -1,19 +1,17 @@
 <template>
   <div class="mod-config">
-    <table class="dataTabble" border="1">
+    <table class="dataTabble" border="1" cellspacing="0">
       <thead>
       <tr class="header">
         <th colspan="5">效能分计算方法表</th>
       </tr>
       </thead>
       <tr class="field">
-        <td>职务</td><td>效能基准分</td><td>未考核时的效能分标准</td><td>试用期的效能分标准</td><td>操作</td>
+        <td>职务</td><td>效能基准分</td><td>操作</td>
       </tr>
       <tr v-for="(item,id) in dataList" :key="item.dutyId" class="content">
         <td>{{item.dutyName}}</td>
         <td>{{item.standardScore}}</td>
-        <td>{{item.noassessScore}}</td>
-        <td>{{item.trialScore}}</td>
         <td width="100">
           <div class="tabopa">
             <el-button @click="addOrUpdateHandle(item.dutyId)" size="small" type="primary">修改</el-button>
@@ -79,7 +77,7 @@
     padding: 10px;
   }
   .dataTabble{
-    width: 620px;
+    width: 450px;
   }
 
   .dataTabble .header{

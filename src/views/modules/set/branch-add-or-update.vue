@@ -3,66 +3,69 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="110px">
-      <el-form-item label="部门名称" prop="branchName">
-        <el-input v-model="dataForm.branchName" placeholder="部门名称"></el-input>
-      </el-form-item>
-      <el-form-item label="上级部门" prop="parentId">
-        <el-popover transition="fade-in-linear"
-          ref="menuListPopover"
-          placement="bottom-start"
-          trigger="click">
-          <el-tree
-            :data="branchTreeList"
-            :props="branchListTreeProps"
-            node-key="id"
-            ref="menuListTree"
-            @current-change="treeCurrentChangeHandle"
-            :default-expand-all="true"
-            :highlight-current="true"
-            :expand-on-click-node="true">
-          </el-tree>
-        </el-popover>
-        <el-input v-model="dataForm.branchParentName" v-popover:menuListPopover :readonly="true" placeholder="点击选择上级部门" class="menu-list__input"></el-input>
-      </el-form-item>
-      <el-form-item label="部门成员">
-        <div class="branch_line">
-          <div class="check_branch" >
-            <el-input prefix-icon="el-icon-search" placeholder="搜索成员关键字"
-                      v-model="keySearch" style="padding: 5px"></el-input>
-            <div class="check_content">
-              <el-checkbox
-                v-for="(item, index) in userAllList"
-                :key="item.userId"
-                :label="item.username"
-                v-if="item.username.indexOf(keySearch.trim()) != -1"
-                v-model="item.checked"
-                @change="chooseUserHandle()"
-                class="checkbox_class"
-              ></el-checkbox>
+
+      <el-form :model="dataForm" :rules="dataRule" v-loading="loading" element-loading-text="正在加载中..."
+               ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="110px">
+        <el-form-item label="部门名称" prop="branchName">
+          <el-input v-model="dataForm.branchName" placeholder="部门名称"></el-input>
+        </el-form-item>
+        <el-form-item label="上级部门" prop="parentId">
+          <el-popover transition="fade-in-linear"
+                      ref="menuListPopover"
+                      placement="bottom-start"
+                      trigger="click">
+            <el-tree
+              :data="branchTreeList"
+              :props="branchListTreeProps"
+              node-key="id"
+              ref="menuListTree"
+              @current-change="treeCurrentChangeHandle"
+              :default-expand-all="true"
+              :highlight-current="true"
+              :expand-on-click-node="true">
+            </el-tree>
+          </el-popover>
+          <el-input v-model="dataForm.branchParentName" v-popover:menuListPopover :readonly="true" placeholder="点击选择上级部门" class="menu-list__input"></el-input>
+        </el-form-item>
+        <el-form-item label="部门成员">
+          <div class="branch_line">
+            <div class="check_branch" >
+              <el-input prefix-icon="el-icon-search" placeholder="搜索成员关键字"
+                        v-model="keySearch" style="padding: 5px"></el-input>
+              <div class="check_content">
+                <el-checkbox
+                  v-for="(item, index) in userAllList"
+                  :key="item.userId"
+                  :label="item.username"
+                  v-if="item.username.indexOf(keySearch.trim()) != -1"
+                  v-model="item.checked"
+                  @change="chooseUserHandle()"
+                  class="checkbox_class"
+                ></el-checkbox>
+              </div>
+            </div>
+            <div class="table_set">
+              <el-table border :data="userValueList">
+                <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>
+                <el-table-column prop="mdeputyId" header-align="center" align="center" label="是否为主负责人" >
+                  <template  slot-scope="scope">
+                    <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.mdeputyId"
+                                 @change="mdeputyChangeHandle(scope.row)"></el-checkbox>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="sdeputyId" header-align="center" align="center" label="是否为副负责人">
+                  <template  slot-scope="scope">
+                    <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.sdeputyId"
+                                 @change="sdeputyChangeHandle(scope.row)"></el-checkbox>
+                  </template>
+                </el-table-column>
+              </el-table>
             </div>
           </div>
-          <div class="table_set">
-            <el-table border :data="userValueList">
-              <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>
-              <el-table-column prop="mdeputyId" header-align="center" align="center" label="是否为主负责人" >
-                <template  slot-scope="scope">
-                  <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.mdeputyId"
-                               @change="mdeputyChangeHandle(scope.row)"></el-checkbox>
-                </template>
-              </el-table-column>
-              <el-table-column prop="sdeputyId" header-align="center" align="center" label="是否为副负责人">
-                <template  slot-scope="scope">
-                  <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.sdeputyId"
-                               @change="sdeputyChangeHandle(scope.row)"></el-checkbox>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </div>
 
-      </el-form-item>
-    </el-form>
+        </el-form-item>
+      </el-form>
+
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
       <el-button type="danger" @click="deleteBranchHandle()">删除</el-button>
@@ -73,10 +76,12 @@
 
 <script>
   import { treeDataTranslate } from '@/utils'
+  import {stringIsNull} from '../../../utils'
 
   export default {
     data () {
       return {
+        loading: false,
         visible: false,
         keySearch: '', // 搜索关键字
         branchList: [], // 部门列表
@@ -112,69 +117,62 @@
     },
     methods: {
       init (id) {
-        // 获取用户列表
-        this.getUserList().then(data => {
-          this.userAllList = data
-          // 获取部门列表
-          this.getBranchList().then(success => {
-            this.branchList = success
-            let parentNode = [{
-              branchName: '无',
-              id: -1,
-              parentId: -1
-            }]
-            success = parentNode.concat(success)
-            this.branchTreeList = treeDataTranslate(success , 'id')
-            this.dataForm.id = id || 0
-            this.visible = true
-            this.$nextTick(() => {
-              this.$refs['dataForm'].resetFields()
+        this.dataForm.id = id || 0
+        this.visible = true
+        this.$nextTick(() => {
+          this.loading = true
+
+          // 获取用户列表
+          this.getUserList().then(userAllList => {
+            // 获取部门列表
+            this.getBranchList().then(branchList => {
+              for (let userDat of userAllList) {
+                userDat.checked = false
+              }
+              let parentNode = [{
+                branchName: '无',
+                id: -1,
+                parentId: -1
+              }]
+              branchList = parentNode.concat(branchList)
+              this.loading = false
               if (this.dataForm.id) {
-                this.$http({
-                  url: this.$http.adornUrl(`/set/branch/info/${this.dataForm.id}`),
-                  method: 'get',
-                  params: this.$http.adornParams()
-                }).then(({data}) => {
-                  this.keySearch = ''
-                  if (data && data.code === 0) {
-                    this.dataForm.parentId = data.branchVo.parentId === 0 ? -1 : data.branchVo.parentId
-                    this.dataForm.branchName = data.branchVo.branchName
-                    this.dataForm.mdeputyId = data.branchVo.mdeputyId
-                    this.dataForm.mdeputyName = data.branchVo.mdeputyName
-                    this.dataForm.sdeputyId = data.branchVo.sdeputyId
-                    this.dataForm.mdeputyName = data.branchVo.mdeputyName
-                    this.dataForm.orderNum = data.branchVo.orderNum
-                    let userValue = []
-                    // 初始化所属成员和主副负责人
-                    let userValueList = []
-                    for (let user of data.branchVo.userList) {
-                      this.userAllList.find(item => item.userId === user.userId)['checked'] = true
-                      userValue.push(user.userId)
-                      for (let userDat of this.userAllList) {
-                        if (user.userId === userDat.userId) {
-                          userValueList.push({
-                            checked: true,
-                            userId: userDat.userId,
-                            username: userDat.username,
-                            useraccount: userDat.useraccount
-                          })
-                          break
-                        }
-                      }
-                    }
-                    this.userValue = userValue
-                    console.log(this.userValue)
-                    this.userValueList = userValueList
-                    console.log(this.userValueList)
-                    // 获取上级部门名称
-                    if (data.branchVo.parentId === 0) this.dataForm.branchParentName = '无'
-                    for (let branch of this.branchList) {
-                      if ( branch.id === this.dataForm.parentId) {
-                        this.dataForm.branchParentName = branch.branchName
-                        break
-                      }
+                this.getBranchInfo(this.dataForm.id).then(info => {
+                  this.dataForm.parentId = info.parentId === 0 ? -1 : info.parentId
+                  this.dataForm.branchName = info.branchName
+                  this.dataForm.mdeputyId = info.mdeputyId
+                  this.dataForm.mdeputyName = info.mdeputyName
+                  this.dataForm.sdeputyId = info.sdeputyId
+                  this.dataForm.mdeputyName = info.mdeputyName
+                  this.dataForm.orderNum = info.orderNum
+
+                  // 初始化所属成员和主副负责人
+                  let userValueList = []
+                  // 获取该部门的所有成员并勾选
+                  for (let user of info.userList) {
+                    let userItem = userAllList.find(item => item.userId === user.userId)
+                    if (!stringIsNull(userItem)) {
+                      userItem['checked'] = true
+                      userValueList.push({
+                        checked: true,
+                        userId: userItem.userId,
+                        username: userItem.username,
+                        useraccount: userItem.useraccount
+                      })
                     }
                   }
+                  // 获取上级部门名称
+                  if (info.parentId === 0) this.dataForm.branchParentName = '无'
+                  for (let branch of branchList) {
+                    if (branch.id === this.dataForm.parentId) {
+                      this.dataForm.branchParentName = branch.branchName
+                      break
+                    }
+                  }
+
+                  this.userAllList = userAllList
+                  this.userValueList = userValueList
+                  this.branchTreeList = treeDataTranslate(branchList , 'id')
                 })
               } else {
                 this.keySearch = ''
@@ -185,6 +183,9 @@
                 this.dataForm.mdeputyId = ''
                 this.dataForm.sdeputyId = ''
                 this.userValueList = []
+                this.branchList = branchList
+                this.userAllList = userAllList
+                this.branchTreeList = treeDataTranslate(branchList , 'id')
                 this.getOrderNumHandle()
               }
             })
@@ -224,6 +225,23 @@
 
         })
       },
+      // 获取部门信息
+      getBranchInfo (id) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/set/branch/info/${id}`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.branchVo)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
       // 获取部门列表
       getBranchList () {
         return new Promise((resolve, reject) => {
@@ -249,9 +267,6 @@
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-              for (let userDat of data.list) {
-                userDat.checked = false
-              }
               resolve(data.list)
             } else {
               this.userAllList = []

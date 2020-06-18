@@ -10,12 +10,12 @@
       <el-form-item label="基准分" prop="standardScore">
         <el-input v-model="dataForm.standardScore" type="number" placeholder="效能基准分"></el-input>
       </el-form-item>
-      <el-form-item label="未考核时基准分" prop="noassessScore">
-        <el-input v-model="dataForm.noassessScore" type="number" placeholder="未考核基准分"></el-input>
-      </el-form-item>
-      <el-form-item label="试用期基准分" prop="trialScore">
-        <el-input v-model="dataForm.trialScore" type="number" placeholder="试用期基准分"></el-input>
-      </el-form-item>
+<!--      <el-form-item label="未考核时基准分" prop="noassessScore">-->
+<!--        <el-input v-model="dataForm.noassessScore" type="number" placeholder="未考核基准分"></el-input>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="试用期基准分" prop="trialScore">-->
+<!--        <el-input v-model="dataForm.trialScore" type="number" placeholder="试用期基准分"></el-input>-->
+<!--      </el-form-item>-->
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
@@ -39,13 +39,13 @@
         dataRule: {
           standardScore: [
             { required: true, message: '效能基准分不能为空', trigger: 'blur' }
-          ],
-          noassessScore: [
-            { required: true, message: '未考核时基准分不能为空', trigger: 'blur' }
-          ],
-          trialScore: [
-            { required: true, message: '试用期基准分不能为空', trigger: 'blur' }
           ]
+          // noassessScore: [
+          //   { required: true, message: '未考核时基准分不能为空', trigger: 'blur' }
+          // ],
+          // trialScore: [
+          //   { required: true, message: '试用期基准分不能为空', trigger: 'blur' }
+          // ]
         }
       }
     },
@@ -64,8 +64,8 @@
               if (data && data.code === 0) {
                 this.dataForm.dutyName = data.setScoreKbi.dutyName
                 this.dataForm.standardScore = data.setScoreKbi.standardScore
-                this.dataForm.noassessScore = data.setScoreKbi.noassessScore
-                this.dataForm.trialScore = data.setScoreKbi.trialScore
+                // this.dataForm.noassessScore = data.setScoreKbi.noassessScore
+                // this.dataForm.trialScore = data.setScoreKbi.trialScore
               }
             })
           }
@@ -80,9 +80,9 @@
               method: 'post',
               data: this.$http.adornData({
                 'dutyId': this.dataForm.dutyId || undefined,
-                'standardScore': this.dataForm.standardScore,
-                'noassessScore': this.dataForm.noassessScore,
-                'trialScore': this.dataForm.trialScore
+                'standardScore': this.dataForm.standardScore
+                // 'noassessScore': this.dataForm.noassessScore,
+                // 'trialScore': this.dataForm.trialScore
               })
             }).then(({data}) => {
               if (data && data.code === 0) {

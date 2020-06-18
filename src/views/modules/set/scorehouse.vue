@@ -5,7 +5,7 @@
         <el-button type="primary" icon="el-icon-plus" size="large" @click="addOrUpdateHandle()">新增</el-button>
       </el-form-item>
     </el-form>
-    <table class="dataTabble" border="1">
+    <table class="dataTabble" border="1" cellspacing="0">
       <thead>
       <tr class="header">
         <th colspan="5">职级认定及其房补对照表</th>

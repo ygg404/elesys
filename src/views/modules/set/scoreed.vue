@@ -4,7 +4,7 @@
       <el-button type="primary" size="large" icon="el-icon-plus" @click="addOrUpdateHandle()">新增学历分项</el-button>
     </div>
     <div style="display: flex;">
-      <table class="dataTabble" border="1">
+      <table class="dataTabble" border="1" cellspacing="0">
         <thead>
         <tr class="header">
           <th colspan="3">学制系数</th>
@@ -25,7 +25,7 @@
           </tr>
         </draggable>
       </table>
-      <table class="dataTabble" border="1">
+      <table class="dataTabble" border="1" cellspacing="0">
         <thead>
         <tr class="header">
           <th colspan="3">专业系数</th>
@@ -46,7 +46,7 @@
           </tr>
         </draggable>
       </table>
-      <table class="dataTabble" border="1">
+      <table class="dataTabble" border="1" cellspacing="0">
         <thead>
         <tr class="header">
           <th colspan="3">学历系数</th>

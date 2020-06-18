@@ -15,7 +15,6 @@
           <el-tag type="success" v-if="isPost">已提交</el-tag>
         </el-form-item>
         <el-form-item>
-          <el-button icon="el-icon-s-data" size="large" type="primary">效能评分统计表</el-button>
         </el-form-item>
       </el-form>
       <div style="text-align: center;margin-bottom: 10px;">
