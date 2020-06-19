@@ -55,21 +55,37 @@
               </div>
             </div>
             <div class="table_set">
-              <el-table border :data="userValueList" :id="Math.random()">
-                <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>
-                <el-table-column prop="mdeputyId" header-align="center" align="center" label="是否为主负责人" >
-                  <template  slot-scope="scope">
-                    <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.mdeputyId"
-                                 @change="mdeputyChangeHandle(scope.row)"></el-checkbox>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="sdeputyId" header-align="center" align="center" label="是否为副负责人">
-                  <template  slot-scope="scope">
-                    <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.sdeputyId"
-                                 @change="sdeputyChangeHandle(scope.row)"></el-checkbox>
-                  </template>
-                </el-table-column>
-              </el-table>
+              <table border="1" cellspacing="0" cellpadding="0" style="text-align: center">
+                <tr>
+                  <th>姓名</th><th>是否为主负责人</th><th>是否为副负责人</th>
+                </tr>
+                <tr v-for="item in userAllList" :id="item.userId" v-if="item.checked">
+                  <td>{{item.username}}</td>
+                  <td>
+                    <el-checkbox :key="Math.random()" :checked="item.userId === dataForm.mdeputyId"
+                                 @change="mdeputyChangeHandle(item)"></el-checkbox>
+                  </td>
+                  <td>
+                    <el-checkbox :key="Math.random()" :checked="item.userId === dataForm.sdeputyId"
+                                 @change="sdeputyChangeHandle(item)"></el-checkbox>
+                  </td>
+                </tr>
+              </table>
+<!--              <el-table border :data="userAllList" :id="Math.random()">-->
+<!--                <el-table-column prop="username" header-align="center" align="center" label="姓名"></el-table-column>-->
+<!--                <el-table-column prop="mdeputyId" header-align="center" align="center" label="是否为主负责人" >-->
+<!--                  <template  slot-scope="scope">-->
+<!--                    <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.mdeputyId"-->
+<!--                                 @change="mdeputyChangeHandle(scope.row)"></el-checkbox>-->
+<!--                  </template>-->
+<!--                </el-table-column>-->
+<!--                <el-table-column prop="sdeputyId" header-align="center" align="center" label="是否为副负责人">-->
+<!--                  <template  slot-scope="scope">-->
+<!--                    <el-checkbox :key="Math.random()" :checked="scope.row.userId === dataForm.sdeputyId"-->
+<!--                                 @change="sdeputyChangeHandle(scope.row)"></el-checkbox>-->
+<!--                  </template>-->
+<!--                </el-table-column>-->
+<!--              </el-table>-->
             </div>
 
 
@@ -164,6 +180,7 @@
                     let userItem = userAllList.find(item => item.userId === user.userId)
                     if (!stringIsNull(userItem)) {
                       userValueId.push(userItem.userId)
+                      userItem['checked'] = true
                       // userValueList.push({
                       //   userId: userItem.userId,
                       //   username: userItem.username,
@@ -308,14 +325,14 @@
       // 选中用户改变
       chooseUserHandle () {
         console.log(this.userValueId)
-        let userValueList = []
         // 判断主副负责人 是否在所选中的列表中
         let mdeputyFlag = false
         let sdeputyFlag = false
         this.userAllList.forEach((item, index) => {
+          item['checked'] = false
           for (let userId of this.userValueId) {
             if (item.userId === userId) {
-              userValueList.push(item)
+              item['checked'] = true
               if (item.userId === this.dataForm.mdeputyId) mdeputyFlag = true
               if (item.userId === this.dataForm.sdeputyId) sdeputyFlag = true
             }
@@ -323,7 +340,7 @@
         })
         if(!mdeputyFlag) this.dataForm.mdeputyId = ''
         if(!sdeputyFlag) this.dataForm.sdeputyId = ''
-        this.userValueList = userValueList
+
       },
       // 主负责人选择改变
       mdeputyChangeHandle (item) {

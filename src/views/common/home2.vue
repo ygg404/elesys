@@ -1,10 +1,9 @@
 <template>
   <div class="mod-home">
-    <el-card>
+    <el-card >
       <div slot="header" class="clearfix">
         <div class="home_header_line">
           <span class="home_title">个人中心</span>
-
           <div style="float: right; ">
             <el-button type="primary" icon="el-icon-edit" @click="editRecordHandle">编辑个人资料</el-button>
             <el-button type="primary" icon="el-icon-key" @click="updatePasswordHandle">修改密码</el-button>
@@ -13,7 +12,7 @@
         </div>
       </div>
 
-      <div align="center">
+      <div align="center" >
         <div v-if="userDetail.isAudit != null" style="font-size: 12pt;"><span>审核状态：</span>
           <el-popover placement="top" width="160" v-model="auditvisible" v-if="userDetail.isAudit == 2" title="审核反馈意见">
             <p style="color: red">{{userDetail.auditMsg}}</p>
@@ -27,7 +26,7 @@
           <el-button v-if="userDetail.isAudit == 0" type="warning" size="small" @click="deleteAudit()"> 撤销审核 </el-button>
         </div>
         <!-- 基本信息表 -->
-        <table border="1" bordercolor="black" width="300" cellspacing="0" cellpadding="3">
+        <table border="1" bordercolor="black" width="300" cellspacing="0" cellpadding="3" v-loading="dataLoading">
           <tr>
             <td colspan="6" style="height:70px;">
               <div class="onetdtitlestyle" style="font-size:26px;">基本信息</div>
@@ -245,6 +244,7 @@
   export default {
     data () {
       return {
+        dataLoading: false,
         placeOptions: provinceAndCityData,
         rencordTempVisible: false,
         updatePassowrdVisible: false,
@@ -273,7 +273,8 @@
         set (val) { this.$store.commit('user/updateUserDetail', val) }
       }
     },
-    activated () {
+    created () {
+      this.dataLoading = true
       // 学历对照表信息
       this.getScoreEdList(1).then(edTypeList => {
         this.getScoreEdList(2).then(proList => {
@@ -301,6 +302,7 @@
           params: this.$http.adornParams()
         }).then(({ data }) => {
           if (data && data.code === 0) {
+            this.dataLoading = false
             this.userDetail = data.renRecordVo
             this.userDetail.edName = this.edItemList.find(item => item.id === data.renRecordVo.education).scoreName
             this.userDetail.edType = this.edTypeItemList.find(item => item.id === data.renRecordVo.educationType).scoreName

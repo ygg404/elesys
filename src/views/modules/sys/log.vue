@@ -62,6 +62,13 @@
         label="IP地址">
       </el-table-column>
       <el-table-column
+        prop="device"
+        header-align="center"
+        align="center"
+        width="150"
+        label="请求端">
+      </el-table-column>
+      <el-table-column
         prop="createDate"
         header-align="center"
         align="center"
