@@ -1,6 +1,7 @@
 <template>
+  <div>
+    <div class="span_header">参评人数:<span>{{person}}</span></div>
     <div class="user_card">
-      <div class="span_header">参评人数:<span>{{person}}</span></div>
       <el-table :data="uRoleList" border>
         <el-table-column label="用户名" prop="userName"></el-table-column>
         <el-table-column label="是否提交">
@@ -11,6 +12,7 @@
         </el-table-column>
       </el-table>
     </div>
+  </div>
 </template>
 
 <script>

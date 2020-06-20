@@ -173,7 +173,6 @@
                   this.dataForm.orderNum = info.orderNum
 
                   // 初始化所属成员和主副负责人
-                  let userValueList = []
                   let userValueId = []
                   // 获取该部门的所有成员并勾选
                   for (let user of info.userList) {
@@ -181,11 +180,6 @@
                     if (!stringIsNull(userItem)) {
                       userValueId.push(userItem.userId)
                       userItem['checked'] = true
-                      // userValueList.push({
-                      //   userId: userItem.userId,
-                      //   username: userItem.username,
-                      //   useraccount: userItem.useraccount
-                      // })
                     }
                   }
                   console.log(userValueId)

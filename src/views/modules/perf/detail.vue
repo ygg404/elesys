@@ -73,7 +73,7 @@
             <el-table-column prop="standardScore" label="效能基准分"></el-table-column>
             <el-table-column label="最终效能得分">
               <template slot-scope="scope">
-                <span>{{getFinalKbiScore(scope.row)}}</span>
+                <span style="color: #3b97d7">{{getFinalKbiScore(scope.row)}}</span>
               </template>
             </el-table-column>
           </el-table>
