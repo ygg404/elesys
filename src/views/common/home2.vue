@@ -50,25 +50,26 @@
             </td>
             <td v-if="userDetail.sex == 1"  style="text-align:center;font-size:18px;width:70px;">男</td>
             <td v-if="userDetail.sex == 2"  style="text-align:center;font-size:18px;width:70px;">女</td>
-            <td class="titlepstyle">
+            <td v-if="userDetail.sex !== 1 && userDetail.sex !== 2"  style="text-align:center;font-size:18px;width:70px;"></td>
+            <td class="titlepstyle" >
               出生日期
             </td>
             <td style="text-align:center;font-size:17px;width:140px;">
-             {{userDetail.birthday}}
+              {{userDetail.birthday}}
             </td>
           </tr>
           <tr>
-            <td>
-              <div class="titlepstyle">身份证号码</div>
+            <td class="titlepstyle">
+              身份证号码
             </td>
-            <td colspan="2">
-              <div class="contentpstyle" style="width: 250px; font-size: 18px;"
-              >{{userDetail.idNo}}</div>
+            <td colspan="2" class="contentpstyle" style="width: 250px;">
+              {{userDetail.idNo}}
             </td>
             <td>
               <div class="titlepstyle">籍贯</div>
             </td>
-            <td colspan="2">
+            <!--这里不要更改-->
+            <td colspan="2" >
               <div
                 class="contentpstyle"
                 style="width:180px;"
@@ -77,14 +78,14 @@
           </tr>
 
           <tr>
-            <td>
-              <div class="titlepstyle">联系电话</div>
+            <td class="titlepstyle">
+             联系电话
             </td>
             <td colspan="2" class="contentpstyle" style="width: 250px;">
               {{userDetail.mobile}}
             </td>
-            <td>
-              <div class="titlepstyle">邮箱</div>
+            <td class="titlepstyle">
+              邮箱
             </td>
             <td colspan="2" class="contentpstyle" style="width: 250px;">
               {{userDetail.email}}
@@ -119,9 +120,9 @@
           </tr>
           <tr>
             <td><div class="titlepstyle">入职时间</div></td>
-            <td><div class="contentpstyle" style="margin-left:20px;font-size: 18px;">{{userDetail.entryTime}}</div></td>
-            <td><div class="titlepstyle">职称</div></td>
-            <td colspan="2"><div class="contentpstyle" style="width:170px;">{{userDetail.titleName}}</div></td>
+            <td class="contentpstyle">{{userDetail.entryTime}}</td>
+            <td class="titlepstyle">职称</td>
+            <td colspan="2" class="contentpstyle" style="width:170px;">{{userDetail.titleName}}</td>
             <td><div class="titlepstyle">职务</div></td>
             <td><div class="contentpstyle" style="width:170px;" >{{userDetail.duty}}</div></td>
           </tr>
@@ -146,33 +147,24 @@
           </tr>
           <!--教育背景动态数据-->
           <tr v-for="(v,i) in edBackgroundList" :key="i">
-            <td colspan="2">
-              <div
-                class="contentpstylelasttwo"
-                style="margin-left:30px;"
-              >{{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}</div>
+            <td colspan="2"  class="contentpstylelasttwo" style="margin-left:30px;">
+              {{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}
             </td>
-            <td colspan="3">
-              <div class="contentpstylelasttwo" style="margin-left: 30px;">{{v.educationSchool}}</div>
+            <td colspan="3" class="contentpstylelasttwo" style="margin-left: 30px;">
+              {{v.educationSchool}}
             </td>
-            <td colspan="1">
-              <div
-                class="contentpstylelasttwo"
-                style="margin-left:30px;"
-              >{{v.educationBackground}}</div>
+            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+              {{v.educationBackground}}
             </td>
-            <td colspan="1">
-              <div
-                class="contentpstylelasttwo"
-                style="margin-left:30px;"
-              >{{v.major}}</div>
+            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+              {{v.major}}
             </td>
           </tr>
 
           <!--工作经历模块-->
           <tr>
             <td colspan="7" class="onetdtitlestyle">
-             工作经历
+              工作经历
             </td>
           </tr>
           <tr>
@@ -180,38 +172,29 @@
               起止时间
             </td>
             <td colspan="3" class="titlepstyle">
-               工作单位名称
+              工作单位名称
             </td>
             <td colspan="1" class="titlepstyle">
-             职务
+              职务
             </td>
             <td colspan="1" class="titlepstyle">
-             工作内容
+              工作内容
             </td>
 
           </tr>
           <!--工作经历动态数据-->
           <tr v-for="(v,i) in workBackgroundList" :key="i">
-            <td colspan="2">
-              <div
-                class="contentpstylelasttwo"
-                style="margin-left:30px;"
-              >{{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}</div>
+            <td colspan="2"  class="contentpstylelasttwo" style="margin-left:30px;">
+              {{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}
             </td>
-            <td colspan="3">
-              <div class="contentpstylelasttwo" style="margin-left:30px;">{{v.company}}</div>
+            <td colspan="3" class="contentpstylelasttwo" style="margin-left:30px;">
+              {{v.company}}
             </td>
-            <td colspan="1">
-              <div
-                class="contentpstylelasttwo"
-                style="margin-left:30px;"
-              >{{v.jobPosition}}</div>
+            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+              {{v.jobPosition}}
             </td>
-            <td colspan="1">
-              <div
-                class="contentpstylelasttwo"
-                style="margin-left:30px;"
-              >{{v.jobDescription}}</div>
+            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+              {{v.jobDescription}}
             </td>
           </tr>
         </table>
@@ -473,13 +456,7 @@
     color: rgb(0, 0, 0);
     font-style: normal;
     font-size: 16px;
-    display: block;
-    float: left;
     text-align: center;
-    -webkit-box-align: stretch;
-    -ms-flex-align: stretch;
-    align-items: stretch;
-    word-wrap: break-word;
   }
   /**审核图片样式 */
   .audit_img_style {
