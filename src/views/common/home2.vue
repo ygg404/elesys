@@ -28,8 +28,9 @@
         <!-- 基本信息表 -->
         <table border="1" bordercolor="black" width="300" cellspacing="0" cellpadding="3" v-loading="dataLoading">
           <tr>
-            <td colspan="6" style="height:70px;">
-              <div class="onetdtitlestyle" style="font-size:26px;">基本信息</div>
+            <td colspan="6" style="height:70px;text-align:center;font-size:24px;font-weight: bold;">
+              基本信息
+              <!--<div class="onetdtitlestyle" style="font-size:26px;">基本信息</div>-->
             </td>
             <td rowspan="4">
               <div style="width:170px;">
@@ -138,7 +139,7 @@
 
           <!--教育背景模块-->
           <tr>
-            <td colspan="7"><div class="onetdtitlestyle">教育背景</div></td>
+            <td colspan="7" class="onetdtitlestyle">教育背景</td>
           </tr>
           <tr>
             <td colspan="2"><div class="titlepstyle" style="margin-left:80px;">起止时间</div></td>
@@ -173,8 +174,8 @@
 
           <!--工作经历模块-->
           <tr>
-            <td colspan="7">
-              <div class="onetdtitlestyle">工作经历</div>
+            <td colspan="7" class="onetdtitlestyle">
+             工作经历
             </td>
           </tr>
           <tr>
@@ -462,14 +463,11 @@
     font-weight: bold;
   }
   .onetdtitlestyle {
-    height: 35px;
-    width: 105px;
+    font-size: 21px; height: 35px;
     line-height: 35px;
-    font-size: 21px;
     font-family: Arial, Verdana, Sans-serif;
     font-weight: bold;
     text-align: center;
-    margin-left: 350px;
   }
   .contentpstyle {
     padding: 2px;
