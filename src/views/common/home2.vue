@@ -39,100 +39,97 @@
           </tr>
 
           <tr>
-            <td class="titlepstyle">
+            <td class="tps">
               姓名
             </td>
-            <td>
-              <div class="contentpstyle" style="width: 80px;margin-left:35px;">{{userDetail.username}}</div>
+            <td class="ctps" style="min-width: 140px;">
+              {{userDetail.username}}
             </td>
-            <td class="titlepstyle">
+            <td class="tps">
               性别
             </td>
-            <td v-if="userDetail.sex == 1"  style="text-align:center;font-size:18px;width:70px;">男</td>
-            <td v-if="userDetail.sex == 2"  style="text-align:center;font-size:18px;width:70px;">女</td>
+            <td v-if="userDetail.sex == 1"  style="text-align:center;font-size:18px;min-width:91px;">男</td>
+            <td v-if="userDetail.sex == 2"  style="text-align:center;font-size:18px;min-width:91px;">女</td>
             <td v-if="userDetail.sex !== 1 && userDetail.sex !== 2"  style="text-align:center;font-size:18px;width:70px;"></td>
-            <td class="titlepstyle" >
+            <td class="tps" >
               出生日期
             </td>
-            <td style="text-align:center;font-size:17px;width:140px;">
+            <td style="text-align:center;font-size:17px;min-width:120px;">
               {{userDetail.birthday}}
             </td>
           </tr>
           <tr>
-            <td class="titlepstyle">
+            <td class="tps">
               身份证号码
             </td>
-            <td colspan="2" class="contentpstyle" style="width: 250px;">
+            <td colspan="2" class="ctps" style="min-width: 250px;">
               {{userDetail.idNo}}
             </td>
             <td>
-              <div class="titlepstyle">籍贯</div>
+              <div class="tps">籍贯</div>
             </td>
             <!--这里不要更改-->
-            <td colspan="2" >
-              <div
-                class="contentpstyle"
-                style="width:180px;"
-              >{{getPlaceName(userDetail.nativeProvince,userDetail.nativeCity)}}</div>
+            <td colspan="2" class="ctps" style="min-width:180px;">
+              {{getPlaceName(userDetail.nativeProvince,userDetail.nativeCity)}}
             </td>
           </tr>
 
           <tr>
-            <td class="titlepstyle">
-             联系电话
+            <td class="tps">
+              联系电话
             </td>
-            <td colspan="2" class="contentpstyle" style="width: 250px;">
+            <td colspan="2" class="ctps" style="width: 250px;">
               {{userDetail.mobile}}
             </td>
-            <td class="titlepstyle">
+            <td class="tps">
               邮箱
             </td>
-            <td colspan="2" class="contentpstyle" style="width: 250px;">
+            <td colspan="2" class="ctps" style="width: 250px;">
               {{userDetail.email}}
             </td>
           </tr>
 
           <tr>
-            <td class="titlepstyle">
+            <td class="tps">
               婚姻状况
             </td>
             <td>
-              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 0">未婚</div>
-              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 1">已婚</div>
-              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 2">离异</div>
-              <div class="contentpstyle" style="width:140px;" v-if="userDetail.maritalStatus == 3">丧偶</div>
+              <div class="ctps" style="width:140px;" v-if="userDetail.maritalStatus == 0">未婚</div>
+              <div class="ctps" style="width:140px;" v-if="userDetail.maritalStatus == 1">已婚</div>
+              <div class="ctps" style="width:140px;" v-if="userDetail.maritalStatus == 2">离异</div>
+              <div class="ctps" style="width:140px;" v-if="userDetail.maritalStatus == 3">丧偶</div>
             </td>
             <td>
-              <div class="titlepstyle">工作类型</div>
+              <div class="tps">工作类型</div>
             </td>
             <td colspan="2">
-              <div class="contentpstyle" style="width:170px;" v-if="userDetail.jobType == 1">全职</div>
-              <div class="contentpstyle" style="width:170px;" v-if="userDetail.jobType == 2">兼职</div>
-              <div class="contentpstyle" style="width:170px;" v-if="userDetail.jobType == 3">实习</div>
+              <div class="ctps" style="width:170px;" v-if="userDetail.jobType == 1">全职</div>
+              <div class="ctps" style="width:170px;" v-if="userDetail.jobType == 2">兼职</div>
+              <div class="ctps" style="width:170px;" v-if="userDetail.jobType == 3">实习</div>
             </td>
-            <td class="titlepstyle">
+            <td class="tps">
               住房类型
             </td>
             <td>
-              <div class="contentpstyle" style="width:170px;" v-if="userDetail.houseType == 1">本地居民</div>
-              <div class="contentpstyle" style="width:170px;" v-if="userDetail.houseType == 2">租房</div>
+              <div class="ctps" style="width:170px;" v-if="userDetail.houseType == 1">本地居民</div>
+              <div class="ctps" style="width:170px;" v-if="userDetail.houseType == 2">租房</div>
             </td>
           </tr>
           <tr>
-            <td><div class="titlepstyle">入职时间</div></td>
-            <td class="contentpstyle">{{userDetail.entryTime}}</td>
-            <td class="titlepstyle">职称</td>
-            <td colspan="2" class="contentpstyle" style="width:170px;">{{userDetail.titleName}}</td>
-            <td><div class="titlepstyle">职务</div></td>
-            <td><div class="contentpstyle" style="width:170px;" >{{userDetail.duty}}</div></td>
+            <td><div class="tps">入职时间</div></td>
+            <td class="ctps">{{userDetail.entryTime}}</td>
+            <td class="tps">职称</td>
+            <td colspan="2" class="ctps" style="width:170px;">{{userDetail.titleName}}</td>
+            <td class="tps">职务</td>
+            <td class="ctps" style="width:170px;" >{{userDetail.duty}}</td>
           </tr>
           <tr>
-            <td><div class="titlepstyle">最高学历</div></td>
-            <td><div class="contentpstyle" style="margin-left:20px;font-size: 18px;">{{userDetail.edName}}</div></td>
-            <td><div class="titlepstyle">学制</div></td>
-            <td colspan="2"><div class="contentpstyle" style="margin-left:10px;text-align: center">{{userDetail.edType}}</div></td>
-            <td><div class="titlepstyle">专业系数</div></td>
-            <td><div class="contentpstyle" style="margin-left:20px;font-size: 18px;">{{userDetail.proItem}}</div></td>
+            <td><div class="tps">最高学历</div></td>
+            <td class="tps">{{userDetail.edName}}</td>
+            <td class="tps">学制</td>
+            <td colspan="2" class="ctps">{{userDetail.edType}}</td>
+            <td class="tps">专业系数</td>
+            <td class="ctps">{{userDetail.proItem}}</td>
           </tr>
 
           <!--教育背景模块-->
@@ -140,23 +137,23 @@
             <td colspan="7" class="onetdtitlestyle">教育背景</td>
           </tr>
           <tr>
-            <td colspan="2" class="titlepstyle">起止时间</td>
-            <td colspan="3" class="titlepstyle">毕业学校</td>
-            <td colspan="1" class="titlepstyle">学历</td>
-            <td colspan="1" class="titlepstyle">专业</td>
+            <td colspan="2" class="tps">起止时间</td>
+            <td colspan="3" class="tps">毕业学校</td>
+            <td colspan="1" class="tps">学历</td>
+            <td colspan="1" class="tps">专业</td>
           </tr>
           <!--教育背景动态数据-->
           <tr v-for="(v,i) in edBackgroundList" :key="i">
-            <td colspan="2"  class="contentpstylelasttwo" style="margin-left:30px;">
+            <td colspan="2"  class="ctpslasttwo" style="margin-left:30px;">
               {{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}
             </td>
-            <td colspan="3" class="contentpstylelasttwo" style="margin-left: 30px;">
+            <td colspan="3" class="ctpslasttwo" style="margin-left: 30px;">
               {{v.educationSchool}}
             </td>
-            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+            <td colspan="1"  class="ctpslasttwo" style="margin-left:30px;">
               {{v.educationBackground}}
             </td>
-            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+            <td colspan="1"  class="ctpslasttwo" style="margin-left:30px;">
               {{v.major}}
             </td>
           </tr>
@@ -168,32 +165,32 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2" class="titlepstyle">
+            <td colspan="2" class="tps">
               起止时间
             </td>
-            <td colspan="3" class="titlepstyle">
+            <td colspan="3" class="tps">
               工作单位名称
             </td>
-            <td colspan="1" class="titlepstyle">
+            <td colspan="1" class="tps">
               职务
             </td>
-            <td colspan="1" class="titlepstyle">
+            <td colspan="1" class="tps">
               工作内容
             </td>
 
           </tr>
           <!--工作经历动态数据-->
           <tr v-for="(v,i) in workBackgroundList" :key="i">
-            <td colspan="2"  class="contentpstylelasttwo" style="margin-left:30px;">
+            <td colspan="2"  class="ctpslasttwo" style="margin-left:30px;">
               {{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}
             </td>
-            <td colspan="3" class="contentpstylelasttwo" style="margin-left:30px;">
+            <td colspan="3" class="ctpslasttwo" style="margin-left:30px;">
               {{v.company}}
             </td>
-            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+            <td colspan="1"  class="ctpslasttwo" style="margin-left:30px;">
               {{v.jobPosition}}
             </td>
-            <td colspan="1"  class="contentpstylelasttwo" style="margin-left:30px;">
+            <td colspan="1"  class="ctpslasttwo" style="margin-left:30px;">
               {{v.jobDescription}}
             </td>
           </tr>
@@ -224,8 +221,8 @@
         rencordTempVisible: false,
         updatePassowrdVisible: false,
         auditvisible: false,
-        edBackgroundList:[],
-        workBackgroundList:[],
+        edBackgroundList: [],
+        workBackgroundList: [],
         proItemList: [],
         edItemList: [],
         edTypeItemList: [],
@@ -373,7 +370,7 @@
       editRecordHandle () {
         this.rencordTempVisible = true
         this.$nextTick(() => {
-          this.$refs.rencordTempAddOrUpdate.init(this.userId , 0)
+          this.$refs.rencordTempAddOrUpdate.init(this.userId, 0)
         })
       },
       // 修改密码
@@ -403,7 +400,7 @@
         }).catch(() => {})
       },
       // 获取省市名称
-      getPlaceName(nProvinceId, nCityId) {
+      getPlaceName (nProvinceId, nCityId) {
         let pName = ''
         for (let provinceOption of this.placeOptions) {
           if (provinceOption.value === nProvinceId) {
@@ -426,7 +423,7 @@
     font-weight: 700;
   }
 
-  .titlepstyle {
+  .tps {
     height: 30px;
     width: 90px;
     line-height: 30px;
@@ -443,14 +440,14 @@
     font-weight: bold;
     text-align: center;
   }
-  .contentpstyle {
+  .ctps {
     font-family: 宋体;
     font-style: normal;
     font-size: 18px;
     text-align: center;
 
   }
-  .contentpstylelasttwo {
+  .ctpslasttwo {
     padding: 2px;
     font-family: 宋体;
     color: rgb(0, 0, 0);
