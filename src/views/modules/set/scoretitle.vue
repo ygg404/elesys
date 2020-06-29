@@ -15,8 +15,8 @@
       <tr class="field">
         <td>职称</td><td>分数</td><td>操作</td>
       </tr>
-      <draggable v-model="titleList" element="tbody" :move="getdata" @update="datadragEnd">
-        <tr v-for="(item,id) in titleList" :key="item.id" class="content">
+      <draggable v-model="jobList" element="tbody" :move="getdata" @update="datadragEnd">
+        <tr v-for="(item,id) in jobList" :key="item.id" class="content" v-if="item.cateid == 1">
           <td>{{item.jobTitle}}</td>
           <td>{{item.score}}</td>
           <td width="150">
@@ -38,8 +38,8 @@
       <tr class="field">
         <td>职称专业系数</td><td>分数</td><td>操作</td>
       </tr>
-      <draggable v-model="titleProList" element="tbody" :move="getdata" @update="datadragEnd">
-        <tr v-for="(item,id) in titleProList" :key="item.id" class="content">
+      <draggable v-model="jobList" element="tbody" :move="getdata" @update="datadragEnd">
+        <tr v-for="(item,id) in jobList" :key="item.id" class="content" v-if="item.cateid == 2">
           <td>{{item.jobTitle}}</td>
           <td>{{item.score}}</td>
           <td width="150">
@@ -64,6 +64,7 @@
   export default {
     data () {
       return {
+        jobList: [],
         titleList: [],
         titleProList: [],
         dataListLoading: false,
@@ -88,18 +89,9 @@
           params: this.$http.adornParams({})
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.titleList = []
-            this.titleProList = []
-            for (let dat of data.list) {
-              if (dat.cateid === 1) {
-                this.titleList.push(dat)
-              } else if (dat.cateid === 2) {
-                this.titleProList.push(dat)
-              }
-            }
+            this.jobList = data.list
           } else {
-            this.titleList = []
-            this.titleProList = []
+            this.jobList = []
           }
           this.dataListLoading = false
         })
