@@ -272,6 +272,7 @@
       projectgroupAddOrUpdate
     },
     activated () {
+      // console.log(this.$router.params.projectNo)
       this.init()
     },
     methods: {
@@ -904,7 +905,10 @@
       // 返回
       goBack () {
         closeTab('project-editallocation')
-        this.$router.push('project-project')
+        this.$router.push({
+          path: 'project-project',
+          params: { pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       }
     },
     watch: {

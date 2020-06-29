@@ -5,7 +5,7 @@
         <el-input v-model="dataForm.key" placeholder="用户名" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="pageIndex=1,getDataList()">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dataList" border v-loading="dataListLoading" @expand-change="recordLoadHandle" style="width: 100%;"  >

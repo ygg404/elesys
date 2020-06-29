@@ -12,7 +12,7 @@
           <el-radio :label="6" :disabled="!isAuth('project:authorize:list')">项目审定</el-radio>
         </el-radio-group>
       </div>
-      <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()" style="width: 100%;">
+      <el-form :inline="true" :model="dataForm" style="width: 100%;">
         <el-select v-model="dataForm.dateItemId" placeholder="时间类型" style="width: 135px;" @change="getDataList"
                    class="select_btn">
           <el-option v-for="item in dateItemList" :label="item.dateItem" :key="item.id" :value="item.id"></el-option>
@@ -30,7 +30,7 @@
           <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable style="width: 150px;"  @change="pageIndex = 1,getDataList()"></el-input>
         </el-form-item>
         <el-form-item style="margin-left: -10px;">
-          <el-button @click="getDataList()">查询</el-button>
+          <el-button @click="pageIndex = 1,getDataList()">查询</el-button>
           <el-button @click="exportProjectExcel()" type="success">导出Excel</el-button>
         </el-form-item>
         <el-form-item style="float: right">
@@ -263,7 +263,7 @@
   import moment from 'moment'
   import projectscheduleAddOrUpdate from './projectschedule-add-or-update'
   import backworkAddOrUpdate from './backwork-add-or-update'
-  import {isAuth} from '../../../utils'
+  import {isAuth, stringIsNull} from '../../../utils'
 
   export default {
     data () {
@@ -338,6 +338,7 @@
         this.dataForm.endDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
         this.changeStart()
       }
+
       this.getDataList()
       this.getProjectTypeList()
     },
@@ -364,6 +365,8 @@
       },
       // 获取数据列表
       getDataList () {
+        this.$cookie.set('pageIndex',this.pageIndex)
+        console.log(this.$cookie.get('pageIndex'))
         let startDate = ''
         let endDate = ''
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
@@ -541,7 +544,9 @@
       // 编辑安排
       editProjectHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        this.$router.push({path: '/project-editallocation', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-editallocation',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 编辑工作
       editWorkHandle (item) {
@@ -562,22 +567,30 @@
           })
           return
         }
-        this.$router.push({path: '/project-editwork', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-editwork',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 作业任务单打印
       printWorkHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        this.$router.push({path: '/project-printwork', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-printwork',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 质检单打印
       printCheckHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        this.$router.push({path: '/project-printcheck', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-printcheck',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 任务流程单打印
       printProjectHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        this.$router.push({path: '/project-printproject', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-printproject',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 编辑质量检查
       editQualityHandle (item) {
@@ -588,26 +601,36 @@
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
+            this.$router.push({path: '/project-editquality',
+              query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+            })
           })
         } else {
-          this.$router.push({path: '/project-editquality', query: {projectNo: item.projectNo}})
+          this.$router.push({path: '/project-editquality',
+            query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+          })
         }
       },
       // 编辑质量审核
       editQualityAuthHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        this.$router.push({path: '/project-editqualityauth', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-editqualityauth',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 编辑产值核算
       editOutputHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        this.$router.push({path: '/project-editoutput', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-editoutput',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 编辑项目审定
       editExamineHandle (item) {
         this.$cookie.set('jxrole', this.roleradio)
-        this.$router.push({path: '/project-editauthorize', query: {projectNo: item.projectNo}})
+        this.$router.push({path: '/project-editauthorize',
+          query: {projectNo: item.projectNo, pageIndex: this.pageIndex, pageSize: this.pageSize}
+        })
       },
       // 产值统计表
       outputChartHandle () {

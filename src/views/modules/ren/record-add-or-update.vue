@@ -67,18 +67,27 @@
             <div class="card_detail_img_add"><i class="el-icon-plus addplus"></i></div>
             <input type="file" class="card_detail_img_input" accept="image/*" @change="compressImgHandle"/>
           </div>
-          <el-form-item label="职称等级" prop="titleLever" style="margin-top: 20px;">
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="职称等级" prop="titleLever" >
             <el-select v-model="dataForm.titleLever" placeholder="请选择职称等级" class="card_detail_input">
               <el-option v-for="item in titleItemList" :label="item.jobTitle" :key="item.id"
                          :value="item.id"></el-option>
+            </el-select>、
+            <el-select v-model="dataForm.titlePro" placeholder="职称专业系数" class="card_detail_input" style="width: 130px;">
+              <el-option v-for="item in titleProList" :label="item.jobTitle" :key="item.id"
+                         :value="item.id"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="职务" prop="titleLever" style="margin-top: 20px;">
-            <el-select v-model="dataForm.dutyId" placeholder="请选择职务" class="card_detail_input">
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="职务" prop="dutyId">
+            <el-select v-model="dataForm.dutyId" placeholder="请选择职务" class="card_detail_input" >
               <el-option v-for="item in dutyItemList" :label="item.duty" :key="item.id" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
-
         </el-col>
       </el-row>
       <el-row>
@@ -205,6 +214,7 @@
         edTypeItemList: [],
         dutyItemList: [], // 职务列表
         titleItemList: [], // 职称列表
+        titleProList: [],
         placeOptions: provinceAndCityData,
         dataForm: {
           userId: 0,
@@ -220,6 +230,7 @@
           educationType: '',
           educationTime: '',
           titleLever: '',
+          titlePro: '',
           email: '',
           mobile: '',
           trialPeriod: '',
@@ -270,6 +281,9 @@
           ],
           maritalStatus: [
             {required: true, message: '婚姻状况不能为空', trigger: 'blur'}
+          ],
+          dutyId: [
+            {required: true, message: '职务不能为空', trigger: 'blur'}
           ]
         }
       }
@@ -289,8 +303,11 @@
           this.getScoreEdList(3).then(list => {
             this.edItemList = list
           })
-          this.getJobTypeList().then(list => {
+          this.getJobTypeList(1).then(list => {
             this.titleItemList = list
+          })
+          this.getJobTypeList(2).then(list => {
+            this.titleProList = list
           })
           this.getScoreDutyList().then(list => {
             this.dutyItemList = list
@@ -318,6 +335,7 @@
                 this.dataForm.educationTime = data.renRecordVo.educationTime
                 this.dataForm.proRatio = data.renRecordVo.proRatio
                 this.dataForm.titleLever = data.renRecordVo.titleLever
+                this.dataForm.titlePro = data.renRecordVo.titlePro
                 this.dataForm.dutyId = data.renRecordVo.dutyId
                 this.dataForm.email = data.renRecordVo.email
                 this.dataForm.mobile = data.renRecordVo.mobile
@@ -449,12 +467,14 @@
         })
       },
       // 获取职称表
-      getJobTypeList () {
+      getJobTypeList (cateId) {
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl('/set/scoretitle/list'),
             method: 'get',
-            params: this.$http.adornParams({})
+            params: this.$http.adornParams({
+              cateid: cateId
+            })
           }).then(({data}) => {
             if (data && data.code === 0) {
               resolve(data.list)

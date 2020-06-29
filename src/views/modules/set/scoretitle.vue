@@ -5,6 +5,7 @@
         <el-button type="primary" icon="el-icon-plus" size="large" @click="addOrUpdateHandle()">新增</el-button>
       </el-form-item>
     </el-form>
+    <div style="display: flex;">
     <table class="dataTabble" border="1" cellspacing="0">
       <thead>
       <tr class="header">
@@ -14,8 +15,8 @@
       <tr class="field">
         <td>职称</td><td>分数</td><td>操作</td>
       </tr>
-      <draggable v-model="jobList" element="tbody" :move="getdata" @update="datadragEnd">
-        <tr v-for="(item,id) in jobList" :key="item.id" class="content">
+      <draggable v-model="titleList" element="tbody" :move="getdata" @update="datadragEnd">
+        <tr v-for="(item,id) in titleList" :key="item.id" class="content">
           <td>{{item.jobTitle}}</td>
           <td>{{item.score}}</td>
           <td width="150">
@@ -27,6 +28,30 @@
         </tr>
       </draggable>
     </table>
+
+    <table class="dataTabble" border="1" cellspacing="0" style="width:400px;margin-left: 4px;">
+      <thead>
+      <tr class="header">
+        <th colspan="5">职称专业系数分对照表</th>
+      </tr>
+      </thead>
+      <tr class="field">
+        <td>职称专业系数</td><td>分数</td><td>操作</td>
+      </tr>
+      <draggable v-model="titleProList" element="tbody" :move="getdata" @update="datadragEnd">
+        <tr v-for="(item,id) in titleProList" :key="item.id" class="content">
+          <td>{{item.jobTitle}}</td>
+          <td>{{item.score}}</td>
+          <td width="150">
+            <div class="tabopa">
+              <el-button @click="addOrUpdateHandle(item.id)" size="small" type="primary">修改</el-button>
+              <el-button @click="deleteHandle(item)" size="small" type="danger">删除</el-button>
+            </div>
+          </td>
+        </tr>
+      </draggable>
+    </table>
+    </div>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
   </div>
@@ -39,7 +64,8 @@
   export default {
     data () {
       return {
-        jobList: [],
+        titleList: [],
+        titleProList: [],
         dataListLoading: false,
         dataListSelections: [],
         addOrUpdateVisible: false
@@ -62,9 +88,18 @@
           params: this.$http.adornParams({})
         }).then(({data}) => {
           if (data && data.code === 0) {
-            this.jobList = data.list
+            this.titleList = []
+            this.titleProList = []
+            for (let dat of data.list) {
+              if (dat.cateid === 1) {
+                this.titleList.push(dat)
+              } else if (dat.cateid === 2) {
+                this.titleProList.push(dat)
+              }
+            }
           } else {
-            this.jobList = []
+            this.titleList = []
+            this.titleProList = []
           }
           this.dataListLoading = false
         })

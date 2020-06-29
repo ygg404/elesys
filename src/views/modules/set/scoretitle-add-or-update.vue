@@ -4,6 +4,12 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" label-width="110px">
+      <el-form-item label="类别" prop="cateid">
+        <el-radio-group v-model="dataForm.cateid">
+          <el-radio :label="1">职称等级</el-radio>
+          <el-radio :label="2">职称专业系数</el-radio>
+        </el-radio-group>
+      </el-form-item>
       <el-form-item label="职称名称" prop="jobTitle">
         <el-input v-model="dataForm.jobTitle" placeholder="职称名称"></el-input>
       </el-form-item>
@@ -27,9 +33,13 @@
           id: 0,
           jobTitle: '',
           score: '',
-          orderNum: ''
+          orderNum: '',
+          cateid: ''
         },
         dataRule: {
+          cateid: [
+            { required: true, message: '类别不能为空', trigger: 'blur' }
+          ],
           jobTitle: [
             { required: true, message: '职称名称不能为空', trigger: 'blur' }
           ],
@@ -52,6 +62,7 @@
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
+                this.dataForm.cateid = data.renScoreTitle.cateid
                 this.dataForm.jobTitle = data.renScoreTitle.jobTitle
                 this.dataForm.score = data.renScoreTitle.score
                 this.dataForm.orderNum = data.renScoreTitle.orderNum
@@ -71,6 +82,7 @@
                 'id': this.dataForm.id || undefined,
                 'jobTitle': this.dataForm.jobTitle,
                 'score': this.dataForm.score,
+                'cateid': this.dataForm.cateid,
                 'orderNum': this.dataForm.orderNum
               })
             }).then(({data}) => {

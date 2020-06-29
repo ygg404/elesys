@@ -71,14 +71,24 @@
               </div>
             </div>
           </div>
-          <el-form-item label="职称等级" prop="titleLever" style="margin-top: 20px;">
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="职称等级" prop="titleLever" >
             <el-select v-model="dataForm.titleLever" placeholder="请选择职称等级" class="card_detail_input">
               <el-option v-for="item in titleItemList" :label="item.jobTitle" :key="item.id"
                          :value="item.id"></el-option>
+            </el-select>、
+            <el-select v-model="dataForm.titlePro" placeholder="职称专业系数" class="card_detail_input" style="width: 130px;">
+              <el-option v-for="item in titleProList" :label="item.jobTitle" :key="item.id"
+                         :value="item.id"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="职务" prop="titleLever" style="margin-top: 20px;">
-            <el-select v-model="dataForm.dutyId" placeholder="请选择职务" class="card_detail_input">
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="职务" prop="dutyId">
+            <el-select v-model="dataForm.dutyId" placeholder="请选择职务" class="card_detail_input" >
               <el-option v-for="item in dutyItemList" :label="item.duty" :key="item.id" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
@@ -222,6 +232,7 @@
         edTypeItemList: [],
         dutyItemList: [], // 职务列表
         titleItemList: [], // 职称列表
+        titleProList: [], // 职称专业列表
         jobItemList: getJobItem(),
         maritalItemList: getMaritalItem(),
         placeOptions: provinceAndCityData,
@@ -243,6 +254,7 @@
           educationType: '',
           educationTime: '',
           titleLever: '',
+          titlePro: '',
           email: '',
           mobile: '',
           trialPeriod: '',
@@ -298,6 +310,9 @@
           ],
           educationTime: [
             {required: true, message: '毕业时间不能为空！', trigger: 'blur'}
+          ],
+          titlePro: [
+            {required: true, message: '职称专业系数不能为空！', trigger: 'blur'}
           ]
         }
       }
@@ -318,7 +333,17 @@
             this.edItemList = list
           })
           this.getJobTypeList().then(list => {
-            this.titleItemList = list
+            let titleProList = []
+            let titleItemList = []
+            for (let dat of list) {
+              if (dat.cateid === 1) {
+                titleItemList.push(dat)
+              } else if (dat.cateid === 2) {
+                titleProList.push(dat)
+              }
+            }
+            this.titleItemList = titleItemList
+            this.titleProList = titleProList
           })
           this.getScoreDutyList().then(list => {
             this.dutyItemList = list
@@ -346,6 +371,7 @@
                 this.dataForm.education = data.renRecordVo.education
                 this.dataForm.proRatio = data.renRecordVo.proRatio
                 this.dataForm.titleLever = data.renRecordVo.titleLever
+                this.dataForm.titlePro = data.renRecordVo.titlePro
                 this.dataForm.email = data.renRecordVo.email
                 this.dataForm.mobile = data.renRecordVo.mobile
                 this.dataForm.trialPeriod = data.renRecordVo.trialPeriod
