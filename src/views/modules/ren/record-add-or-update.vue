@@ -107,7 +107,7 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="毕业时间" prop="educationTime">
-            <el-date-picker v-model="dataForm.educationTime" type="month"></el-date-picker>
+            <el-date-picker v-model="dataForm.educationTime" type="date" value-format="yyyy-MM-dd"></el-date-picker>
           </el-form-item>
         </el-col>
         <el-col :span="3"></el-col>

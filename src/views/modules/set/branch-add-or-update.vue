@@ -219,6 +219,13 @@
       dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            let userValueList = []
+            for (let user of this.userAllList) {
+              for (let userValue of this.userValueId) {
+                if (userValue === user.userId) userValueList.push(user)
+              }
+            }
+            console.log(userValueList)
             this.$http({
               url: this.$http.adornUrl(`/set/branch/${!this.dataForm.id ? 'save' : 'update'}`),
               method: 'post',
@@ -229,7 +236,7 @@
                 'mdeputyId': this.dataForm.mdeputyId,
                 'sdeputyId': this.dataForm.sdeputyId,
                 'orderNum': this.dataForm.orderNum,
-                'userList': this.userValueList
+                'userList': userValueList
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
