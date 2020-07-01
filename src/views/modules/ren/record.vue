@@ -177,8 +177,8 @@
                         </el-col>
                         <el-col :span="16">
                           <el-tag v-if="scope.row.jobType === 1" type="primary">全职</el-tag>
-                          <el-tag v-else-if="scope.row.jobType === 2" type="success">兼职</el-tag>
-                          <el-tag v-else-if="scope.row.jobType === 3" type="info">实习</el-tag>
+                          <el-tag v-if="scope.row.jobType === 2" type="success">兼职</el-tag>
+                          <el-tag v-if="scope.row.jobType === 3" type="info">实习</el-tag>
                         </el-col>
                       </el-row>
                     </el-col>
