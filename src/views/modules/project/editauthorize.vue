@@ -44,6 +44,8 @@
   export default {
     data () {
       return {
+        argsPageIndex: this.$route.query.pageIndex,
+        argsPageSize: this.$route.query.pageSize,
         projectInfo: '',
         projectNo: this.$route.query.projectNo,
         dataForm: {
@@ -145,11 +147,12 @@
           this.dataForm.examineNote = ''
           this.saveForm()
         })
-
       },
       // 返回
       goBack () {
         closeTab('project-editauthorize')
+        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
+        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
         this.$router.push('project-project')
       }
     },

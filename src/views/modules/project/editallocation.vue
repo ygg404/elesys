@@ -204,13 +204,15 @@
 <script>
   import projectgroupAddOrUpdate from './projectgroup-add-or-update'
   import {closeTab} from '@/utils/tabs'
-  import {stringIsNull,treeDataTranslate} from '@/utils'
+  import {stringIsNull, treeDataTranslate} from '@/utils'
   import moment from 'moment'
 
   export default {
     data () {
       return {
         projectNo: this.$route.query.projectNo,
+        argsPageIndex: this.$route.query.pageIndex,
+        argsPageSize: this.$route.query.pageSize,
         projectGroupVisible: false,
         ptValue: [],
         outputCalVisible: false, // 产值明细计算
@@ -276,7 +278,7 @@
       this.init()
     },
     methods: {
-      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
         if (columnIndex >= 1 && columnIndex <= 4) {
           if (row.isFirst || rowIndex === 0) {
             return {
@@ -297,7 +299,7 @@
         this.getExecutelist()
         this.getWorkNotelist()
         this.getWorkRequireList()
-        this.getWorkGroupDataListFromApi().then( grouplist => {
+        this.getWorkGroupDataListFromApi().then(grouplist => {
           this.getProjectDataCoe().then(coeList => {
             this.projectCoeInit(grouplist, coeList)
           })
@@ -334,7 +336,6 @@
               sum += value
             }
             sums[index] = sum
-            return
           }
         })
         return sums
@@ -399,8 +400,8 @@
         return childList
       },
       // 组内安排产值与未安排产值表格 初始化
-      projectCoeInit (grouplist,coelist) {
-        let branchChildList = this.getBranchChildList(treeDataTranslate(grouplist, 'id','pid'))
+      projectCoeInit (grouplist, coelist) {
+        let branchChildList = this.getBranchChildList(treeDataTranslate(grouplist, 'id', 'pid'))
         let groupRateList = []
         let indexList = []
         for (let i = 0; i < coelist.length; i++) {
@@ -449,15 +450,17 @@
           allSetOutput += groupRate.isSetOutput
           allUndoneNum += groupRate.undoneNum
         }
-        if (size > 0) numList.push({
-          size: size,
-          allNotOutput: allNotOutput,
-          allSetOutput: allSetOutput,
-          allUndoneNum: allUndoneNum
-        })
+        if (size > 0) {
+          numList.push({
+            size: size,
+            allNotOutput: allNotOutput,
+            allSetOutput: allSetOutput,
+            allUndoneNum: allUndoneNum
+          })
+        }
         console.log(numList)
         let index = 0
-        for (let groupRate of groupRateList){
+        for (let groupRate of groupRateList) {
           if (groupRate.isFirst === true) {
             groupRate.size = numList[++index].size
             groupRate.allNotOutput = numList[index].allNotOutput
@@ -546,8 +549,8 @@
                   this.dataForm.workNote = data.projectPlan.workNote
                   this.dataForm.projectBegunDateTime = data.projectPlan.projectBegunDateTime == null ? new Date() : data.projectPlan.projectBegunDateTime
                   this.dataForm.projectCharge = data.projectPlan.projectCharge
-                  if ( (!stringIsNull(this.dataForm.projectOutput)) && stringIsNull(this.dataForm.projectWorkDate)
-                    && stringIsNull(this.dataForm.projectQualityDate) ) {
+                  if ((!stringIsNull(this.dataForm.projectOutput)) && stringIsNull(this.dataForm.projectWorkDate) &&
+                    stringIsNull(this.dataForm.projectQualityDate)) {
                     this.countWorkDateHandler()
                   }
                 }
@@ -837,7 +840,7 @@
             method: 'post',
             data: this.$http.adornData({
               'id': this.projectInfo.id || undefined,
-              'outputRemark': this.projectInfo.outputRemark == null ? '': this.projectInfo.outputRemark
+              'outputRemark': this.projectInfo.outputRemark == null ? '' : this.projectInfo.outputRemark
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -905,9 +908,10 @@
       // 返回
       goBack () {
         closeTab('project-editallocation')
+        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
+        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
         this.$router.push({
-          path: 'project-project',
-          params: { pageIndex: this.pageIndex, pageSize: this.pageSize}
+          path: 'project-project'
         })
       }
     },

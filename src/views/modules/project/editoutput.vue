@@ -95,6 +95,8 @@
   export default {
     data () {
       return {
+        argsPageIndex: this.$route.query.pageIndex,
+        argsPageSize: this.$route.query.pageSize,
         loading: true,
         groupradio: 0,
         totalOutPut: 0, // 实际总产值
@@ -386,6 +388,8 @@
       // 返回
       goBack () {
         closeTab('project-editoutput')
+        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
+        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
         this.$router.push('project-project')
       }
     },

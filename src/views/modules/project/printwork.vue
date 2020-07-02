@@ -304,18 +304,7 @@
         console.log('goBack')
         closeTab('project-printwork')
       }
-    },
-    // watch: {
-    //   '$route': function (to, from) {
-    //     this.projectNo = to.query['projectNo']
-    //     // 执行数据更新查询
-    //     if (to.name === 'project-printwork') {
-    //       this.init()
-    //     } else {
-    //       this.goBack()
-    //     }
-    //   }
-    // }
+    }
   }
 </script>
 

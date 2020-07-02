@@ -78,6 +78,8 @@
   export default {
     data () {
       return {
+        argsPageIndex: this.$route.query.pageIndex,
+        argsPageSize: this.$route.query.pageSize,
         proLoading: false,
         curRate: 0,
         curprog: 0,
@@ -293,6 +295,8 @@
       // 返回
       goBack () {
         closeTab('project-editqualityquth')
+        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
+        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
         this.$router.push('project-project')
       }
     },

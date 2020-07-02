@@ -255,7 +255,7 @@
                                    @refreshDataList="getDataList"></projectschedule-add-or-update>
     <!-- 弹窗, 新增 / 修改  返修-->
     <backwork-add-or-update v-if="backworkVisible" ref="backworkAddOrUpdate"
-                                   @refreshDataList="getDataList"></backwork-add-or-update>
+                            @refreshDataList="getDataList"></backwork-add-or-update>
   </div>
 </template>
 
@@ -308,7 +308,15 @@
       projectscheduleAddOrUpdate,
       backworkAddOrUpdate
     },
+
     activated () {
+      // if (stringIsNull(this.$route.params.pageIndex) && this.$route.params.pageIndex !== undefined) {
+      //   var a = this.$route.params.pageIndex
+      // }
+      // if (stringIsNull(this.$route.params.pageSize) && this.$route.params.pageSize !== undefined) {
+      //   var b = this.$router.params.pageSize
+      // }
+      // var b = this.$route.query.pageSize
       this.dateItemList = [{'id': 0, 'dateItem': '项目启动时间'},
         {'id': 1, 'dateItem': '项目开工时间'},
         {'id': 2, 'dateItem': '作业完成时间'},
@@ -338,7 +346,6 @@
         this.dataForm.endDate = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
         this.changeStart()
       }
-
       this.getDataList()
       this.getProjectTypeList()
     },
@@ -365,13 +372,19 @@
       },
       // 获取数据列表
       getDataList () {
-        this.$cookie.set('pageIndex',this.pageIndex)
+        this.$cookie.set('pageIndex', this.pageIndex)
         console.log(this.$cookie.get('pageIndex'))
         let startDate = ''
         let endDate = ''
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
         if (this.dataForm.endDate != null) endDate = moment(new Date(this.dataForm.endDate)).format('YYYY-MM-DD')
         this.dataListLoading = true
+        if (!stringIsNull(this.$store.state.paramsutil.argsPageIndex)) {
+          this.pageIndex = this.$store.state.paramsutil.argsPageIndex
+        }
+        if (!stringIsNull(this.$store.state.paramsutil.argsPageSize)) {
+          this.pageSize = this.$store.state.paramsutil.argsPageSize
+        }
         this.$http({
           url: this.$http.adornUrl('/project/manage/page'),
           method: 'get',
@@ -387,6 +400,8 @@
             'dateItemId': this.dataForm.dateItemId
           })
         }).then(({data}) => {
+          this.$store.commit('paramsutil/updateargsPageIndex', '')
+          this.$store.commit('paramsutil/updateargsPageSize', '')
           if (data && data.code === 0) {
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
@@ -396,7 +411,7 @@
               data.suspendDay = data.suspendDay === null ? 0 : data.suspendDay
               // 如果项目在暂停阶段 则当前时间 减去 暂停时间为 暂停时间
               if (data.projectStatus === 1) {
-                data.suspendDay = parseInt((new Date() - new Date(data.suspendTime)) / (24 * 60 * 60 * 1000) ) + data.suspendDay
+                data.suspendDay = parseInt((new Date() - new Date(data.suspendTime)) / (24 * 60 * 60 * 1000)) + data.suspendDay
               }
               // 开工时间为空
               if (data.projectBegunDateTime == null) {
@@ -405,13 +420,13 @@
               } else if (data.isPlan === 1) {   // 项目已经安排
                 // 作业时间为空 工作时间 为当前时间
                 if (data.wFinishDateTime === null) {
-                  let woverTime = parseInt((new Date() - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate
-                                                + data.backDateNum - data.suspendDay)
+                  let woverTime = parseInt((new Date() - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate +
+                    data.backDateNum - data.suspendDay)
                   data.woverTime = woverTime < 0 ? 0 : woverTime
                   data.qoverTime = null
                 } else {
-                  let woverTime = parseInt((new Date(data.wFinishDateTime) - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate
-                                                + data.backDateNum - data.suspendDay )
+                  let woverTime = parseInt((new Date(data.wFinishDateTime) - new Date(data.projectBegunDateTime)) / (24 * 60 * 60 * 1000) - data.projectWorkDate +
+                    data.backDateNum - data.suspendDay)
                   data.woverTime = woverTime < 0 ? 0 : woverTime
                   // 质检时间为空 质检时间 为当前时间
                   if (data.qFinishDateTime === null) {
@@ -559,7 +574,7 @@
           })
           return
         }
-        if (item.isWork === 2){
+        if (item.isWork === 2) {
           this.$message({
             message: '当前项目处于返修状态，请添加修改说明后方可编辑。',
             type: 'error',

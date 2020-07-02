@@ -97,6 +97,8 @@
   export default {
     data () {
       return {
+        argsPageIndex: this.$route.query.pageIndex,
+        argsPageSize: this.$route.query.pageSize,
         projectInfo: '',
         scheduleList: [], // 项目进度表
         disclosureNotesList: [],
@@ -407,6 +409,8 @@
       // 返回
       goBack () {
         closeTab('project-editwork')
+        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
+        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
         this.$router.push('project-project')
       }
     },
