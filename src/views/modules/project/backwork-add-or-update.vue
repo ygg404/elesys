@@ -31,7 +31,7 @@
         <el-progress type="circle" :percentage="curRate"></el-progress>
         <div style="color: #2D64B3">正在加载文档请稍等。。。</div>
       </div>
-      <wang-editor  :id="editorId" :content="ueContent" :projectNo="dataForm.projectNo" @refreshContent="getReportHandle"></wang-editor>
+      <wang-editor  :key="Math.random()" :content="ueContent" :projectNo="dataForm.projectNo" @refreshContent="getReportHandle"></wang-editor>
       <span slot="footer" class="dialog-footer">
         <el-button @click="noteVisible = false">取消</el-button>
         <el-button @click="dataFormSubmit" type="primary">提交</el-button>

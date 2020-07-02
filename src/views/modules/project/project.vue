@@ -308,7 +308,16 @@
       projectscheduleAddOrUpdate,
       backworkAddOrUpdate
     },
-
+    computed: {
+      argsPageIndex: {
+        get() {return this.$store.state.paramsutil.argsPageIndex},
+        set(val) {this.$store.commit('paramsutil/updateargsPageIndex', val)}
+      },
+      argsPageIndex: {
+        get() {return this.$store.state.paramsutil.argsPageIndex},
+        set(val) {this.$store.commit('paramsutil/updateargsPageSize', val)}
+      }
+    },
     activated () {
       // if (stringIsNull(this.$route.params.pageIndex) && this.$route.params.pageIndex !== undefined) {
       //   var a = this.$route.params.pageIndex
@@ -379,11 +388,11 @@
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
         if (this.dataForm.endDate != null) endDate = moment(new Date(this.dataForm.endDate)).format('YYYY-MM-DD')
         this.dataListLoading = true
-        if (!stringIsNull(this.$store.state.paramsutil.argsPageIndex)) {
-          this.pageIndex = this.$store.state.paramsutil.argsPageIndex
+        if (!stringIsNull(this.$store.argsPageIndex)) {
+          this.pageIndex = this.argsPageIndex
         }
-        if (!stringIsNull(this.$store.state.paramsutil.argsPageSize)) {
-          this.pageSize = this.$store.state.paramsutil.argsPageSize
+        if (!stringIsNull(this.argsPageSize)) {
+          this.pageSize = this.argsPageSize
         }
         this.$http({
           url: this.$http.adornUrl('/project/manage/page'),
@@ -400,8 +409,8 @@
             'dateItemId': this.dataForm.dateItemId
           })
         }).then(({data}) => {
-          this.$store.commit('paramsutil/updateargsPageIndex', '')
-          this.$store.commit('paramsutil/updateargsPageSize', '')
+          this.argsPageIndex = ''
+          this.argsPageSize = ''
           if (data && data.code === 0) {
             this.dataList = data.page.list
             this.totalPage = data.page.totalCount
