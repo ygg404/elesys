@@ -1,93 +1,104 @@
 <template>
-    <div class="mod-config" >
-      <el-card  v-loading="dataLoading">
-        <el-form :inline="true" :model="dataForm" style="display:flex;justify-content: space-between">
-          <el-form-item>
-            <span class="time_title">考核时间:</span>
-            <el-date-picker v-model="dataForm.curYear" type="year" placeholder="选择年" style="width: 100px;" @change="init"></el-date-picker>
-            <el-select v-model="dataForm.updown" placeholder="时间类型" style="width: 110px;" @change="init">
-              <el-option v-for="item in yearItemList" :label="item.yearItem" :key="item.id" :value="item.id"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <div style="text-align: center;margin-bottom: 10px;">
-          <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核明细'}}</h1>
-        </div>
-        <div style="display: flex">
-<!--          <div style="width: 200px" v-if="isAuth()">-->
-<!--            <detailUser ref="detailUser"></detailUser>-->
-<!--          </div>-->
-
-          <el-table :data="checkUserList" border style="margin-left: 10px;" :header-cell-style="{background:'#F4F5F6',color:'#131D34',padding: '5px 0'}">
-            <el-table-column type="expand" v-if="isAuth('perf:assess:detial')" >
-              <template slot-scope="props">
-                <div>
-                  <el-collapse>
-                    <el-collapse-item name="1" >
-                      <template slot="title">
-                        <div class="extra_item_title">效能评分表</div>
-                      </template>
-                      <el-table  :data="props.row.kbiList" :key="props.row.checkUserId"
-                                 style="width: 98%;margin-left: 2%;"  border>
-<!--                        <el-table-column label="评分人" prop="userName" width="110"></el-table-column>-->
-                        <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
-                                         :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
-                                         :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
-                        <el-table-column label="是否其领导" width="120">
-                          <template slot-scope="scope">
-                            <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
-                            <el-tag type="info" v-else>否</el-tag>
-                          </template>
-                        </el-table-column>
-                        <el-table-column label="是否为同一部门">
-                          <template slot-scope="scope">
-                            <el-tag type="primary" v-if="scope.row.isSameBranch">是</el-tag>
-                            <el-tag type="info" v-else>否</el-tag>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </el-collapse-item>
-                    <el-collapse-item name="2">
-                      <template slot="title">
-                        <div class="extra_item_title">加减分评分表</div>
-                      </template>
-                      <el-table :data="props.row.scoreList" border :span-method="objectSpanMethod" show-summary style="max-height: 400px;overflow-y:auto">
-                        <el-table-column prop="extraType" label="类型" width="40">
-                          <template slot-scope="scope">
-                            <div v-if="scope.row.extraType == 0">加分项</div>
-                            <div v-if="scope.row.extraType == 1">减分项</div>
-                          </template>
-                        </el-table-column>
-                        <el-table-column prop="extraItem" label="加减分项"></el-table-column>
-                        <el-table-column prop="standard" label="计分标准"></el-table-column>
-                        <el-table-column prop="extraNum" label="分数" width="80"></el-table-column>
-                      </el-table>
-                    </el-collapse-item>
-                  </el-collapse>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="checkUserName" label="被考核人"></el-table-column>
-            <el-table-column prop="kbiAllScore" label="效能评价分"></el-table-column>
-            <el-table-column prop="finalExtra" label="加减得分"></el-table-column>
-            <el-table-column prop="standardScore" label="效能基准分"></el-table-column>
-            <el-table-column label="最终效能得分">
-              <template slot-scope="scope">
-                <span style="color: #3b97d7">{{getFinalKbiScore(scope.row)}}</span>
-              </template>
-            </el-table-column>
-          </el-table>
+  <div class="mod-config" >
+    <el-card  v-loading="dataLoading">
+      <el-form :inline="true" :model="dataForm" style="display:flex;justify-content: space-between">
+        <el-form-item>
+          <span class="time_title">考核时间:</span>
+          <el-date-picker v-model="dataForm.curYear" type="year" placeholder="选择年" style="width: 100px;" @change="init"></el-date-picker>
+          <el-select v-model="dataForm.updown" placeholder="时间类型" style="width: 110px;" @change="init">
+            <el-option v-for="item in yearItemList" :label="item.yearItem" :key="item.id" :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <span class="time_title">审定状态:</span>
+          <el-tag type="info" v-if="isAudit == false">未审定</el-tag>
+          <el-tag type="primary" v-else>已审定</el-tag>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="large" icon="el-icon-document-checked" @click="auditScoreHandle()">审定效能分</el-button>
+        </el-form-item>
+      </el-form>
+      <div style="text-align: center;margin-bottom: 10px;">
+        <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核明细'}}</h1>
+      </div>
+      <div style="display: flex">
+        <div style="width: 200px" v-if="isAuth('project:authorize:list')">
+          <detailUser ref="detailUser"></detailUser>
         </div>
 
-      </el-card>
-    </div>
+        <el-table :data="checkUserList" border style="margin-left: 10px;" :header-cell-style="{background:'#F4F5F6',color:'#131D34',padding: '5px 0'}">
+          <el-table-column type="expand" v-if="isAuth('ren:kbi:detial')" >
+            <template slot-scope="props">
+              <div>
+                <el-collapse>
+                  <el-collapse-item name="1" >
+                    <template slot="title">
+                      <div class="extra_item_title">效能评分表</div>
+                    </template>
+                    <el-table  :data="props.row.kbiList" :key="props.row.checkUserId"
+                               style="width: 98%;margin-left: 2%;"  border>
+                      <el-table-column label="评分人" prop="userName" width="110"></el-table-column>
+                      <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
+                                       :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
+                                       :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
+                      <el-table-column label="是否其领导" width="120">
+                        <template slot-scope="scope">
+                          <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
+                          <el-tag type="info" v-else>否</el-tag>
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="是否为同一部门">
+                        <template slot-scope="scope">
+                          <el-tag type="primary" v-if="scope.row.isSameBranch">是</el-tag>
+                          <el-tag type="info" v-else>否</el-tag>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </el-collapse-item>
+                  <el-collapse-item name="2">
+                    <template slot="title">
+                      <div class="extra_item_title">加减分评分表</div>
+                    </template>
+                    <el-table :data="props.row.scoreList" border :span-method="objectSpanMethod" show-summary style="max-height: 400px;overflow-y:auto">
+                      <el-table-column prop="extraType" label="类型" width="40">
+                        <template slot-scope="scope">
+                          <div v-if="scope.row.extraType == 0">加分项</div>
+                          <div v-if="scope.row.extraType == 1">减分项</div>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="extraItem" label="加减分项"></el-table-column>
+                      <el-table-column prop="standard" label="计分标准"></el-table-column>
+                      <el-table-column prop="extraNum" label="分数" width="80"></el-table-column>
+                    </el-table>
+                  </el-collapse-item>
+                </el-collapse>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="checkUserName" label="被考核人"></el-table-column>
+          <el-table-column prop="kbiAllScore" label="效能评价分"></el-table-column>
+          <el-table-column prop="finalExtra" label="加减得分"></el-table-column>
+          <el-table-column prop="standardScore" label="效能基准分"></el-table-column>
+          <el-table-column label="最终效能得分">
+            <template slot-scope="scope">
+              <span style="color: #3b97d7">{{getFinalKbiScore(scope.row)}}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-card>
+
+    <!--    效能考核分数审定-->
+    <kbi-audit-add-or-update ref="kbiAuditAddOrUpdate" v-if="auditVisible" @refreshDataList="init()" ></kbi-audit-add-or-update>
+  </div>
 </template>
 
 <script>
   import {getYearItem} from '@/utils/selectedItem'
   import { treeDataTranslate } from '@/utils'
   import {stringIsNull} from '../../../utils'
-  // import detailUser from '../ren/detail-user'
+  import detailUser from './detail-user'
+  import kbiAuditAddOrUpdate from './kbiAudit-add-or-update'
 
   export default {
     data () {
@@ -103,13 +114,19 @@
         branchList: [],   // 部门列表
         branchTree: [],    // 部门树表
         uScoreList: [],    // 评分列表
-        branchChildList: []
+        branchChildList: [],
+        isAudit: false,
+        auditVisible: false,
       }
     },
     activated () {
       this.dataForm.curYear = new Date(new Date().getFullYear() , new Date().getMonth() - 3, 1)
       this.dataForm.updown = this.dataForm.curYear.getMonth() <= 6 ? 0 : 1
       this.init()
+    },
+    components: {
+      detailUser,
+      kbiAuditAddOrUpdate
     },
     methods: {
       objectSpanMethod({ row, column, rowIndex, columnIndex }) {
@@ -512,6 +529,18 @@
         } else {
           return Math.round(parseInt((1 + (item.kbiAllScore + item.extraScore - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
         }
+      },
+      // 考核分数审定
+      auditScoreHandle () {
+        this.auditVisible = true
+        this.$nextTick(() => {
+          let item = {}
+          console.log(this.dataForm.curYear)
+          item.checkUserList = this.checkUserList
+          item.checkYear = this.dataForm.curYear.getFullYear()
+          item.checkUpdown = this.dataForm.updown
+          this.$refs.kbiAuditAddOrUpdate.init(item)
+        })
       }
     }
   }

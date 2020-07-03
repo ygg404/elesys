@@ -1,6 +1,6 @@
 <template>
-  <div class="mod-config" v-loading="dataListLoading" >
-    <el-card>
+  <div class="mod-config" >
+    <el-card v-loading="dataListLoading" >
       <el-form :inline="true" :model="dataForm" style="display:flex;justify-content: space-between">
         <el-form-item>
           <span class="time_title">考核时间:</span>
