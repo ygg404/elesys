@@ -12,17 +12,10 @@
       </div>
       <el-table border :data="dataList" border v-loading="dataListLoading">
         <el-table-column prop="username" header-align="center" align="center" label="姓名" ></el-table-column>
-        <el-table-column prop="edName" header-align="center" align="center" label="学历" ></el-table-column>
-        <el-table-column prop="edTypename" header-align="center" align="center" label="学制" ></el-table-column>
-        <el-table-column prop="edProname" header-align="center" align="center" label="学历专业性质" ></el-table-column>
         <el-table-column prop="edAllscore" header-align="center" align="center" label="学历评分" ></el-table-column>
-        <el-table-column prop="titleName" header-align="center" align="center" label="职称" ></el-table-column>
-        <el-table-column prop="titleProname" header-align="center" align="center" label="职称专业性质" ></el-table-column>
         <el-table-column prop="titleAllscore" header-align="center" align="center" label="职称评分" ></el-table-column>
-        <el-table-column prop="dutyName" header-align="center" align="center" label="职务" ></el-table-column>
         <el-table-column prop="dutyScore" header-align="center" align="center" label="职务评分" ></el-table-column>
         <el-table-column prop="jobRank" header-align="center" align="center" label="职级" ></el-table-column>
-        <el-table-column prop="workYear" header-align="center" align="center" label="工龄" ></el-table-column>
         <el-table-column prop="workScore" header-align="center" align="center" label="工龄分" ></el-table-column>
         <el-table-column prop="fixedSalary" header-align="center" align="center" label="固定工资" >
           <template slot-scope="scope">
@@ -54,12 +47,12 @@
       </el-table>
     </el-card>
 
-    <salary-base-detail ref="salaryBaseDetail" v-if="detailVisible" />
+    <salary-base-detail ref="salaryBaseDetail" v-if="detailVisible" @refreshDataList="getDataList"/>
   </div>
 </template>
 
 <script>
-  import  moment from 'moment'
+  import moment from 'moment'
   import salaryBaseDetail from './salaryBase-detail'
 
   export default {
@@ -118,6 +111,9 @@
       },
       salaryDetailHandle (item) {
         this.detailVisible = true
+        this.$nextTick(() => {
+          this.$refs.salaryBaseDetail.init(item)
+        })
       }
     }
   }
