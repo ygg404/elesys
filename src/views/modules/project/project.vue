@@ -310,12 +310,12 @@
     },
     computed: {
       argsPageIndex: {
-        get() {return this.$store.state.paramsutil.argsPageIndex},
-        set(val) {this.$store.commit('paramsutil/updateargsPageIndex', val)}
+        get () { return this.$store.state.paramsutil.argsPageIndex },
+        set (val) { this.$store.commit('paramsutil/updateargsPageIndex', val) }
       },
-      argsPageIndex: {
-        get() {return this.$store.state.paramsutil.argsPageIndex},
-        set(val) {this.$store.commit('paramsutil/updateargsPageSize', val)}
+      argsPageSize: {
+        get () { return this.$store.state.paramsutil.argsPageSize },
+        set (val) { this.$store.commit('paramsutil/updateargsPageSize', val) }
       }
     },
     activated () {
@@ -388,7 +388,7 @@
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
         if (this.dataForm.endDate != null) endDate = moment(new Date(this.dataForm.endDate)).format('YYYY-MM-DD')
         this.dataListLoading = true
-        if (!stringIsNull(this.$store.argsPageIndex)) {
+        if (!stringIsNull(this.argsPageIndex)) {
           this.pageIndex = this.argsPageIndex
         }
         if (!stringIsNull(this.argsPageSize)) {

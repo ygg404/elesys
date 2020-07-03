@@ -44,8 +44,8 @@
   export default {
     data () {
       return {
-        argsPageIndex: this.$route.query.pageIndex,
-        argsPageSize: this.$route.query.pageSize,
+        getArgsPageIndex: this.$route.query.pageIndex,
+        getArgsPageSize: this.$route.query.pageSize,
         projectInfo: '',
         projectNo: this.$route.query.projectNo,
         dataForm: {
@@ -58,6 +58,17 @@
     mounted () {
       this.init()
     },
+    computed: {
+      argsPageIndex: {
+        get () { return this.$store.state.paramsutil.argsPageIndex },
+        set (val) { this.$store.commit('paramsutil/updateargsPageIndex', val) }
+      },
+      argsPageSize: {
+        get () { return this.$store.state.paramsutil.argsPageSize },
+        set (val) { this.$store.commit('paramsutil/updateargsPageSize', val) }
+      }
+    },
+
     methods: {
       init () {
         this.getInfoByProjectNo(this.projectNo)
@@ -151,8 +162,8 @@
       // 返回
       goBack () {
         closeTab('project-editauthorize')
-        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
-        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
+        this.argsPageSize = this.getArgsPageSize
+        this.argsPageIndex = this.getArgsPageIndex
         this.$router.push('project-project')
       }
     },

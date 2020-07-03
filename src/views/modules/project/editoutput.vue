@@ -95,8 +95,8 @@
   export default {
     data () {
       return {
-        argsPageIndex: this.$route.query.pageIndex,
-        argsPageSize: this.$route.query.pageSize,
+        getArgsPageIndex: this.$route.query.pageIndex,
+        getArgsPageSize: this.$route.query.pageSize,
         loading: true,
         groupradio: 0,
         totalOutPut: 0, // 实际总产值
@@ -109,6 +109,16 @@
         outPutGroupList: [],
         qualityNoteValue: '',
         cutOffTime: ''
+      }
+    },
+    computed: {
+      argsPageIndex: {
+        get () { return this.$store.state.paramsutil.argsPageIndex },
+        set (val) { this.$store.commit('paramsutil/updateargsPageIndex', val) }
+      },
+      argsPageSize: {
+        get () { return this.$store.state.paramsutil.argsPageSize },
+        set (val) { this.$store.commit('paramsutil/updateargsPageSize', val) }
       }
     },
     mounted () {
@@ -388,8 +398,8 @@
       // 返回
       goBack () {
         closeTab('project-editoutput')
-        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
-        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
+        this.argsPageSize = this.getArgsPageSize
+        this.argsPageIndex = this.getArgsPageIndex
         this.$router.push('project-project')
       }
     },

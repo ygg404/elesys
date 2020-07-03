@@ -211,8 +211,8 @@
     data () {
       return {
         projectNo: this.$route.query.projectNo,
-        argsPageIndex: this.$route.query.pageIndex,
-        argsPageSize: this.$route.query.pageSize,
+        getArgsPageIndex: this.$route.query.pageIndex,
+        getArgsPageSize: this.$route.query.pageSize,
         projectGroupVisible: false,
         ptValue: [],
         outputCalVisible: false, // 产值明细计算
@@ -272,6 +272,16 @@
     },
     components: {
       projectgroupAddOrUpdate
+    },
+    computed: {
+      argsPageIndex: {
+        get () { return this.$store.state.paramsutil.argsPageIndex },
+        set (val) { this.$store.commit('paramsutil/updateargsPageIndex', val) }
+      },
+      argsPageSize: {
+        get () { return this.$store.state.paramsutil.argsPageSize },
+        set (val) { this.$store.commit('paramsutil/updateargsPageSize', val) }
+      }
     },
     activated () {
       // console.log(this.$router.params.projectNo)
@@ -908,8 +918,8 @@
       // 返回
       goBack () {
         closeTab('project-editallocation')
-        this.$store.commit('paramsutil/updateargsPageIndex', this.argsPageIndex)
-        this.$store.commit('paramsutil/updateargsPageSize', this.argsPageSize)
+        this.argsPageSize = this.getArgsPageSize
+        this.argsPageIndex = this.getArgsPageIndex
         this.$router.push({
           path: 'project-project'
         })
