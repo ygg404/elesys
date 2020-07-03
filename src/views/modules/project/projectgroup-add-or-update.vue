@@ -33,7 +33,7 @@
       </el-table-column>
     </el-table>
     <div style="color: #00a2d4">
-      合计：<span :class="(totalOutPut > tOutPut+1 || totalOutPut < tOutPut -1)? 'span_error':'span_ok'"> 产值{{tOutPut}}</span>,
+      合计：<span :class="(parseFloat(totalOutPut) > parseFloat(tOutPut)+1 || parseFloat(totalOutPut) < parseFloat(tOutPut) -1)? 'span_error':'span_ok'"> 产值{{tOutPut}}</span>,
       <span :class="(tRate > 100.01 || tRate < 99.99)? 'span_error':'span_ok'"> 占比{{tRate}}%</span>
     </div>
     <div style="float: left;margin-top: 10px;">
@@ -110,7 +110,8 @@
         if (this.tRate > 100.01 || this.tRate < 99.99) {
           this.$message.error('总百分比不能超过100或者小于100')
           return
-        } else if (this.totalOutPut > this.tOutPut + 1 || this.totalOutPut < this.tOutPut - 1) {
+        } else if (parseFloat(this.totalOutPut) > parseFloat(this.tOutPut) + 1 ||
+          parseFloat(this.totalOutPut) < parseFloat(this.tOutPut) - 1) {
           this.$message.error('总计产值不能超过或者小于总预计产值')
           return
         }

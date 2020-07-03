@@ -319,13 +319,6 @@
       }
     },
     activated () {
-      // if (stringIsNull(this.$route.params.pageIndex) && this.$route.params.pageIndex !== undefined) {
-      //   var a = this.$route.params.pageIndex
-      // }
-      // if (stringIsNull(this.$route.params.pageSize) && this.$route.params.pageSize !== undefined) {
-      //   var b = this.$router.params.pageSize
-      // }
-      // var b = this.$route.query.pageSize
       this.dateItemList = [{'id': 0, 'dateItem': '项目启动时间'},
         {'id': 1, 'dateItem': '项目开工时间'},
         {'id': 2, 'dateItem': '作业完成时间'},
@@ -381,8 +374,6 @@
       },
       // 获取数据列表
       getDataList () {
-        this.$cookie.set('pageIndex', this.pageIndex)
-        console.log(this.$cookie.get('pageIndex'))
         let startDate = ''
         let endDate = ''
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
