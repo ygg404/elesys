@@ -78,13 +78,13 @@
               </div>
             </td>
             <td colspan="2" class="ts">参加工作时间</td>
-            <td colspan="2" class="f16 pl2">2012/1/1</td>
+            <td colspan="2" class="f16 pl2">{{person.educationTime}}</td>
             <td rowspan="5"><p class="ps">工龄分<span style="color: #ff00ff">{{person.workScore}}</span></p></td>
           </tr>
 
           <tr>
             <td colspan="2" class="ts">入职时间</td>
-            <td colspan="2" class="f16 pl2">2016/8/23</td>
+            <td colspan="2" class="f16 pl2">{{person.entryTime}}</td>
           </tr>
 
           <tr>
