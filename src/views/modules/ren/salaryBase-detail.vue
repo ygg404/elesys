@@ -17,7 +17,7 @@
             <td>
               <div style="width:90px;" class="ts">系数</div>
             </td>
-            <td><div style="width:50px;" class="f16">{{person.edProscore}}</div></td>
+            <td><div style="width:50px;" class="f16">{{person.edTypescore}}</div></td>
             <td rowspan="3"><p class="ps">学历分<span style="color: #ff00ff">{{person.edAllscore}}</span></p></td>
             <td rowspan="11">
               <p class="ps">总分<span style="color: #ff0000">{{person.edAllscore + person.titleAllscore + person.workScore + person.dutyScore}}</span></p>
@@ -27,11 +27,11 @@
             <td>
               <div style="width:90px;" class="ts">专业性质</div>
             </td>
-            <td class="f16">{{person.titleProname}}</td>
+            <td class="f16">{{person.edProname}}</td>
             <td>
               <div style="width:90px;" class="ts">系数</div>
             </td>
-            <td class="f16">{{person.titleProscore}}</td>
+            <td class="f16">{{person.edProscore}}</td>
           </tr>
 
           <tr>
