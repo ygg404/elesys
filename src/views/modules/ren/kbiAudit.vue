@@ -15,6 +15,7 @@
           <el-tag type="primary" v-else>已审定</el-tag>
         </el-form-item>
         <el-form-item>
+          <el-button type="primary" size="large" icon="el-icon-s-custom" @click="editPersonHandle()">编辑参评人员</el-button>
           <el-button type="primary" size="large" icon="el-icon-document-checked" @click="auditScoreHandle()">审定效能分</el-button>
         </el-form-item>
       </el-form>
@@ -22,7 +23,7 @@
         <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核明细'}}</h1>
       </div>
       <div style="display: flex">
-        <div style="width: 200px" v-if="isAuth('project:authorize:list')">
+        <div style="width: 200px" v-if="isAuth('ren:kbi:person')">
           <detailUser ref="detailUser"></detailUser>
         </div>
 
@@ -90,6 +91,8 @@
 
     <!--    效能考核分数审定-->
     <kbi-audit-add-or-update ref="kbiAuditAddOrUpdate" v-if="auditVisible" @refreshDataList="init()" ></kbi-audit-add-or-update>
+    <!--    参评人数编辑-->
+    <kbi-person-add-or-update ref="kbiPersonAddOrUpdate" v-if="personVisible" @refreshDataList="init()"></kbi-person-add-or-update>
   </div>
 </template>
 
@@ -99,6 +102,7 @@
   import {stringIsNull} from '../../../utils'
   import detailUser from './detail-user'
   import kbiAuditAddOrUpdate from './kbiAudit-add-or-update'
+  import kbiPersonAddOrUpdate from './kbiPerson-add-or-update'
 
   export default {
     data () {
@@ -117,6 +121,7 @@
         branchChildList: [],
         isAudit: false,
         auditVisible: false,
+        personVisible: false,
       }
     },
     activated () {
@@ -126,7 +131,8 @@
     },
     components: {
       detailUser,
-      kbiAuditAddOrUpdate
+      kbiAuditAddOrUpdate,
+      kbiPersonAddOrUpdate
     },
     methods: {
       objectSpanMethod({ row, column, rowIndex, columnIndex }) {
@@ -540,6 +546,16 @@
           item.checkYear = this.dataForm.curYear.getFullYear()
           item.checkUpdown = this.dataForm.updown
           this.$refs.kbiAuditAddOrUpdate.init(item)
+        })
+      },
+      // 编辑参评人数
+      editPersonHandle () {
+        this.personVisible = true
+        this.$nextTick(() => {
+          let item = {}
+          item.checkYear = this.dataForm.curYear.getFullYear()
+          item.checkUpdown = this.dataForm.updown
+          this.$refs.kbiPersonAddOrUpdate.init(item)
         })
       }
     }

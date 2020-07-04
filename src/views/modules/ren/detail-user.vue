@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="span_header">参评人数:<span>{{person}}</span></div>
+    <div class="span_header">参评人数:<span>{{person}}</span>/<sapn style="color: #3b97d7">{{count}}</sapn></div>
     <div class="user_card">
       <el-table :data="uRoleList" border>
         <el-table-column label="用户名" prop="userName"></el-table-column>
@@ -24,15 +24,20 @@
           curYear: '',
           updown: 0
         },
-        person: 0
+        person: 0,
+        count: 0
       }
     },
     methods: {
       init (dataForm) {
         this.dataForm = dataForm
+
         this.getUaccessList().then(list => {
           this.uRoleList = list
           this.person = this.getAssessPerson(list)
+        })
+        this.getAttendCount().then(count => {
+          this.count = count
         })
       },
       // 获取已经评分的用户列表
@@ -62,6 +67,25 @@
           if (assess.isAssess) person += 1
         }
         return person
+      },
+      // 需要参加评选的人数
+      getAttendCount () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/ren/kbiperson/getCount`),
+            method: 'get',
+            params: this.$http.adornParams({
+              year: this.dataForm.curYear.getFullYear(),
+              updown: this.dataForm.updown
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.count)
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
       }
     }
   }
