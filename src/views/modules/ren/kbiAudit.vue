@@ -28,7 +28,7 @@
         </div>
 
         <el-table :data="checkUserList" border style="margin-left: 10px;" :header-cell-style="{background:'#F4F5F6',color:'#131D34',padding: '5px 0'}">
-          <el-table-column type="expand" v-if="isAuth('ren:kbi:detial')" >
+          <el-table-column type="expand" v-if="isAuth('ren:kbi:detail')" >
             <template slot-scope="props">
               <div>
                 <el-collapse>
@@ -38,10 +38,13 @@
                     </template>
                     <el-table  :data="props.row.kbiList" :key="props.row.checkUserId"
                                style="width: 98%;margin-left: 2%;"  border>
-                      <el-table-column label="评分人" prop="userName" width="110"></el-table-column>
+<!--                      <el-table-column label="评分人" prop="userId" width="110"></el-table-column>-->
                       <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
                                        :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
                                        :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
+                      <el-table-column label="个人效能评分">
+                        <template slot-scope="scope"><span style="color: red">{{scope.row.everyAllScore}}</span></template>
+                      </el-table-column>
                       <el-table-column label="是否其领导" width="120">
                         <template slot-scope="scope">
                           <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
@@ -174,6 +177,7 @@
                   // 设置每成员的部门 并获取部门的最高分
                   checkUserList = this.setBranchScoreFun(checkUserList,branchList)
                   this.checkUserList = this.setKbiScore(checkUserList)
+                  console.log(this.checkUserList)
                   this.dataLoading = false
                 })
               })
@@ -459,7 +463,6 @@
           }
           checkUser.finalExtra = parseFloat((checkUser.allScore + 10) * 9 / (checkUser.maxScore + 10)).toFixed(2)
         }
-        console.log(branchMaxScoreList)
         return checkUserList
       },
       // 计算每用户的效能评价得分
@@ -476,11 +479,19 @@
                 }
               }
             }
+            scoreItem.everyAllScore = score
             let sItem = {
               score: score,
-              ratio: 0.2
+              ratio: 0.2,
+              isGuider: false,
+              isSameBranch: false
             }
-            if (scoreItem.isGuider || scoreItem.isSameBranch) {
+            if (scoreItem.isGuider) {
+              sItem.isGuider = true
+              sItem.ratio = 0.4
+            }
+            if (scoreItem.isSameBranch) {
+              sItem.isSameBranch = true
               sItem.ratio = 0.4
             }
             scoreItemList.push(sItem)
@@ -529,7 +540,6 @@
         return childList
       },
       getFinalKbiScore (item) {
-        console.log(item)
         if (stringIsNull(item.standardScore)) {
           return ''
         } else {

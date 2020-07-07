@@ -181,7 +181,7 @@
     font-weight: 600;
   }
   .ps{
-    width:20px;font-size:16px;font-weight:600
+    width:35px;font-size:16px;font-weight:600
   }
   .ts{
     font-size:16px;font-weight:600;

@@ -33,6 +33,9 @@
                         <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
                                          :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
                                          :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
+                        <el-table-column label="个人效能评分">
+                          <template slot-scope="scope"><span style="color: red">{{scope.row.everyAllScore}}</span></template>
+                        </el-table-column>
                         <el-table-column label="是否其领导" width="120">
                           <template slot-scope="scope">
                             <el-tag type="primary" v-if="scope.row.isGuider">是</el-tag>
@@ -453,11 +456,19 @@
                 }
               }
             }
+            scoreItem.everyAllScore = score
             let sItem = {
               score: score,
-              ratio: 0.2
+              ratio: 0.2,
+              isGuider: false,
+              isSameBranch: false
             }
-            if (scoreItem.isGuider || scoreItem.isSameBranch) {
+            if (scoreItem.isGuider) {
+              sItem.isGuider = true
+              sItem.ratio = 0.4
+            }
+            if (scoreItem.isSameBranch) {
+              sItem.isSameBranch = true
               sItem.ratio = 0.4
             }
             scoreItemList.push(sItem)
@@ -506,7 +517,6 @@
         return childList
       },
       getFinalKbiScore (item) {
-        console.log(item)
         if (stringIsNull(item.standardScore)) {
           return ''
         } else {
