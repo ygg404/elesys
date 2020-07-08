@@ -6,6 +6,9 @@
           <el-date-picker v-model="dataForm.payDate"   type="month"  @change="getDataList"
                           placeholder="请选择工资表月份" class="pay_item" ></el-date-picker>
         </el-form-item>
+        <el-form-item>
+          <el-button type="success" @click="exportExcelHandle" icon="el-icon-printer">导出excel</el-button>
+        </el-form-item>
       </el-form>
       <div style="text-align: center">
         <h2>{{dataForm.payDate.getFullYear() + '年' + (dataForm.payDate.getMonth() + 1) + '月'}} 基本工资表</h2>
@@ -113,6 +116,31 @@
         this.detailVisible = true
         this.$nextTick(() => {
           this.$refs.salaryBaseDetail.init(item)
+        })
+      },
+      // 导出excel
+      exportExcelHandle () {
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl(`/ren/salarybase/exportExcel`),
+          method: 'get',
+          params: this.$http.adornParams({
+            year: this.dataForm.year,
+            updown: this.dataForm.updown,
+            salaryYear: this.dataForm.payDate.getFullYear(),
+            salaryMonth: this.dataForm.payDate.getMonth() + 1
+          }),
+          responseType: 'blob'
+        }).then(({data}) => {
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = '基本工资列表（' + this.dataForm.payDate.getFullYear() + '-' + (this.dataForm.payDate.getMonth() + 1) + '）.xls' // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          this.dataListLoading = false
         })
       }
     }
