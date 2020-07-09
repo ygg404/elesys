@@ -18,9 +18,13 @@
               <div style="width:90px;" class="ts">系数</div>
             </td>
             <td><div style="width:50px;" class="f16">{{person.edTypescore}}</div></td>
-            <td rowspan="3"><p class="ps">学历分<span style="color: #ff00ff">{{person.edAllscore}}</span></p></td>
+            <td rowspan="3">
+              <p class="ps" style="width:60px;">学历分</p>
+              <span class="ps" style="color: #ff00ff">{{person.edAllscore}}</span>
+            </td>
             <td rowspan="11">
-              <p class="ps">总分<span style="color: #ff0000">{{person.edAllscore + person.titleAllscore + person.workScore + person.dutyScore}}</span></p>
+              <p class="ps" style="width:60px;">总分</p>
+                <span class="ps" style="color: #ff0000">{{person.edAllscore + person.titleAllscore + person.workScore + person.dutyScore}}</span>
             </td>
           </tr>
           <tr>
@@ -61,7 +65,10 @@
               <div style="width:90px;" class="ts">系数</div>
             </td>
             <td class="f16">{{person.titleProscore}}</td>
-            <td rowspan="2"><p class="ps">职称分<span style="color: #ff00ff">{{person.titleAllscore}}</span></p></td>
+            <td rowspan="2">
+              <p class="ps" style="width:60px;">职称分</p>
+              <span class="ps" style="color: #ff00ff">{{person.titleAllscore}}</span>
+            </td>
           </tr>
 
           <tr>
@@ -79,7 +86,10 @@
             </td>
             <td colspan="2" class="ts">参加工作时间</td>
             <td colspan="2" class="f16 pl2">{{person.educationTime}}</td>
-            <td rowspan="5"><p class="ps">工龄分<span style="color: #ff00ff">{{person.workScore}}</span></p></td>
+            <td rowspan="5">
+              <p class="ps" style="width:60px;">工龄分</p>
+              <span class="ps" style="color: #ff00ff">{{person.workScore}}</span>
+            </td>
           </tr>
 
           <tr>
@@ -110,7 +120,10 @@
             </td>
             <td class="ts">职务</td>
             <td colspan="3" class="f16 tac" style="font-weight:600;">{{person.dutyName}}</td>
-            <td><p class="ps">职务分 <span style="color: #ff00ff">{{person.dutyScore}}</span></p></td>
+            <td>
+              <p class="ps" style="width:60px;">职务分</p>
+              <span class="ps" style="color: #ff00ff">{{person.dutyScore}}</span>
+            </td>
           </tr>
 
           <tr>
