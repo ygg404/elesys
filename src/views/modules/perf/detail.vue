@@ -520,7 +520,7 @@
         if (stringIsNull(item.standardScore)) {
           return ''
         } else {
-          return Math.round(parseInt((1 + (item.kbiAllScore + item.extraScore - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
+          return Math.round(parseInt((1 + (parseFloat(item.kbiAllScore) + parseFloat(item.finalExtra) - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
         }
       }
     }
