@@ -132,9 +132,9 @@
 
                 <div class="f15">
                   <span class="fw600">职级:</span>
-                  <span style="color:#143370">{{person.jobRank}}</span>
+                  <span class="fw600" style="color:#143370">{{person.jobRank}}</span>
                   <span class="fw600">效能分:</span>
-                  <span style="color:#143370">{{person.kbiFinalScore}}</span>
+                  <span class="fw600" style="color:#143370">{{person.kbiFinalScore}}</span>
                   <span class="fw600">效能工资:</span>
                   <span style="color: #1989fa;">{{person.kbiSalary}}</span>
                 </div>
