@@ -41,7 +41,7 @@
 <!--                      <el-table-column label="评分人" prop="userId" width="110"></el-table-column>-->
                       <el-table-column v-for="(kbiItem,index) in props.row.kbiItemList" v-if="kbiItem.kbiRatio != 0"
                                        :label="kbiItem.kbiName + '/(' + kbiItem.kbiRatio + '%)'"
-                                       :prop="'kbiId' + kbiItem.kbiId" :key="index" :render-header="renderheader"></el-table-column>
+                                       :prop="'kbiId' + kbiItem.kbiId" :key="Math.random()" :render-header="renderheader"></el-table-column>
                       <el-table-column label="个人效能评分">
                         <template slot-scope="scope"><span style="color: red">{{scope.row.everyAllScore}}</span></template>
                       </el-table-column>
@@ -281,6 +281,9 @@
             kbiId = access.kbiId
           }
           // 评分人明细
+          if (checkUserId === 31) {
+            console.log(access)
+          }
           if (access.userId !== userId) {
             let kbiItem = {
               userId: access.userId,
@@ -543,7 +546,7 @@
         if (stringIsNull(item.standardScore)) {
           return ''
         } else {
-          return Math.round(parseInt((1 + (item.kbiAllScore + item.extraScore - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
+          return Math.round(parseInt((1 + (parseFloat(item.kbiAllScore) + parseFloat(item.finalExtra) - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
         }
       },
       // 考核分数审定
