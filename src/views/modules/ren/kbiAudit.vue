@@ -184,6 +184,9 @@
             })
           })
         })
+        this.getAuditList().then(list => {
+          this.isAudit = list.length > 0 ? true : false
+        })
         this.$refs.detailUser.init(this.dataForm)
       },
       renderheader (h, { column, $index }) {
@@ -570,7 +573,27 @@
           item.checkUpdown = this.dataForm.updown
           this.$refs.kbiPersonAddOrUpdate.init(item)
         })
-      }
+      },
+      // 获取审定的结果
+      getAuditList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/ren/kbiaudit/list`),
+            method: 'get',
+            params: this.$http.adornParams({
+              year: this.dataForm.curYear,
+              updown: this.dataForm.updown
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
     }
   }
 </script>

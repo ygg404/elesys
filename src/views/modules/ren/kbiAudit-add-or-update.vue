@@ -42,7 +42,6 @@
         this.getDataList().then(list => {
           let kbiAuditList = []
           // 获取审定后的效能考核表
-          console.log(item.checkUserList)
           for (let checkUser of item.checkUserList) {
             kbiAuditList.push({
               'userId': checkUser.checkUserId,
