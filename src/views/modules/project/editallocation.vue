@@ -473,8 +473,8 @@
         for (let groupRate of groupRateList) {
           if (groupRate.isFirst === true) {
             groupRate.size = numList[++index].size
-            groupRate.allNotOutput = numList[index].allNotOutput
-            groupRate.allSetOutput = numList[index].allSetOutput
+            groupRate.allNotOutput = numList[index].allNotOutput.toFixed(3)
+            groupRate.allSetOutput = numList[index].allSetOutput.toFixed(3)
             groupRate.allUndoneNum = numList[index].allUndoneNum
           }
         }
