@@ -176,6 +176,11 @@
         })
       }
 
+    },
+    watch: {
+      content (newValue, oldValue) {
+        this.editor.txt.html(newValue)
+      }
     }
   }
 </script>
