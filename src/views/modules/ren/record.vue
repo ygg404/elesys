@@ -217,7 +217,11 @@
                 <el-table border :data="scope.row.workBackgroundList">
                   <el-table-column header-align="center" align="center" label="日期">
                     <template slot-scope="slot">
-                      <span>{{slot.row.startDate}} 至 {{slot.row.endDate}}</span>
+                      <!--这里需要修改一下-->
+                      <span>{{slot.row.startDate}} 至 <span v-if="slot.row.endDate == null">今</span>
+                        <span v-else>{{slot.row.endDate}}</span>
+                        <!--{{slot.row.endDate}}-->
+                      </span>
                     </template>
                   </el-table-column>
                   <el-table-column prop="company" header-align="center" align="center" label="企业"></el-table-column>

@@ -121,7 +121,7 @@
       </el-row>
       <el-row class="card_table_content">
         <el-table border :data="dataForm.edBackgroundList">
-          <el-table-column prop="monthRangeDate" header-align="center" align="center" label="日期" width="318">
+          <el-table-column  header-align="center" align="center" label="日期" width="318">
             <template slot-scope="scope">
               <el-date-picker v-model="scope.row.monthRangeDate" type="monthrange" start-placeholder="开始月份" end-placeholder="结束月份" ></el-date-picker>
             </template>
@@ -156,10 +156,36 @@
       </el-row>
       <el-row class="card_table_content">
         <el-table border :data="dataForm.workBackgroundList">
-          <el-table-column prop="monthRangeDate" header-align="center" align="center" label="日期" width="318">
+          <el-table-column header-align="center" align="center" label="日期" width="318">
             <template slot-scope="scope">
-              <el-date-picker v-model="scope.row.monthRangeDate" type="monthrange" start-placeholder="开始月份" end-placeholder="结束月份" ></el-date-picker>
+              <el-row>
+                <el-col :span="11">
+                  <div class="edp"><el-date-picker
+                    v-model="scope.row.startDate"
+
+                    type="month"
+                    placeholder="开始日期">
+                  </el-date-picker></div>
+                </el-col>
+                <el-col :span="2">
+                  <div>-</div>
+                </el-col>
+                <el-col :span="11">
+                  <div class="edp">
+                    <el-date-picker
+                      v-model="scope.row.endDate"
+
+                      type="month"
+                      placeholder="至今">
+                    </el-date-picker>
+                  </div>
+                </el-col>
+              </el-row>
+              <!--<el-date-picker v-model="scope.row.monthRangeDate" type="monthrange" start-placeholder="开始月份" end-placeholder="结束月份" ></el-date-picker>-->
             </template>
+            <!--<template slot-scope="scope">-->
+              <!--<el-date-picker v-model="scope.row.monthRangeDate" type="monthrange" start-placeholder="开始月份" end-placeholder="结束月份" ></el-date-picker>-->
+            <!--</template>-->
           </el-table-column>
           <el-table-column prop="company" header-align="center" align="center" label="企业">
             <template slot-scope="scope">
@@ -351,7 +377,7 @@
                 }
                 for (let wBackground of data.renRecordVo.workBackgroundList){
                   wBackground.wbId = getUUID()
-                  wBackground.monthRangeDate = [wBackground.startDate , wBackground.endDate]
+                  // wBackground.monthRangeDate = [wBackground.startDate , wBackground.endDate]
                 }
                 this.dataForm.edBackgroundList = data.renRecordVo.edBackgroundList
                 this.dataForm.workBackgroundList = data.renRecordVo.workBackgroundList
@@ -369,9 +395,11 @@
               edBackground.endDate = moment(edBackground.monthRangeDate[1]).format('YYYY-MM-DD')
             }
             for (let wBackground of this.dataForm.workBackgroundList){
-              wBackground.startDate = moment(wBackground.monthRangeDate[0]).format('YYYY-MM-DD')
-              wBackground.endDate = moment(wBackground.monthRangeDate[1]).format('YYYY-MM-DD')
+              wBackground.startDate = moment(wBackground.startDate).format('YYYY-MM') == 'Invalid date' ? '': moment(wBackground.startDate).format('YYYY-MM')
+              wBackground.endDate = moment(wBackground.endDate).format('YYYY-MM') == 'Invalid date' ? '': moment(wBackground.endDate).format('YYYY-MM')
             }
+            console.log("工作")
+            console.log(this.dataForm.workBackgroundList)
             this.loading = true
             this.loadingtext = '正在上传中'
             this.$http({
@@ -431,7 +459,9 @@
         this.dataForm.workBackgroundList.push({
           wbId: getUUID(),
           userId: this.dataForm.userId,
-          monthRangeDate: ['',''],
+          startDate:'',
+          endDate:'',
+          // monthRangeDate: ['',''],
           company: '',
           jobPosition: '',
           jobDescription: ''
@@ -605,5 +635,9 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+  }
+
+  .edp .el-date-editor.el-input {
+    width: 120px;
   }
 </style>

@@ -182,7 +182,10 @@
           <!--工作经历动态数据-->
           <tr v-for="(v,i) in workBackgroundList" :key="i">
             <td colspan="2"  class="ctpslasttwo" style="margin-left:30px;">
-              {{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}
+              <!--{{v.startDate}}&nbsp;至&nbsp;{{v.endDate}}-->
+              {{v.startDate}}
+              至 <span v-if="v.endDate == null">今</span>
+              <span v-else>{{v.endDate}}</span>
             </td>
             <td colspan="3" class="ctpslasttwo" style="margin-left:30px;">
               {{v.company}}
