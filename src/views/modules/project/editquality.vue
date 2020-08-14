@@ -22,7 +22,7 @@
         <template slot="title">
           <span class="span_title">返修记录信息</span>
         </template>
-        <el-table :data="backWorkList" border>
+        <el-table :data="backWorkList" border v-loading="reportLoading">
           <el-table-column prop="backCreateTime" header-align="center" align="center" label="返修日期" ></el-table-column>
           <el-table-column prop="backNote" header-align="center" align="center" label="返修要求" >
             <template slot-scope="scope">
@@ -103,6 +103,7 @@
         curprog: 0,
         totalprog: 1,
         dataLoading: false,
+        reportLoading: false,
         loadingText: '正在加载...',
         projectNo: '',
         reportVisible: false,
@@ -256,11 +257,13 @@
       },
       // 获取返修内容列表
       getBackworkHandle (projectNo) {
+        this.reportLoading = true
         this.$http({
           url: this.$http.adornUrl(`/project/backwork/list/${projectNo}`),
           method: 'get',
           params: this.$http.adornParams({})
         }).then(({data}) => {
+          this.reportLoading = false
           if (data && data.code === 0) {
             this.backWorkList = data.list
           } else {
@@ -343,6 +346,7 @@
                 type: 'success',
                 duration: 1500
               })
+              that.dataLoading = false
               that.dataLoading = false
               this.visible = false
               this.$emit('refreshDataList')

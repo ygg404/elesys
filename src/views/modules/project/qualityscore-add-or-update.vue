@@ -1,5 +1,6 @@
 <template>
   <el-dialog title="质量评分" :close-on-click-modal="false" :visible.sync="visible" width="80%">
+
     <div v-for="(scoreDetail, index) in scoreDetailList">
       <div class="form_title" v-if="index==0">作业依据、空间基准及数学精度(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></div>
       <div class="form_title" v-if="index==6">数据采集、处理质量(权:0.4) <span class="from_span">质量元素扣分:<span style="color: red">{{cjScore}}</span></span></div>

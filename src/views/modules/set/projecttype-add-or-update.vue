@@ -4,11 +4,19 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
-             label-width="80px">
-      <el-form-item label="内容" prop="name">
-        <el-input v-model="dataForm.name" placeholder="内容"></el-input>
+             label-width="120px">
+      <el-form-item label="类型名称" prop="name">
+        <el-input v-model="dataForm.name" placeholder="类型名称"></el-input>
       </el-form-item>
-
+      <el-form-item label="点位中误差" prop="errorPoint">
+        <el-input v-model="dataForm.errorPoint" placeholder="点位中误差" type="number"></el-input>
+      </el-form-item>
+      <el-form-item label="间距中误差" prop="errorSpace">
+        <el-input v-model="dataForm.errorSpace" placeholder="间距中误差" type="number"></el-input>
+      </el-form-item>
+      <el-form-item label="高程中误差" prop="errorHeigh">
+        <el-input v-model="dataForm.errorHeigh" placeholder="高程中误差" type="number"></el-input>
+      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
@@ -25,7 +33,10 @@
         dataForm: {
           id: 0,
           name: '',
-          nameCode: ''
+          nameCode: '',
+          errorPoint: '',
+          errorSpace: '',
+          errorHeight: ''
         },
         dataRule: {
           name: [
@@ -51,6 +62,9 @@
             }).then(({data}) => {
               if (data && data.code === 0) {
                 this.dataForm.name = data.projectType.name
+                this.dataForm.errorPoint = data.projectType.errorPoint
+                this.dataForm.errorSpace = data.projectType.errorSpace
+                this.dataForm.errorHeigh = data.projectType.errorHeigh
               }
             })
           }
