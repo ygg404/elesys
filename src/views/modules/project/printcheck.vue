@@ -123,6 +123,7 @@
       </div>
     </div>
     <div style="text-align: center;width: 100%;margin-top: 20px;">
+<!--      <el-button type="success" icon="el-icon-printer" size="large" @click="exportChart">导出Word文档</el-button>-->
       <el-button type="primary" icon="el-icon-printer" size="large" @click="printChart">打印</el-button>
     </div>
   </div>
@@ -343,6 +344,28 @@
               reject(data.msg)
             }
           })
+        })
+      },
+      // 导出质检单word
+      exportChart () {
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl(`/project/chartquality/exportWord`),
+          method: 'post',
+          data: this.$http.adornData({
+            html: document.getElementById('printId').innerHTML
+          }),
+          responseType: 'blob'
+        }).then(({data}) => {
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = '质检单.doc' // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          this.dataListLoading = false
         })
       },
       // 打印报表
