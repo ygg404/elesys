@@ -65,7 +65,7 @@
           <el-row  style="width: 590pt;">
             <el-col :span="1">&nbsp;</el-col>
             <el-col :span="22">
-              <table style="width:100%;margin:0 auto" border="1" cellspacing="0">
+              <table style="width:100%;margin:0 auto" border="1" cellspacing="0" v-if="score1Visible">
                 <tr><th>检查内容</th><th>检查结果</th><th>错漏数量A类</th><th>错漏数量B类</th><th>错漏数量C类</th><th>错漏数量D类</th><th>检查项扣分</th></tr>
                 <!--19年检查项-->
                 <tr v-if="preShow"><td colspan="8">空间基准质量(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></td></tr>
@@ -94,6 +94,18 @@
                   <td> {{item.checkcontent}}</td><td> {{item.checkResult}}</td><td> {{item.checkA}}</td><td> {{item.checkB}}</td><td> {{item.checkC}}</td><td> {{item.checkD}}</td><td> {{item.score}}</td>
                 </tr>
               </table>
+              <!--20年检查项-->
+              <table style="width:100%;margin:0 auto" border="1" cellspacing="0" v-if="score2Visible && scoreDetailList.length > 0">
+                <tr><th>问题描述</th><th>质量元素</th><th>权重</th><th>错漏类型</th><th>数量</th><th>扣分</th></tr>
+                <tr v-for="(item, index) in scoreDetailList" :key ="item.typeId">
+                  <td>{{item.typeName}}</td>
+                  <td>{{item.qualityCate}}</td>
+                  <td>{{item.scoreRadio}}</td>
+                  <td>{{item.type}}</td>
+                  <td>{{item.typeNum}}</td>
+                  <td>{{item.delScore}}</td>
+                </tr>
+              </table>
             </el-col>
           </el-row>
         </div>
@@ -101,8 +113,14 @@
           <el-row  style="width: 590pt;">&nbsp;</el-row>
         </div>
         <div class="block">
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">加权扣分</div>
+          <div class="tdstyle" style="width: 300pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{stringIsNull(projectInfo.qualityScore)? '' : (100 - projectInfo.qualityScore).toFixed(2)}}
+          </div>
           <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">质量评分</div>
-          <div class="tdstyle" style="width: 300pt;border-right: 1px solid black;border-top: 1px solid black;">{{projectInfo.qualityScore}}</div>
+          <div class="tdstyle" style="width: 300pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{stringIsNull(projectInfo.qualityScore)? '' : projectInfo.qualityScore.toFixed(2)}}
+          </div>
           <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">质量等级</div>
           <div class="tdstyle" style="width: 128pt;border-top: 1px solid black;" >{{projectInfo.qualityLevel}}</div>
         </div>
@@ -131,6 +149,7 @@
 
 <script>
   import {closeTab} from '@/utils/tabs'
+  import {stringIsNull} from '@/utils/index'
 
   export default {
     data () {
@@ -191,7 +210,9 @@
         preShow: false, // 19年检查显示
         nextShow: true,  // 20年检查显示
         qualityReport: '',  // 质检反馈报告
-        loading: false // 加载显示
+        loading: false, // 加载显示
+        score1Visible: false,
+        score2Visible: false
       }
     },
     mounted () {
@@ -207,7 +228,68 @@
           this.loading = false
         })
         this.getQualityScoreList(projectNo).then(data => {
-          this.initScoreTypeList(data)
+          if (data.length > 0 && data[0].typeId < 100) {
+            this.score1Visible = true
+            this.score2Visible = false
+            this.initScoreTypeList(data)
+          } else {
+            this.score1Visible = false
+            this.score2Visible = true
+            this.getScoreFileList().then(fileList => {
+              this.fileList = fileList
+              let fileNo = fileList.length > 0 ? fileList[0] : ''
+              this.getQualityTableList(fileNo).then(list => {
+                let scoreDetailList = []
+                for (let scoreItem of list) {
+                  for (let typeItem of data) {
+                    if (typeItem.typeId === scoreItem.typeId) {
+                      if (parseInt(typeItem.checkA) !== 0) {
+                        scoreDetailList.push({
+                          qualityCate: scoreItem.qualityCate,
+                          scoreRadio: scoreItem.scoreRadio,
+                          typeName: scoreItem.typeaName,
+                          typeNum: typeItem.checkA,
+                          type: 'A',
+                          delScore: parseInt(typeItem.checkA) * 42
+                        })
+                      }
+                      if (parseInt(typeItem.checkB) !== 0) {
+                        scoreDetailList.push({
+                          qualityCate: scoreItem.qualityCate,
+                          scoreRadio: scoreItem.scoreRadio,
+                          typeName: scoreItem.typebName,
+                          typeNum: typeItem.checkB,
+                          type: 'B',
+                          delScore: parseInt(typeItem.checkA) * 12
+                        })
+                      }
+                      if (parseInt(typeItem.checkC) !== 0) {
+                        scoreDetailList.push({
+                          qualityCate: scoreItem.qualityCate,
+                          scoreRadio: scoreItem.scoreRadio,
+                          typeName: scoreItem.typecName,
+                          typeNum: typeItem.checkC,
+                          type: 'C',
+                          delScore: parseInt(typeItem.checkC) * 4
+                        })
+                      }
+                      if (parseInt(typeItem.checkD) !== 0) {
+                        scoreDetailList.push({
+                          qualityCate: scoreItem.qualityCate,
+                          scoreRadio: scoreItem.scoreRadio,
+                          typeName: scoreItem.typedName,
+                          typeNum: typeItem.checkD,
+                          type: 'D',
+                          delScore: parseInt(typeItem.checkD)
+                        })
+                      }
+                    }
+                  }
+                }
+                this.scoreDetailList = scoreDetailList
+              })
+            })
+          }
         })
       },
       // 初始化评分列表
@@ -305,6 +387,24 @@
           }
         })
       },
+      // 获取数据列表
+      getQualityTableList (fileNo) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/qualityscore/list'),
+            method: 'get',
+            params: this.$http.adornParams({
+              fileNo: fileNo
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.dataList = []
+            }
+          })
+        })
+      },
       // 根据项目编号获取质量评分列表
       getQualityScoreList (projectNo) {
         return new Promise((resolve, reject) => {
@@ -342,6 +442,20 @@
             } else {
               this.$message.error(data.msg)
               reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取评分列表文件
+      getScoreFileList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/qualityscore/fileList'),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
             }
           })
         })
@@ -456,5 +570,8 @@
     float:left;
     text-align:center;
     align-items: stretch;
+  }
+  table td{
+    text-align: center;
   }
 </style>
