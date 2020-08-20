@@ -36,7 +36,7 @@
           nameCode: '',
           errorPoint: '',
           errorSpace: '',
-          errorHeight: ''
+          errorHeigh: ''
         },
         dataRule: {
           name: [
@@ -80,7 +80,10 @@
               data: this.$http.adornData({
                 'id': this.dataForm.id || undefined,
                 'name': this.dataForm.name,
-                'nameCode': this.dataForm.nameCode
+                'nameCode': this.dataForm.nameCode,
+                'errorPoint': this.dataForm.errorPoint,
+                'errorSpace': this.dataForm.errorSpace,
+                'errorHeigh': this.dataForm.errorHeigh
               })
             }).then(({data}) => {
               if (data && data.code === 0) {

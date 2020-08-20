@@ -1,5 +1,18 @@
 <template>
   <el-dialog title="质量评分" :close-on-click-modal="false" :visible.sync="visible" width="95%">
+    <div>
+      <el-form :inline="true" :model="errorForm" class="item">
+        <el-form-item label="点位中误差:">
+          <el-input v-model="errorForm.errorPoint" type="number" ></el-input>
+        </el-form-item>
+        <el-form-item label="间距中误差:">
+          <el-input v-model="errorForm.errorSpace" type="number" ></el-input>
+        </el-form-item>
+        <el-form-item label="高程中误差:">
+          <el-input v-model="errorForm.errorHeigh" type="number" ></el-input>
+        </el-form-item>
+      </el-form>
+    </div>
 <!--    2019 评分表-->
     <div v-if="score1Visible">
       <div v-for="(scoreDetail, index) in scoreDetailList">
@@ -75,6 +88,8 @@
 </template>
 
 <script>
+  import {stringIsNull} from '../../../utils'
+
   export default {
     data () {
       return {
@@ -82,6 +97,11 @@
         loading: true,
         dataListLoading: false,
         dataList: [], // 质量评分表
+        errorForm: {
+          errorPoint: 0, // 点位中误差
+          errorSpace: 0, // 间距中误差
+          errorHeigh: 0 // 高程中误差
+        },
         dataForm: {
           fileNo: ''
         },
@@ -152,7 +172,11 @@
         this.dataListLoading = true
         this.projectNo = projectNo
         this.initScoreTypeList()
-        console.log(this.scoreDetailList)
+        this.getErrorForm(projectNo).then(errorForm => {
+          if (!stringIsNull(errorForm)) {
+            this.errorForm = errorForm
+          }
+        })
         this.getQualityScoreList(projectNo).then(data => {
           this.scoreList = data
           // 2019 年评分方式
@@ -275,6 +299,20 @@
           return 'background-color: lightblue;color: #fff;font-weight: 700;line-height:200%;font-size:12pt'
         }
       },
+      // 根据项目编号获取点、间距、高程误差
+      getErrorForm (projectNo) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/checkerror/info/${projectNo}`),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.checkError)
+            }
+          })
+        })
+      },
       // 质量评分初始化（2020-08-15）
       scoreNewChangeHandler () {
         let delScoreList = []
@@ -387,7 +425,10 @@
           data: this.$http.adornData({
             'scoreList': scoreList,
             'projectNo': this.projectNo,
-            'qualityScore': this.allScore
+            'qualityScore': this.allScore,
+            'errorPoint': this.errorForm.errorPoint,
+            'errorSpace': this.errorForm.errorSpace,
+            'errorHeigh': this.errorForm.errorHeigh
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -407,7 +448,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .form_line{
     border-bottom: 1px dotted #ccc;
     border-radius: 0px;
@@ -442,6 +483,9 @@
     color: #00a0e9
   }
   .te_input > input{
+    color: #00a0e9;
+  }
+  .item .el-form-item__label{
     color: #00a0e9;
   }
 </style>

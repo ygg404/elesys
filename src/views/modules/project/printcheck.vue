@@ -112,6 +112,45 @@
         <div class="block">
           <el-row  style="width: 590pt;">&nbsp;</el-row>
         </div>
+        <!-- 质检报告的误差-->
+        <div class="block">
+          <div class="ththead" style="width: 90pt;border-right: 1px solid black;border-top: 1px solid black;">点位中误差</div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{this.errorForm.errorPoint}}
+          </div>
+          <div class="ththead" style="width: 90pt;border-right: 1px solid black;border-top: 1px solid black;">间距中误差</div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{this.errorForm.errorSpace}}
+          </div>
+          <div class="ththead" style="width: 90pt;border-right: 1px solid black;border-top: 1px solid black;">高程中误差</div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{this.errorForm.errorHeigh}}
+          </div>
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">数学精度</div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{this.precision}}
+          </div>
+        </div>
+        <!--项目类型的限差-->
+        <div class="block">
+          <div class="ththead" style="width: 90pt;border-right: 1px solid black;border-top: 1px solid black;">点位中误差限差</div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{this.projectForm.errorPoint}}
+          </div>
+          <div class="ththead" style="width: 90pt;border-right: 1px solid black;border-top: 1px solid black;">间距中误差限差</div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{this.projectForm.errorSpace}}
+          </div>
+          <div class="ththead" style="width: 90pt;border-right: 1px solid black;border-top: 1px solid black;">高程中误差限差</div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+            {{this.projectForm.errorHeigh}}
+          </div>
+          <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">
+          </div>
+          <div class="tdstyle" style="width: 70pt;border-right: 1px solid black;border-top: 1px solid black;">
+          </div>
+        </div>
+
         <div class="block">
           <div class="ththead" style="width: 80pt;border-right: 1px solid black;border-top: 1px solid black;">加权扣分</div>
           <div class="tdstyle" style="width: 300pt;border-right: 1px solid black;border-top: 1px solid black;">
@@ -198,6 +237,17 @@
           '资料规整性（字体、大小、格式、页码、纸张大小）',
           '成果资料的齐全性'
         ],
+        errorForm: {
+          errorPoint: '',
+          errorSpace: '',
+          errorHeigh: ''
+        },
+        // 项目类型的限差
+        projectForm: {
+          errorPoint: '',
+          errorSpace: '',
+          errorHeigh: ''
+        },
         projectInfo: '',
         backWorkList: [],
         kjScore: 0, // 空间扣分
@@ -210,6 +260,7 @@
         preShow: false, // 19年检查显示
         nextShow: true,  // 20年检查显示
         qualityReport: '',  // 质检反馈报告
+        precision: '', // 数学精度
         loading: false, // 加载显示
         score1Visible: false,
         score2Visible: false
@@ -222,7 +273,43 @@
       init () {
         this.loading = true
         let projectNo = this.$route.query.projectNo
-        this.getInfoByProjectNo(projectNo)
+        // 获取项目基本信息
+        this.getInfoByProjectNo(projectNo).then(projectInfo => {
+          this.projectInfo = projectInfo
+          // 获取质检误差
+          this.getErrorForm(projectNo).then(data => {
+            if (!stringIsNull(data)) {
+              this.errorForm = data
+            }
+            // 根据项目类型获取限差
+            this.getProjectErrorForm(projectInfo.projectType.split(',')[0]).then(projectType => {
+              if (!stringIsNull(projectType)) {
+                this.projectForm = projectType
+                // 如果项目类型的限差 为空 则无法计算数学精度
+                if (stringIsNull(this.projectForm.errorHeigh) || stringIsNull(this.projectForm.errorPoint) || stringIsNull(this.projectForm.errorSpace)) {
+                  this.precision = ''
+                }
+                // 如果误差填写内容都为空
+                else if (stringIsNull(this.errorForm.errorHeigh) && stringIsNull(this.errorForm.errorPoint) && stringIsNull(this.errorForm.errorSpace)) {
+                  this.precision = ''
+                }
+                else {
+                  let heigh = (this.errorForm.errorHeigh <= (this.projectForm.errorHeigh / 3)) ? 100 : (this.errorForm.errorHeigh - this.projectForm.errorHeigh / 3)
+                    / (2 / 3 * this.projectForm.errorHeigh) * (-40) + 100
+                  console.log(heigh)
+                  let point = (this.errorForm.errorPoint <= (this.projectForm.errorPoint / 3)) ? 100 : (this.errorForm.errorPoint - this.projectForm.errorPoint / 3)
+                    / (2 / 3 * this.projectForm.errorPoint) * (-40) + 100
+                  console.log(point)
+                  let space = ( stringIsNull(this.errorForm.errorSpace) || this.errorForm.errorSpace === 0) ? 0 :
+                    ((this.errorForm.errorSpace <= (this.projectForm.errorSpace / 3)) ? 100 : (this.errorForm.errorSpace - this.projectForm.errorSpace / 3)
+                    / (2 / 3 * this.projectForm.errorSpace) * (-40) + 100)
+                  console.log(space)
+                  this.precision = parseInt((heigh + point + space) / (stringIsNull(this.errorForm.errorSpace) || this.errorForm.errorSpace === 0 ? 2 : 3) + 0.5)
+                }
+              }
+            })
+          })
+        })
         this.getBackworkHandle(projectNo)
         this.getQualityByProjectNo(projectNo).then(data => {
           this.loading = false
@@ -361,7 +448,6 @@
               } else if (data.projectInfo.qualityScore >= 90) {
                 data.projectInfo.qualityLevel = '优'
               }
-              this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
             } else {
               this.$message.error(data.msg)
@@ -460,6 +546,36 @@
           })
         })
       },
+      // 根据项目编号获取点、间距、高程误差
+      getErrorForm (projectNo) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/checkerror/info/${projectNo}`),
+            method: 'get',
+            params: this.$http.adornParams({})
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.checkError)
+            }
+          })
+        })
+      },
+      // 根据项目类型获取限差
+      getProjectErrorForm (typeName) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl('/set/projecttype/getByName'),
+            method: 'get',
+            params: this.$http.adornParams({
+              'typeName': typeName
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.projectType)
+            }
+          })
+        })
+      },
       // 导出质检单word
       exportChart () {
         this.dataListLoading = true
@@ -497,18 +613,18 @@
         console.log('goBack')
         closeTab('project-printwork')
       }
+    },
+    watch: {
+      '$route': function (to, from) {
+        this.projectNo = to.query['projectNo']
+        // 执行数据更新查询
+        if (to.name === 'project-printcheck') {
+          this.init()
+        } else {
+          closeTab('project-printcheck')
+        }
+      }
     }
-    // watch: {
-    //   '$route': function (to, from) {
-    //     this.projectNo = to.query['projectNo']
-    //     // 执行数据更新查询
-    //     if (to.name === 'project-printwork') {
-    //       this.init()
-    //     } else {
-    //       this.goBack()
-    //     }
-    //   }
-    // }
   }
 </script>
 

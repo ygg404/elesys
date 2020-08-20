@@ -14,7 +14,7 @@
       <el-table-column prop="standard" label="计分标准"></el-table-column>
       <el-table-column prop="extraNum" label="分数">
         <template slot-scope="scope">
-          <el-input-number v-model="scope.row.extraNum" size="samll" width="120"
+          <el-input-number v-model="scope.row.extraNum" size="small" width="120"
                            :min="scope.row.extraType == 0 ? 0 : -100" :max="scope.row.extraType == 1? 0:100"></el-input-number>
         </template>
       </el-table-column>

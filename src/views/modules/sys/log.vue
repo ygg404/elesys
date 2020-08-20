@@ -2,14 +2,20 @@
   <div class="mod-log">
     <el-form :inline="true" :model="dataForm" >
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="用户名／用户操作" @change="pageIndex = 1,getDataList()" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="用户名" @change="pageIndex = 1,getDataList()" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="dataForm.operation" placeholder="用户操作" @change="pageIndex = 1,getDataList()" clearable></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="dataForm.params" placeholder="请求参数" @change="pageIndex = 1,getDataList()" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="pageIndex = 1,getDataList()" >查询</el-button>
       </el-form-item>
     </el-form>
-    <el-table
-      :data="dataList"
+    <el-table @sort-change="changeSort"
+              :data="dataList"
       border
       v-loading="dataListLoading"
       style="width: 100%">
@@ -73,7 +79,7 @@
         header-align="center"
         align="center"
         width="180"
-        label="创建时间">
+        label="创建时间" sortable="custom" :sort-orders="['descending','ascending']">
       </el-table-column>
     </el-table>
     <el-pagination
@@ -93,7 +99,10 @@
     data () {
       return {
         dataForm: {
-          key: ''
+          key: '',
+          operation: '',
+          params: '',
+          order: 'desc'
         },
         dataList: [],
         pageIndex: 1,
@@ -116,7 +125,10 @@
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'key': this.dataForm.key
+            'key': this.dataForm.key,
+            'operation': this.dataForm.operation,
+            'params': this.dataForm.params,
+            'order': this.dataForm.order
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -128,6 +140,20 @@
           }
           this.dataListLoading = false
         })
+      },
+      // 排序字段改变
+      changeSort (val) {
+        switch (val.order) {
+          case 'ascending':
+            this.dataForm.order = 'asc'
+            break
+          case 'descending':
+            this.dataForm.order = 'desc'
+            break
+          default:
+            this.dataForm.order = 'desc'
+        }
+        this.getDataList()
       },
       // 每页数
       sizeChangeHandle (val) {

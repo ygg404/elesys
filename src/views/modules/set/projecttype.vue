@@ -18,9 +18,9 @@
           <span style="color: #00a0e9">{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="errorPoint" header-align="center" align="center" label="点位中误差"></el-table-column>
-      <el-table-column prop="errorSpace" header-align="center" align="center" label="间距中误差"></el-table-column>
-      <el-table-column prop="errorHeigh" header-align="center" align="center" label="高程中误差"></el-table-column>
+      <el-table-column prop="errorPoint" header-align="center" align="center" label="点位中误差限差"></el-table-column>
+      <el-table-column prop="errorSpace" header-align="center" align="center" label="间距中误差限差"></el-table-column>
+      <el-table-column prop="errorHeigh" header-align="center" align="center" label="高程中误差限差"></el-table-column>
       <el-table-column fixed="right" header-align="center" align="center" width="200" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
