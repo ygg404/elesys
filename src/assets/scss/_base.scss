@@ -290,7 +290,7 @@ p{
       .el-menu-item.is-active,
       .el-submenu.is-active > .el-submenu__title {
         color: mix(#fff, $sidebar--color-text-dark, 100%);
-        background-color: #00537d;
+        background-color: mix(#000, $sidebar--background-color-dark, 60%);;
       }
     }
   }
