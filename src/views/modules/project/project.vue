@@ -14,29 +14,29 @@
       </div>
       <el-form :inline="true" :model="dataForm" style="width: 100%;">
         <el-select v-model="dataForm.dateItemId" placeholder="时间类型" style="width: 135px;" @change="getDataList"
-                   class="select_btn">
+                   class="select_btn" size="small">
           <el-option v-for="item in dateItemList" :label="item.dateItem" :key="item.id" :value="item.id"></el-option>
         </el-select>
         <el-form-item style="margin-left: -2px;">
-          <el-date-picker v-model="dataForm.startDate"   type="date"  placeholder="开始日期" style="width: 150px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
-          <el-date-picker v-model="dataForm.endDate"  type="date"  placeholder="结束日期" style="width: 150px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
+          <el-date-picker v-model="dataForm.startDate" size="small"  type="date"  placeholder="开始日期" style="width: 140px;" :picker-options="pickerOptionsStart" @change="changeEnd"></el-date-picker> 至
+          <el-date-picker v-model="dataForm.endDate" size="small"  type="date"  placeholder="结束日期" style="width: 140px;" :picker-options="pickerOptionsEnd" @change="changeStart"></el-date-picker>
         </el-form-item>
         <el-form-item >
-          <el-select v-model="dataForm.projectType" placeholder="项目类型选择" filterable clearable @change="pageIndex = 1,getDataList()">
+          <el-select v-model="dataForm.projectType" size="small" placeholder="项目类型选择" filterable clearable @change="pageIndex = 1,getDataList()">
             <el-option v-for="item in projectTypeList"  :label="item.name" :key="item.id" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item style="margin-left: 20px;">
-          <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable style="width: 150px;"  @change="pageIndex = 1,getDataList()"></el-input>
+          <el-input v-model="dataForm.key" placeholder="关键字搜索" size="small" clearable style="width: 140px;"  @change="pageIndex = 1,getDataList()"></el-input>
         </el-form-item>
         <el-form-item style="margin-left: -10px;">
-          <el-button @click="pageIndex = 1,getDataList()">查询</el-button>
-          <el-button @click="exportProjectExcel()" type="success">导出Excel</el-button>
+          <el-button size="small" @click="pageIndex = 1,getDataList()">查询</el-button>
+          <el-button size="small" @click="exportProjectExcel()" type="success">导出Excel</el-button>
         </el-form-item>
         <el-form-item style="float: right">
-          <el-button @click="outputChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartoutput')">产值表</el-button>
-          <el-button @click="collectChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartcollect')">产值汇总表</el-button>
-          <el-button @click="qualityChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartquality')">质量表</el-button>
+          <el-button size="small" @click="outputChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartoutput')">产值表</el-button>
+          <el-button size="small" @click="collectChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartcollect')">产值汇总表</el-button>
+          <el-button size="small" @click="qualityChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartquality')">质量表</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="dataList" border v-loading="dataListLoading" @sort-change="changeSort" style="width: 100%;">
