@@ -3,12 +3,29 @@
     :title="title"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <table border="1" cellspacing="0">
-      <tr class="field"><th>姓名</th><th><el-checkbox v-model="allChecked" @change="allCheckedHandle"></el-checkbox>是否参评</th></tr>
-      <tr v-for="item in kbiPersonList" :key="item.userId" style="text-align: center">
-        <td>{{item.username}}</td><td><el-checkbox v-model="item.isAttend"></el-checkbox></td>
-      </tr>
-    </table>
+    <div style="display: flex">
+      <table border="1" cellspacing="0" style="margin-left: 30px;">
+        <tr>
+          <th colspan="2" class="th_title">考核人员</th>
+        </tr>
+        <tr class="field"><th>姓名</th><th><el-checkbox v-model="allCheck" @change="allCheckHandle"></el-checkbox>是否参评</th></tr>
+        <tr v-for="item in kbiCheckList" :key="item.userId" style="text-align: center">
+          <td>{{item.username}}</td><td><el-checkbox v-model="item.isAttend"></el-checkbox></td>
+        </tr>
+      </table>
+
+
+      <table border="1" cellspacing="0" style="margin-left: 100px;">
+        <tr>
+          <th colspan="2" class="th_title">被考核人员</th>
+        </tr>
+        <tr class="field"><th>姓名</th><th><el-checkbox v-model="allChecked" @change="allCheckedHandle"></el-checkbox>是否参评</th></tr>
+        <tr v-for="item in kbiPersonList" :key="item.userId" style="text-align: center">
+          <td>{{item.username}}</td><td><el-checkbox v-model="item.isAttend"></el-checkbox></td>
+        </tr>
+      </table>
+    </div>
+
 
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">返回</el-button>
@@ -26,20 +43,23 @@
         year: '',
         updown: '',
         allChecked: false,
+        allCheck: false,
         dataListSelections: [],
-        kbiPersonList: []   // 参评人员列表
+        kbiPersonList: [],  // 被考核人员列表
+        kbiCheckList: []   // 考核人员列表
       }
     },
     methods: {
       init (item) {
         this.visible = true
+        // 考核和被考核人员 默认是 非全选
+        this.allChecked = false
+        this.allCheck = false
         this.$nextTick( () => {
           this.year = item.checkYear
           this.updown = item.checkUpdown
           this.title = '设置 ： ' + item.checkYear + '年' + (item.checkUpdown === 0 ? '上半年' : '下半年') + '   的参评人员'
-          this.getDataList().then(list => {
-
-            // let dataListSelections = []
+          this.getKbiPersonList().then(list => {
             for (let dat of list) {
               if (dat.isAttend === 1) {
                 dat.isAttend = true
@@ -48,18 +68,21 @@
               }
             }
             this.kbiPersonList = list
-            // for (let key in list) {
-            //   console.log(key)
-            //   if (list[key]['isAttend'] === 1) {
-            //     this.$refs.personTable.toggleRowSelection( this.kbiPersonList[key],true)
-            //     // dataListSelections.push(person)
-            //   }
-            // }
-            // console.log(this.dataListSelections = dataListSelections)
+          })
+          this.getKbiCheckList().then(list => {
+            for (let dat of list) {
+              if (dat.isAttend === 1) {
+                dat.isAttend = true
+              } else {
+                dat.isAttend = false
+              }
+            }
+            this.kbiCheckList = list
           })
         })
       },
-      getDataList () {
+      // 被考核人员
+      getKbiPersonList () {
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl(`/ren/kbiperson/list`),
@@ -78,28 +101,29 @@
           })
         })
       },
-      dataFormSubmit () {
-        let kbiPersonList = []
-        for (let item of this.kbiPersonList) {
-          if (item.isAttend) {
-            let personItem = {
-              userId: item.userId,
+      // 考核人员
+      getKbiCheckList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/ren/kbicheck/list`),
+            method: 'get',
+            params: this.$http.adornParams({
               year: this.year,
               updown: this.updown
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
             }
-            kbiPersonList.push(personItem)
-          }
-        }
-        this.$http({
-          url: this.$http.adornUrl(`/ren/kbiperson/save`),
-          method: 'post',
-          data: this.$http.adornData({
-            'year': this.year,
-            'updown': this.updown,
-            'kbiPersonList': kbiPersonList,
           })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
+        })
+      },
+      dataFormSubmit () {
+        this.postPersonListToApi().then(success => {
+          this.postCheckListToApi().then(success => {
             this.$message({
               message: '操作成功',
               type: 'success',
@@ -107,15 +131,85 @@
             })
             this.visible = false
             this.$emit('refreshDataList')
-          } else {
-            this.$message.error(data.msg)
-          }
+          })
         })
       },
-      // 多选
+      // 提交考核人员
+      postCheckListToApi () {
+        return new Promise((resolve, reject) => {
+          let kbiCheckList = []
+          for (let item of this.kbiCheckList) {
+            if (item.isAttend) {
+              let personItem = {
+                userId: item.userId,
+                year: this.year,
+                updown: this.updown
+              }
+              kbiCheckList.push(personItem)
+            }
+          }
+          this.$http({
+            url: this.$http.adornUrl(`/ren/kbicheck/save`),
+            method: 'post',
+            data: this.$http.adornData({
+              'year': this.year,
+              'updown': this.updown,
+              'kbiCheckList': kbiCheckList
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 提交被考核人员
+      postPersonListToApi () {
+        return new Promise((resolve, reject) => {
+          let kbiPersonList = []
+          for (let item of this.kbiPersonList) {
+            if (item.isAttend) {
+              let personItem = {
+                userId: item.userId,
+                year: this.year,
+                updown: this.updown
+              }
+              kbiPersonList.push(personItem)
+            }
+          }
+          this.$http({
+            url: this.$http.adornUrl(`/ren/kbiperson/save`),
+            method: 'post',
+            data: this.$http.adornData({
+              'year': this.year,
+              'updown': this.updown,
+              'kbiPersonList': kbiPersonList,
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 被考核人员多选
       allCheckedHandle () {
         for (let item of this.kbiPersonList) {
           if (this.allChecked) {
+            item.isAttend = true
+          } else {
+            item.isAttend = false
+          }
+        }
+      },
+      // 考核人员多选
+      allCheckHandle () {
+        for (let item of this.kbiCheckList) {
+          if (this.allCheck) {
             item.isAttend = true
           } else {
             item.isAttend = false
@@ -126,6 +220,11 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss">
+  @import "src/assets/scss/variables.scss";
+
+  .th_title {
+    color: $navbar--background-color;
+  }
 
 </style>

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="span_header">参评人数:<span>{{person}}</span>/<sapn style="color: #3b97d7">{{count}}</sapn></div>
+    <div class="span_header">考核人员提交情况:<span>{{person}}</span>/<sapn style="color: #3b97d7">{{count}}</sapn></div>
     <div class="user_card">
       <el-table :data="uRoleList" border>
-        <el-table-column label="用户名" prop="userName"></el-table-column>
+        <el-table-column label="用户名" prop="username"></el-table-column>
         <el-table-column label="是否提交">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.isAssess" type="primary">已提交</el-tag>
@@ -44,7 +44,7 @@
       getUaccessList () {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl(`/perf/access/uAssessList`),
+            url: this.$http.adornUrl(`/ren/kbicheck/getUcheckList`),
             method: 'get',
             params: this.$http.adornParams({
               year: this.dataForm.curYear.getFullYear(),
@@ -52,7 +52,13 @@
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
-              resolve(data.list)
+              let list = []
+              for (let dat of data.list) {
+                if (dat.isAttend === 1) {
+                  list.push(dat)
+                }
+              }
+              resolve(list)
             } else {
               this.$message.error(data.msg)
               reject(data.msg)
@@ -72,7 +78,7 @@
       getAttendCount () {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl(`/ren/kbiperson/getCount`),
+            url: this.$http.adornUrl(`/ren/kbicheck/getCount`),
             method: 'get',
             params: this.$http.adornParams({
               year: this.dataForm.curYear.getFullYear(),

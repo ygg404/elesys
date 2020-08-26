@@ -20,7 +20,7 @@
       <div style="text-align: center;margin-bottom: 10px;">
         <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核'}}</h1>
       </div>
-      <div v-for="kbiRole in kbiRoleList" style="margin-top: 20px;" :key="kbiRole.roleId">
+      <div v-for="kbiRole in kbiRoleList" style="margin-top: 20px;" :key="kbiRole.roleId" v-if="isAttend">
         <div style="font-size: 12pt;color: #3b97d7;">
           <span>{{kbiRole.roleName + ':'}}</span>
         </div>
@@ -37,9 +37,13 @@
           </el-table-column>
         </el-table>
       </div>
-      <div class="btn_line">
+      <div class="btn_line" v-if="isAttend">
         <el-button type="primary" size="large" @click="dataFormSubmit">提交评分</el-button>
       </div>
+      <div v-if="isAttend === false">
+        <span style="color:red;font-weight:700;font-size: 14pt;"> 当前年度此用户没有参评的权限！请联系管理员设置！</span>
+      </div>
+
     </el-card>
     <!-- 弹窗, 新增 / 修改 -->
 <!--    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>-->
@@ -65,6 +69,7 @@
         dataListSelections: [],
         addOrUpdateVisible: false,
         userKbiList: [],
+        isAttend: false, // 是否有考核参评的权限
         kbiRoleList: [],   // 角色考核项关系表
         isPost: false, // 是否提交
         rateList: getRateItem(), // 评分列表
@@ -96,6 +101,13 @@
         this.getPerfAccessVoList().then(accessList => {
           this.kbiRoleList = this.kbiRoleInit(accessList)
           this.dataListLoading = false
+        })
+        this.getUserIsAttend().then(data => {
+          if (stringIsNull(data)) {
+            this.isAttend = false
+          } else {
+            this.isAttend = true
+          }
         })
       },
       // 获取当前年份 用户的评分表
@@ -195,6 +207,26 @@
         }
         console.log(kbiRoleList)
         return (kbiRoleList)
+      },
+      // 获取当前用户是否有参评资格
+      getUserIsAttend () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/ren/kbicheck/info`),
+            method: 'get',
+            params: this.$http.adornParams({
+              year: this.dataForm.curYear.getFullYear(),
+              updown: this.dataForm.updown
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.renKbiCheck)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
       },
       // 获取统计方法
       getSummaryMethod (param) {

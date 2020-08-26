@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="45%" :title="titleName"
+  <el-dialog width="60%" :title="titleName"
              :close-on-click-modal="false" :visible.sync="visible">
     <el-card>
       <div align="center">
