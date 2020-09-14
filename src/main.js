@@ -11,6 +11,7 @@ import {isAuth, getUUID,stringIsNull} from '@/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/element-ui-theme'
+import '@/assets/scss/_variables.scss'
 import branchTree from './components/branch-tree'
 
 Vue.use(branchTree)

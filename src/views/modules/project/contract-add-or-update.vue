@@ -145,66 +145,68 @@
         }
       }
     },
-    mounted () {
-      this.getProjectTypeList().then()
-      this.getBusinessList()
-    },
     methods: {
       init (id) {
         this.dataForm.id = id || 0
         this.visible = true
         this.$nextTick(() => {
-          this.$refs['dataForm'].resetFields()
-          if (this.dataForm.id) {
-            this.$http({
-              url: this.$http.adornUrl(`/project/contract/info/${this.dataForm.id}`),
-              method: 'get',
-              params: this.$http.adornParams()
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.dataForm.contractNo = data.projectContract.contractNo
-                this.dataForm.contractAddTime = data.projectContract.contractAddTime
-                this.dataForm.contractCreateTime = data.projectContract.contractCreateTime
-                this.dataForm.contractAuthorize = data.projectContract.contractAuthorize
-                this.dataForm.contractName = data.projectContract.contractName
-                this.dataForm.contractType = data.projectContract.contractType
-                this.dataForm.contractNote = data.projectContract.contractNote
-                this.dataForm.contractBusiness = data.projectContract.contractBusiness
-                this.dataForm.contractStage = data.projectContract.contractStage
-                this.dataForm.contractMoney = data.projectContract.contractMoney
-                this.dataForm.projectType = data.projectContract.projectType
-                this.dataForm.filename = data.projectContract.filename
-                this.dataForm.userPhone = data.projectContract.userPhone
-                this.dataForm.userName = data.projectContract.userName
-                this.dataForm.projectTypeIdList = []
-                for (let ptypeName of data.projectContract.projectType.split(',')) {
-                  for (let ptype of this.projectTypeList) {
-                    if (ptype.name === ptypeName) this.dataForm.projectTypeIdList.push(ptype.id)
+          this.getProjectTypeList().then(ptList => {
+            this.projectTypeList = ptList
+            this.getBusinessList().then(busList => {
+              this.businessList = busList
+              this.$refs['dataForm'].resetFields()
+              if (this.dataForm.id) {
+                this.$http({
+                  url: this.$http.adornUrl(`/project/contract/info/${this.dataForm.id}`),
+                  method: 'get',
+                  params: this.$http.adornParams()
+                }).then(({data}) => {
+                  if (data && data.code === 0) {
+                    this.dataForm.contractNo = data.projectContract.contractNo
+                    this.dataForm.contractAddTime = data.projectContract.contractAddTime
+                    this.dataForm.contractCreateTime = data.projectContract.contractCreateTime
+                    this.dataForm.contractAuthorize = data.projectContract.contractAuthorize
+                    this.dataForm.contractName = data.projectContract.contractName
+                    this.dataForm.contractType = data.projectContract.contractType
+                    this.dataForm.contractNote = data.projectContract.contractNote
+                    this.dataForm.contractBusiness = data.projectContract.contractBusiness
+                    this.dataForm.contractStage = data.projectContract.contractStage
+                    this.dataForm.contractMoney = data.projectContract.contractMoney
+                    this.dataForm.projectType = data.projectContract.projectType
+                    this.dataForm.filename = data.projectContract.filename
+                    this.dataForm.userPhone = data.projectContract.userPhone
+                    this.dataForm.userName = data.projectContract.userName
+                    this.dataForm.projectTypeIdList = []
+                    for (let ptypeName of data.projectContract.projectType.split(',')) {
+                      for (let ptype of ptList) {
+                        if (ptype.name === ptypeName) this.dataForm.projectTypeIdList.push(ptype.id)
+                      }
+                    }
+                    for (let bus of busList) {
+                      if (this.dataForm.contractBusiness === bus.username) this.dataForm.contractBusinessId = bus.userId
+                    }
+                    console.log(this.dataForm.contractBusinessId)
                   }
-                }
-                for (let bus of this.businessList) {
-                  if (this.dataForm.contractBusiness === bus.username) this.dataForm.contractBusinessId = bus.userId
-                }
-                console.log(this.dataForm.contractBusinessId)
+                })
+              } else {
+                this.dataForm.contractAddTime = ''
+                this.dataForm.contractAuthorize = ''
+                this.dataForm.contractName = ''
+                this.dataForm.contractType = 0
+                this.dataForm.contractNote = ''
+                this.dataForm.contractBusiness = ''
+                this.dataForm.contractStage = ''
+                this.dataForm.contractMoney = 0
+                this.dataForm.projectType = ''
+                this.dataForm.filename = ''
+                this.dataForm.userPhone = ''
+                this.dataForm.userName = ''
+                this.dataForm.projectTypeIdList = []
+                this.dataForm.contractBusinessId = ''
+                this.getMaxcontractNo()
               }
             })
-          } else {
-            this.dataForm.contractAddTime = ''
-            this.dataForm.contractAuthorize = ''
-            this.dataForm.contractName = ''
-            this.dataForm.contractType = 0
-            this.dataForm.contractNote = ''
-            this.dataForm.contractBusiness = ''
-            this.dataForm.contractStage = ''
-            this.dataForm.contractMoney = 0
-            this.dataForm.projectType = ''
-            this.dataForm.filename = ''
-            this.dataForm.userPhone = ''
-            this.dataForm.userName = ''
-            this.dataForm.projectTypeIdList = []
-            this.dataForm.contractBusinessId = ''
-            this.getMaxcontractNo()
-          }
+          })
         })
       },
       // 表单提交
@@ -281,7 +283,6 @@
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.businessList = data.list
               resolve(data.list)
             } else {
               this.$message.error(data.msg)
@@ -298,7 +299,6 @@
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
-              this.projectTypeList = data.list
               resolve(data.list)
             } else {
               this.$message.error(data.msg)

@@ -14,73 +14,17 @@
         <el-button @click="pageIndex = 1,getDataList()" >查询</el-button>
       </el-form-item>
     </el-form>
-    <el-table @sort-change="changeSort"
-              :data="dataList"
-      border
-      v-loading="dataListLoading"
-      style="width: 100%">
-      <el-table-column
-        prop="id"
-        header-align="center"
-        align="center"
-        width="80"
-        label="ID">
-      </el-table-column>
-      <el-table-column
-        prop="username"
-        header-align="center"
-        align="center"
-        label="用户名">
-      </el-table-column>
-      <el-table-column
-        prop="operation"
-        header-align="center"
-        align="center"
-        label="用户操作">
-      </el-table-column>
-      <el-table-column
-        prop="method"
-        header-align="center"
-        align="center"
-        width="150"
-        :show-overflow-tooltip="true"
-        label="请求方法">
-      </el-table-column>
-      <el-table-column
-        prop="params"
-        header-align="center"
-        align="center"
-        width="150"
-        :show-overflow-tooltip="true"
-        label="请求参数">
-      </el-table-column>
-      <el-table-column
-        prop="time"
-        header-align="center"
-        align="center"
-        label="执行时长(毫秒)">
-      </el-table-column>
-      <el-table-column
-        prop="ip"
-        header-align="center"
-        align="center"
-        width="150"
-        label="IP地址">
-      </el-table-column>
-      <el-table-column
-        prop="device"
-        header-align="center"
-        align="center"
-        width="150"
-        label="请求端">
-      </el-table-column>
-      <el-table-column
-        prop="createDate"
-        header-align="center"
-        align="center"
-        width="180"
-        label="创建时间" sortable="custom" :sort-orders="['descending','ascending']">
-      </el-table-column>
+    <el-table @sort-change="changeSort" :data="dataList" border v-loading="dataListLoading" style="width: 100%">
+      <el-table-column prop="id" header-align="center" align="center" width="80" label="ID"></el-table-column>
+      <el-table-column prop="username" header-align="center" align="center" label="用户名" width="110"></el-table-column>
+      <el-table-column prop="operation" header-align="center" align="center" label="用户操作" width="180"></el-table-column>
+      <el-table-column prop="method" header-align="center" align="center"  :show-overflow-tooltip="true" label="请求方法"></el-table-column>
+      <el-table-column prop="params" header-align="center" align="center" :show-overflow-tooltip="true" label="请求参数"></el-table-column>
+      <el-table-column prop="time" header-align="center" align="center" label="执行时长(毫秒)" width="125"></el-table-column>
+      <el-table-column prop="ip" header-align="center" align="center" width="150" label="IP地址"></el-table-column>
+      <el-table-column prop="device" header-align="center" align="center" width="120" label="请求端"></el-table-column>
+      <el-table-column prop="createDate" header-align="center" align="center" width="180" label="创建时间"
+                       sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
     </el-table>
     <el-pagination
       @size-change="sizeChangeHandle"

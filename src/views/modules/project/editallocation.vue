@@ -109,9 +109,9 @@
         </el-card>
       </el-col>
     </el-row>
-
+    <!--    各个队产值安排情况-->
     <el-card class="rate_info">
-      <el-table  :data="groupRateList" style="width: 100%"  border :span-method="objectSpanMethod">
+      <el-table  :data="groupRateList" style="width: 100%"  border :span-method="objectSpanMethod" v-loading="dataLoading" >
         <el-table-column type="expand" >
           <template slot-scope="props">
             <el-table  :data="props.row.projectList" style="width: 100%;" :row-class-name="getTableclass" border>
@@ -210,6 +210,7 @@
   export default {
     data () {
       return {
+        dataLoading: false,
         projectNo: this.$route.query.projectNo,
         getArgsPageIndex: this.$route.query.pageIndex,
         getArgsPageSize: this.$route.query.pageSize,
@@ -304,7 +305,7 @@
         }
       },
       init () {
-        // this.$refs['dataForm'].resetFields()
+        this.dataLoading = true
         this.getPlanByProjectNo()
         this.getExecutelist()
         this.getWorkNotelist()
@@ -312,6 +313,7 @@
         this.getWorkGroupDataListFromApi().then(grouplist => {
           this.getProjectDataCoe().then(coeList => {
             this.projectCoeInit(grouplist, coeList)
+            this.dataLoading = false
           })
         })
         // 获取项目基本信息
