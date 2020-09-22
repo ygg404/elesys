@@ -6,6 +6,7 @@
           <span class="span_title">项目基本信息</span>
         </template>
         <div class="span_text">
+          <div>项目编号：{{projectInfo.projectNo}}</div>
           <div>项目名称：{{projectInfo.projectName}}</div>
           <div>项目类型：{{projectInfo.projectType}}</div>
           <div>项目负责人：{{projectInfo.projectCharge}}</div>
@@ -23,7 +24,7 @@
     <div class="card_work" style="color: #00b7ee">结算时间：<el-date-picker v-model="cutOffTime" type="month" value-format="yyyy-MM" placeholder="结算时间" style="width: 150px;" ></el-date-picker></div>
 
     <el-row :gutter="24" class="card_work">
-      <el-col :span="8">
+      <el-col :span="7">
         <el-card class="box-card"  >
           <div slot="header" class="clearfix">
             <span style="font-size: 13px;">项目类型：</span>
@@ -44,44 +45,69 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="16">
-        <el-radio-group v-model="groupradio">
-        <div v-for="(groupOutput,index) in outPutGroupList" v-if="groupOutput.checked">
-          <el-card>
-            <div slot="header" class="clearfix">
-              <el-radio :label="groupOutput.groupId">
-                <span class="group_card">{{groupOutput.groupName}}</span>
-                <span>(队长：{{groupOutput.headMan}})</span>
-                <span v-if="groupOutput.headMan == projectInfo.projectCharge" style="color: red">(项目负责人)</span>
-              </el-radio>
-            </div>
-            <el-table :data="chooseRatio(groupOutput.checkOutputVoList)" border  style="width: 100%;">
-              <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="150"></el-table-column>
-              <el-table-column prop="unit" header-align="center" align="center"  label="产值单位" width="120"></el-table-column>
-              <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单价" ></el-table-column>
-              <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" width="120">
-                <template slot-scope="scope">
-                  <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectRatio" @change="checkOutputVoInit" ></el-input>
-                </template>
-              </el-table-column>
-              <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" width="120">
-                <template slot-scope="scope">
-                  <el-input type="number" :disabled="!scope.row.checked || scope.row.typeId == -99" v-model="scope.row.workLoad" min="0" @change="checkOutputVoInit"></el-input>
-                </template>
-              </el-table-column>
-              <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>
-            </el-table>
-            <div span class="font_card">
-              <span>预计产值：{{groupOutput.projectOutput}}</span>
-              <span>（预计占比：{{groupOutput.outputRate}}%）。  </span>
-              <span>实际产值：{{groupOutput.projectActuallyOutput}}。</span>
-            </div>
-          </el-card>
+      <el-col :span="17">
+        <el-radio-group v-model="groupradio" style="width: 100%">
+          <div v-for="(groupOutput,index) in outPutGroupList" v-if="groupOutput.checked" >
+          <el-row style="margin-top: 5px;">
+            <el-col :span="18">
+              <el-card>
+                <div slot="header" class="clearfix">
+                  <el-radio :label="groupOutput.groupId">
+                    <span class="group_card">{{groupOutput.groupName}}</span>
+                    <span>(队长：{{groupOutput.headMan}})</span>
+                    <span v-if="groupOutput.headMan == projectInfo.projectCharge" style="color: red">(项目负责人)</span>
+                  </el-radio>
+                </div>
+                <el-table :data="chooseRatio(groupOutput.checkOutputVoList)" border>
+                  <el-table-column prop="typeName" header-align="center" align="left" label="作业类型" width="150"></el-table-column>
+                  <el-table-column prop="unit" header-align="center" align="center"  label="产值单位" width="120"></el-table-column>
+                  <el-table-column prop="unitOutput" header-align="center" align="center" label="产值单价" ></el-table-column>
+                  <el-table-column prop="projectRatio" header-align="center" align="center" label="难度系数" width="120">
+                    <template slot-scope="scope">
+                      <el-input type="number" :disabled="!scope.row.checked" v-model="scope.row.projectRatio" @change="checkOutputVoInit" ></el-input>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="workLoad" header-align="center" align="center" label="工作量" width="120">
+                    <template slot-scope="scope">
+                      <el-input type="number" :disabled="!scope.row.checked || scope.row.typeId == -99" v-model="scope.row.workLoad" min="0" @change="checkOutputVoInit"></el-input>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="typeOutput" header-align="center" align="center" label="产值" width="100"></el-table-column>
+                </el-table>
+                <div span class="font_card">
+                  <span>预计产值：{{groupOutput.projectOutput}}</span>
+                  <span>（预计占比：{{groupOutput.outputRate}}%）。  </span>
+                  <span>实际产值：{{groupOutput.projectActuallyOutput}}。</span>
+                </div>
+              </el-card>
+            </el-col>
+            <el-col :span="6">
+              <el-card>
+                <div slot="header" class="clearfix">
+                  <span class="span_title">备注</span>
+                </div>
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 10}" v-model="remarkList[groupOutput.groupId]"></el-input>
+              </el-card>
+            </el-col>
+          </el-row>
         </div>
         </el-radio-group>
       </el-col>
     </el-row>
 
+    <el-card class="card_header">
+      <div slot="header" class="header_span" >
+        <span>质量综述：  </span>
+      </div>
+      <el-form :model="dataForm" ref="dataForm" class="form_class">
+        <el-select  filterable placeholder="质量综述快捷输入" v-model="qualityNoteValue" style="width: 100%" multiple collapse-tags  @change="qualityNoteHandler()" >
+          <el-option v-for="item in qualityNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
+        </el-select>
+        <el-form-item prop="qualityNote">
+          <el-input type="textarea" maxlength="1000" size="large" show-word-limit rows="4" v-model="dataForm.qualityNote" placeholder="请填写质量综述"></el-input>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
@@ -92,6 +118,7 @@
 
 <script>
   import {closeTab} from '@/utils/tabs'
+  import {stringIsNull} from '../../../utils'
   export default {
     data () {
       return {
@@ -108,7 +135,13 @@
         workTypelist: [],   // 工作类型列表
         outPutGroupList: [],
         qualityNoteValue: '',
-        cutOffTime: ''
+        cutOffTime: '',
+        remarkList: [],  // 预算备注列表
+        qualityNotelist: [],
+        dataForm: {
+          id: '',
+          qualityNote: '',      // 质检综述
+        },
       }
     },
     computed: {
@@ -128,6 +161,8 @@
       init () {
         this.projectNo = this.$route.query.projectNo
         this.getCutoffTime()
+        this.getQualityNotelist()
+        this.getQualityByProjectNo(this.projectNo)
         this.getInfoByProjectNo(this.projectNo).then(success => {
           this.getProjectTypelist().then(success => {
             this.getWorkTypelist().then(success => {
@@ -142,13 +177,31 @@
               }
               this.workTypeInit()
               this.getOutPutGroupList(this.projectNo).then(success => {
-                // 默认选中第一个组
                 for (let e of this.outPutGroupList) {
+                  // 默认选中第一个组
                   if (e.checked) {
                     this.groupradio = e.groupId
                     break
                   }
                 }
+                // 初始化备注
+                let remarkList = []
+                for (let e of this.outPutGroupList) {
+                  if (e.checked) {
+                    remarkList[e.groupId] = ''
+                  }
+                }
+                // 各队产值备注 赋值
+                this.getRemarkList().then(list => {
+                  for (let key in remarkList) {
+                    for (let group of list) {
+                      if (group.groupId === parseInt(key)) {
+                        remarkList[key] = group.remark
+                      }
+                    }
+                  }
+                  this.remarkList = remarkList
+                })
                 this.checkOutputVoInit()
                 this.loading = false
               })
@@ -246,6 +299,32 @@
           })
         })
       },
+      // 获取质检信息
+      getQualityByProjectNo (projectNo ) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/quality/getInfo`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'projectNo': projectNo,
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              if ( data.checkQuality != null) {
+                this.dataForm.id = data.checkQuality.id
+                this.dataForm.qualityNote = data.checkQuality.qualityNote
+                this.dataForm.qualityScore = data.checkQuality.qualityScore
+                this.dataForm.qualityReport = data.checkQuality.qualityReport
+                // this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
+              }
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
       // 获取项目基本信息
       getInfoByProjectNo (projectNo) {
         return new Promise((resolve, reject) => {
@@ -257,6 +336,24 @@
             if (data && data.code === 0) {
               this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取质量综述列表
+      getQualityNotelist () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/set/wpshortcut/getListByShortTypeId/9`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.qualityNotelist = data.list
+              resolve(data.list)
             } else {
               this.$message.error(data.msg)
               reject(data.msg)
@@ -305,8 +402,51 @@
           })
         })
       },
+      // 根据项目编号获取产值备注列表
+      getRemarkList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/outputremark/list`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'projectNo': this.projectNo
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 质量审核报告
+      qualityNoteHandler () {
+        this.dataForm.qualityNote = ''
+        for (let value of this.qualityNoteValue) {
+          for (let note of this.qualityNotelist) {
+            if (note.id === value) this.dataForm.qualityNote = this.dataForm.qualityNote + note.shortcutNote + ';'
+          }
+        }
+      },
+      // 根据项目类型快捷输入可见或不可见
+      shortTypeAlive (item) {
+        // 当快捷短语的项目分类为空 或者 项目类型为空则短语可见
+        if (stringIsNull(item.projectType) || stringIsNull(this.projectInfo.projectType)) {
+          return true
+        } else {
+          let itemType = item.projectType.split(',')
+          for (let itype of itemType) {
+            if (this.projectInfo.projectType.indexOf(itype) !== -1) {
+              return true
+            }
+          }
+          return false
+        }
+      },
       // 提交结算时间
-      postCutoffTimeToApi(){
+      postCutoffTimeToApi () {
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl(`/project/quality/cutOffTimesave`),
@@ -352,9 +492,57 @@
           }
         })
       },
+      // 保存备注
+      putRemarkToApi () {
+        return new Promise((resolve, reject) => {
+          let markList = []
+          for (let key in this.remarkList) {
+            if (!stringIsNull(this.remarkList[key])) {
+              markList.push({
+                groupId: key,
+                projectNo: this.projectNo,
+                remark: this.remarkList[key]
+              })
+            }
+          }
+          this.$http({
+            url: this.$http.adornUrl(`/project/outputremark/saveList`),
+            method: 'post',
+            data: this.$http.adornData({
+              'projectNo': this.projectNo,
+              'outputRemarkList': markList
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 提交质量综述
+      putQualityAuthToApi () {
+        this.$http({
+          url: this.$http.adornUrl(`/project/quality/update`),
+          method: 'post',
+          data: this.$http.adornData({
+            'id': this.dataForm.id,
+            'projectNo': this.projectNo,
+            'qualityNote': this.dataForm.qualityNote
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
       saveForm () {
         this.postCutoffTimeToApi().then(success => {
           this.postOutputToApi()
+          this.putRemarkToApi()
+          this.putQualityAuthToApi()
         })
       },
       // 项目类型改变
@@ -461,5 +649,12 @@
     font-weight: 700;
     font-size: 15px;
     color: #006F94;
+  }
+  .card_header{
+    margin-top: 18px;
+  }
+  .card_header .header_span{
+    font-weight: 700;
+    font-size: 14pt;
   }
 </style>

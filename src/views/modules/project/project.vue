@@ -7,7 +7,7 @@
           <el-radio :label="1" :disabled="!isAuth('project:project:plan')">项目安排</el-radio>
           <el-radio :label="2" :disabled="!isAuth('project:work:list')">项目作业</el-radio>
           <el-radio :label="3" :disabled="!isAuth('project:quality:list')">质量检查</el-radio>
-          <el-radio :label="4" :disabled="!isAuth('project:quality:auth')">质量审核</el-radio>
+<!--          <el-radio :label="4" :disabled="!isAuth('project:quality:auth')">质量审核</el-radio>-->
           <el-radio :label="5" :disabled="!isAuth('project:checkoutput:list')">产值核算</el-radio>
           <el-radio :label="6" :disabled="!isAuth('project:authorize:list')">项目审定</el-radio>
         </el-radio-group>
@@ -39,6 +39,7 @@
           <el-button size="small" @click="qualityChartHandle" type="primary" icon="el-icon-s-data" v-if="isAuth('project:chartquality')">质量表</el-button>
         </el-form-item>
       </el-form>
+      <!--列表-->
       <el-table :data="dataList" border v-loading="dataListLoading" @sort-change="changeSort" style="width: 100%;">
         <el-table-column prop="projectNo" header-align="center" align="center" width="120" label="项目编号" sortable="custom" :sort-orders="['descending','ascending']">
           <template slot-scope="scope">
@@ -187,14 +188,14 @@
           </template>
         </el-table-column>
         <!--质量审核按钮-->
-        <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==4">
-          <template slot-scope="scope">
-            <el-tooltip class="item" content="编辑质量审核" placement="left">
-              <el-button class="qualityauth_btn" size="mini" icon="el-icon-edit-outline" @click="editQualityAuthHandle(scope.row)"
-                         v-if="isAuth('project:quality:auth') && scope.row.isCheck == 1"></el-button>
-            </el-tooltip>
-          </template>
-        </el-table-column>
+<!--        <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==4">-->
+<!--          <template slot-scope="scope">-->
+<!--            <el-tooltip class="item" content="编辑质量审核" placement="left">-->
+<!--              <el-button class="qualityauth_btn" size="mini" icon="el-icon-edit-outline" @click="editQualityAuthHandle(scope.row)"-->
+<!--                         v-if="isAuth('project:quality:auth') && scope.row.isCheck == 1"></el-button>-->
+<!--            </el-tooltip>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <!--产值核算按钮-->
         <el-table-column :key="Math.random()"  header-align="center" align="center" width="100" label="操作" v-if="roleradio==5">
           <template slot-scope="scope">

@@ -15,6 +15,10 @@ module.exports = {
   plugins: [
     'html'
   ],
+  globals: {
+    BMap: true,
+    BMapLib: true
+  },
   // add your custom rules here
   rules: {
     // allow async-await

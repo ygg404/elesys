@@ -19,7 +19,7 @@
               <span class="title_span">工具栏</span>
             </template>
             <el-row style="padding: 10px;">
-              <el-button type="danger">标注点</el-button>
+              <el-button type="danger" @click="draw()">标注点</el-button>
             </el-row>
             <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
           </el-collapse-item>
@@ -40,23 +40,23 @@
           </el-collapse-item>
         </el-collapse>
       </div>
-      <baidu-map :center="center" :zoom="zoom" @ready="initBmap" :style="'height:' + (documentClientHeight - 200) + 'px'"
-                 @click="getClickInfo" :scroll-wheel-zoom='true'>
-      </baidu-map>
+      <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'"></div>
+<!--      <baidu-map :center="center" :zoom="zoom" @ready="initBmap" :style="'height:' + (documentClientHeight - 200) + 'px'"-->
+<!--                 @click="getClickInfo" :scroll-wheel-zoom='true'>-->
+<!--      </baidu-map>-->
     </div>
   </div>
 </template>
 
 <script>
-  import BaiduMap from 'vue-baidu-map'
-  import Vue from 'vue'
 
-  Vue.use(BaiduMap, {
-    ak: 'i4pCU0hVhxbLTnWjTW31iuEkKtUrwBOR'
-  })
+  import Vue from 'vue'
+  import axios from 'axios'
+
   export default {
     data () {
       return {
+        bImg: require('@/assets/img/mapImg/icon.png'),
         dataForm: {
           key: ''
         },
@@ -65,7 +65,8 @@
         BMap: '',
         map: '',
         activeNames: [],
-        menuVisible: false
+        menuVisible: false,
+        drawingManager: ''
       }
     },
     computed: {
@@ -73,37 +74,79 @@
         get () { return this.$store.state.common.documentClientHeight }
       },
     },
+    activated () {
+      this.initMap()
+    },
     methods: {
       // 百度地图初始化
-      initBmap ({BMap, map}) {
+      initMap () {
         let that = this
-        this.loading = true
-        this.BMap = BMap
-        this.map = map
-        // 建立一个自动完成的对象
-        var ac = new BMap.Autocomplete({'input': 'searchId', 'location': map})
-        ac.addEventListener('onconfirm', function (e) {
-          var _value = e.item.value
-          that.dataForm.key = _value.province +  _value.city +  _value.district +  _value.street +  _value.business
-          that.searchPlaceHandle()
-        })
-
+        // 浏览器定位
         var geolocation = new BMap.Geolocation()
         geolocation.getCurrentPosition(function (res) {
+          console.log(res)
           that.loading = false
           if (this.getStatus() === BMAP_STATUS_SUCCESS) {
+            // 网络定位
             var marker = new BMap.Marker(res.point)
+            var map = new BMap.Map('mapId')
+            map.centerAndZoom(new BMap.Point(res.point.lng,res.point.lat), 17)  // 初始化地图,设置中心点坐标和地图级别
+            map.enableScrollWheelZoom(true)     // 开启鼠标滚轮缩放
             map.addOverlay(marker)
             marker.setAnimation(BMAP_ANIMATION_BOUNCE) //跳动的动画
             map.panTo(res.point)
             map.setMapType(BMAP_HYBRID_MAP)
+            // 标记点
+            // var myIcon = new BMap.Icon(that.bImg, new BMap.Size(10, 26), {
+            //   offset: new BMap.Size(10, 25), // 指定定位位置
+            //   imageOffset: new BMap.Size(0, 0) // 设置图片偏移
+            // })
+            // var newmk = new BMap.Marker(res.point,{icon:myIcon})
+            // map.addOverlay(newmk)
           } else {
             that.$message.error('获取地理位置失败！')
           }
-        },{enableHighAccuracy: true})
-      },
-      getClickInfo () {
 
+          // 绘制图标样式
+          var styleOptions = {
+            strokeColor: '#db2311',   // 边线颜色
+            fillColor: '#db8385',     // 填充颜色。当参数为空时，圆形没有填充颜色
+            strokeWeight: 2,          // 边线宽度，以像素为单位
+            strokeOpacity: 1,         // 边线透明度，取值范围0-1
+            fillOpacity: 0.2          // 填充透明度，取值范围0-1
+          }
+          var labelOptions = {
+            borderRadius: '2px',
+            background: '#fdff60cf',
+            border: '1px solid #E1E1E1',
+            color: '#703A04',
+            fontSize: '12px',
+            letterSpacing: '0',
+            padding: '5px'
+          }
+          // 实例化鼠标绘制工具
+          that.drawingManager = new BMapLib.DrawingManager(map, {
+            enableCalculate: true,  // 绘制是否进行测距测面
+            enableSorption: true,   // 是否开启边界吸附功能
+            sorptiondistance: 20,   // 边界吸附距离
+            enableGpc: true,        // 是否开启延边裁剪功能
+            enableLimit: true,      // 是否开启超限提示
+            limitOptions: {
+              area: 50000000,     // 面积超限值
+              distance: 30000     // 距离超限值
+            },
+            circleOptions: styleOptions,     // 圆的样式
+            polylineOptions: styleOptions,   // 线的样式
+            polygonOptions: styleOptions,    // 多边形的样式
+            rectangleOptions: styleOptions,  // 矩形的样式
+            labelOptions: labelOptions      // label样式
+          })
+          // 绘制完成后获取相关的信息(面积等)
+          that.drawingManager.addEventListener('overlaycomplete', function(e) {
+            console.log(e)
+            that.$message(e.calculate)
+          })
+        },{enableHighAccuracy: true})
       },
       // 地址搜索
       searchPlaceHandle () {
@@ -117,6 +160,34 @@
           }
         })
         local.search(this.dataForm.key)
+      },
+      // 根据客户IP 获取定位
+      getClientIPLocation () {
+        axios.get('https://ifconfig.me/ip',
+          {headers: {'Access-Control-Allow-Origin': '*'}})
+          .then(res => {
+            if (res.status === 200) {
+              // 获取当前外网IP
+              let curIp = res.data
+              this.$http({
+                url: this.$http.adornUrl('/dop/map/getAddress'),
+                method: 'get',
+                params: this.$http.adornParams({
+                  'ip': curIp
+                })
+              }).then(({data}) => {
+                if (data && data.code === 0) {
+
+                }
+              })
+            }
+          })
+      },
+      // 绘制标注
+      draw() {
+        var drawingType = 'BMAP_DRAWING_POLYGON'
+        this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON)
+        this.drawingManager.open()
       }
     }
   }

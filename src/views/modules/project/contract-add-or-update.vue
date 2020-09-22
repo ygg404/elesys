@@ -57,7 +57,7 @@
                    :on-error="handleError">
           <el-button size="small" plain>选择文件</el-button>
           <div slot="tip" style="color: dodgerblue" v-if="!stringIsNull(dataForm.filename)">
-            已上传文件:<el-tag closable @close="this.dataForm.filename = ''">{{dataForm.filename}}</el-tag>
+            已上传文件:<el-tag closable @close="dataForm.filename = ''">{{dataForm.filename}}</el-tag>
           </div>
           <div slot="tip" class="el-upload__tip">只能上传pdf,word,图片文件，且不超过10M</div>
         </el-upload>

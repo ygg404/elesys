@@ -21,7 +21,7 @@
       <el-table-column prop="userPhone" header-align="center" align="center" label="联系电话" width="150"></el-table-column>
       <el-table-column prop="projectStartDateTime" header-align="center" align="center" label="项目启动时间"
                        width="130" sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
-      <el-table-column fixed="right" header-align="center" align="center" width="130" label="操作">
+      <el-table-column  header-align="center" align="center" width="130" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)" icon="el-icon-edit">签名</el-button>
         </template>
