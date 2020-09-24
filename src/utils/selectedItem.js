@@ -74,3 +74,27 @@ export function getRateItem () {
     {'id': 0, 'rateItem': '0(没有)'}]
   return itemList
 }
+
+/**
+ * 获取仪器状态列表
+ */
+export function getLendItem () {
+  let itemList = [
+    {'id': 0, 'lendItem': '闲置中'},
+    {'id': 1, 'lendItem': '已出借'},
+    {'id': 2, 'lendItem': '维修中'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取地图绘制类型列表
+ */
+export function getMapDrawingItem () {
+  let itemList = [
+    {'id': 1, 'drawItem': '点'},
+    {'id': 2, 'drawItem': '线'},
+    {'id': 3, 'drawItem': '面'}
+  ]
+  return itemList
+}

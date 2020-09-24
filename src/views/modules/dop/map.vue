@@ -44,14 +44,15 @@
 <!--      <baidu-map :center="center" :zoom="zoom" @ready="initBmap" :style="'height:' + (documentClientHeight - 200) + 'px'"-->
 <!--                 @click="getClickInfo" :scroll-wheel-zoom='true'>-->
 <!--      </baidu-map>-->
+      <!-- 弹窗, 新增 / 修改 -->
+      <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
     </div>
   </div>
 </template>
 
 <script>
-
-  import Vue from 'vue'
-  import axios from 'axios'
+  import AddOrUpdate from './map-add-or-update'
+  import {stringIsNull} from '@/utils'
 
   export default {
     data () {
@@ -66,7 +67,8 @@
         map: '',
         activeNames: [],
         menuVisible: false,
-        drawingManager: ''
+        drawingManager: '',
+        addOrUpdateVisible: false
       }
     },
     computed: {
@@ -74,12 +76,15 @@
         get () { return this.$store.state.common.documentClientHeight }
       },
     },
+    components: {
+      AddOrUpdate
+    },
     activated () {
-      this.initMap()
+      this.init()
     },
     methods: {
-      // 百度地图初始化
-      initMap () {
+      // 初始化
+      init () {
         let that = this
         // 浏览器定位
         var geolocation = new BMap.Geolocation()
@@ -87,15 +92,16 @@
           console.log(res)
           that.loading = false
           if (this.getStatus() === BMAP_STATUS_SUCCESS) {
-            // 网络定位
+            // 网络定位 初始化百度地图
             var marker = new BMap.Marker(res.point)
-            var map = new BMap.Map('mapId')
+            var map = new BMap.Map('mapId', {minZoom: 12, maxZoom: 20,enableMapClick:false})
             map.centerAndZoom(new BMap.Point(res.point.lng,res.point.lat), 17)  // 初始化地图,设置中心点坐标和地图级别
             map.enableScrollWheelZoom(true)     // 开启鼠标滚轮缩放
             map.addOverlay(marker)
-            marker.setAnimation(BMAP_ANIMATION_BOUNCE) //跳动的动画
+            marker.setAnimation(BMAP_ANIMATION_BOUNCE) // 跳动的动画
             map.panTo(res.point)
             map.setMapType(BMAP_HYBRID_MAP)
+            that.map = map
             // 标记点
             // var myIcon = new BMap.Icon(that.bImg, new BMap.Size(10, 26), {
             //   offset: new BMap.Size(10, 25), // 指定定位位置
@@ -103,10 +109,23 @@
             // })
             // var newmk = new BMap.Marker(res.point,{icon:myIcon})
             // map.addOverlay(newmk)
+            map.addEventListener('dragend', function () {
+              var center = map.getCenter()
+              var bounds = map.getBounds()
+              console.log(bounds)
+              console.log("地图中心点变更为：" + center.lng + ", " + center.lat);
+            })
+            map.addEventListener('rightclick', function (e) {
+                console.log('右键点击了')
+            })
+            map.addEventListener('zoomend', function (e) {
+              console.log(e)
+              //
+            })
+            that.getDataList()
           } else {
             that.$message.error('获取地理位置失败！')
           }
-
           // 绘制图标样式
           var styleOptions = {
             strokeColor: '#db2311',   // 边线颜色
@@ -142,11 +161,27 @@
             labelOptions: labelOptions      // label样式
           })
           // 绘制完成后获取相关的信息(面积等)
-          that.drawingManager.addEventListener('overlaycomplete', function(e) {
-            console.log(e)
-            that.$message(e.calculate)
+          that.drawingManager.addEventListener('overlaycomplete', function (e) {
+            if (stringIsNull(e.calculate)) {
+              that.$message.error('绘制图形有误，请重新绘制!')
+              that.map.removeOverlay(e.overlay)
+              that.map.removeOverlay(e.label)
+              console.log(e.label)
+              return
+            }
+            let item = {
+              id: '',
+              lay: e.overlay,
+              area: e.calculate,
+              type: 3,
+              labelLng: e.label.point.lng,
+              labelLat: e.label.point.lat
+            }
+            that.addOrUpdateHandle(item)
+            that.map.removeOverlay(e.overlay)
+            that.map.removeOverlay(e.label)
           })
-        },{enableHighAccuracy: true})
+        }, {enableHighAccuracy: true})
       },
       // 地址搜索
       searchPlaceHandle () {
@@ -161,34 +196,75 @@
         })
         local.search(this.dataForm.key)
       },
-      // 根据客户IP 获取定位
-      getClientIPLocation () {
-        axios.get('https://ifconfig.me/ip',
-          {headers: {'Access-Control-Allow-Origin': '*'}})
-          .then(res => {
-            if (res.status === 200) {
-              // 获取当前外网IP
-              let curIp = res.data
-              this.$http({
-                url: this.$http.adornUrl('/dop/map/getAddress'),
-                method: 'get',
-                params: this.$http.adornParams({
-                  'ip': curIp
-                })
-              }).then(({data}) => {
-                if (data && data.code === 0) {
-
-                }
-              })
-            }
-          })
-      },
       // 绘制标注
-      draw() {
-        var drawingType = 'BMAP_DRAWING_POLYGON'
+      draw () {
+        this.menuVisible = false
         this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON)
         this.drawingManager.open()
-      }
+      },
+      // 根据经纬度范围获取标注列表
+      getBampLabelList () {
+        return new Promise((resolve, reject) => {
+          let bounds = this.map.getBounds()
+          this.$http({
+            url: this.$http.adornUrl('/dop/bmap/list'),
+            method: 'get',
+            params: this.$http.adornParams({
+              'minlng': bounds.Ne,
+              'maxlng': bounds.Je,
+              'minlat': bounds.Zd,
+              'maxlat': bounds.Xd
+            })
+          }).then(({data}) => {
+            this.dataListLoading = false
+            if (data && data.code === 0) {
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 获取标注数据并绘制
+      getDataList () {
+        this.getBampLabelList().then(list => {
+          for (let bPoint of list) {
+            let polyList = []
+            // 创建多边形
+            let corlist = bPoint.coordinate.split(';')
+            console.log(corlist)
+            for (let cor of corlist) {
+              if (!stringIsNull(cor)) {
+                let point = cor.split(',')
+                polyList.push(new BMap.Point(point[0],point[1]))
+              }
+            }
+            var polygon = new BMap.Polygon(polyList, {strokeColor:'red', strokeWeight:2, strokeOpacity:0.35,fillColor: '#db8385'})
+            this.map.addOverlay(polygon)   // 增加多边形
+            // 创建标题
+            var opts = {
+              position: new BMap.Point(bPoint.labelLng, bPoint.labelLat),    // 指定文本标注所在的地理位置
+              offset: new BMap.Size(0, 0)    // 设置文本偏移量
+            }
+            var label = new BMap.Label(bPoint.label, opts) // 创建文本标注对象
+            label.setStyle({
+              color: 'red',
+              fontSize: '12px',
+              height: '20px',
+              lineHeight: '20px',
+              fontFamily: '微软雅黑'
+            })
+            this.map.addOverlay(label)  // 增加标题
+          }
+        })
+      },
+      // 新增 / 修改
+      addOrUpdateHandle (id) {
+        this.addOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.addOrUpdate.init(id)
+        })
+      },
     }
   }
 </script>

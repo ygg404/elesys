@@ -28,11 +28,13 @@
       <el-form-item label="检定时间" prop="lastCheckTime">
         <el-date-picker v-model="dataForm.lastCheckTime" type="month" value-format="yyyy-MM" placeholder="上次检修时间"></el-date-picker>
       </el-form-item>
-      <el-form-item label="有效期" prop="indate">
-        <el-input v-model="dataForm.indate" placeholder="有效期" type="number"></el-input>
+      <el-form-item label="有效期(年)" prop="indate">
+        <el-input v-model="dataForm.indate" placeholder="有效期(年)" type="number"></el-input>
       </el-form-item>
-      <el-form-item label="设置状况" prop="devStation">
-        <el-input v-model="dataForm.devStation" placeholder="设置状况"></el-input>
+      <el-form-item label="设备状况" prop="devStation">
+        <el-select v-model="dataForm.devStation" placeholder="设备状况" style="width: 110px;" >
+          <el-option v-for="item in lendItemList" :label="item.lendItem" :key="item.id" :value="item.id"></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="dataForm.remark" placeholder="备注"></el-input>
@@ -65,6 +67,7 @@
 <script>
   import Vue from 'vue'
   import {stringIsNull} from '@/utils'
+  import {getLendItem} from '@/utils/selectedItem'
 
   export default {
     data () {
@@ -72,6 +75,7 @@
         visible: false,
         upDopFileUrl: window.SITE_CONFIG['baseUrl'] + '/dop/device/upDopFile/',  // 设备文件上传地址
         tokenHeaders: { token: Vue.cookie.get('token') },  // token请求
+        lendItemList: getLendItem(),
         dataForm: {
           id: 0,
           deviceName: '',

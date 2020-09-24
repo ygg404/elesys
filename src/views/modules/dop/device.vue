@@ -27,7 +27,13 @@
           <span v-if="!stringIsNull(scope.row.indate)">{{scope.row.indate}}年</span>
         </template>
       </el-table-column>
-      <el-table-column prop="devStation" header-align="center" align="center" label="设备状况"></el-table-column>
+      <el-table-column prop="devStation" header-align="center" align="center" label="设备状况">
+        <template slot-scope="scope" >
+          <el-tag v-if="scope.row.devStation === 0" size="small" type="success">闲置中</el-tag>
+          <el-tag v-else-if="scope.row.devStation === 1" size="small" type="info">出借中</el-tag>
+          <el-tag v-else-if="scope.row.devStation === 2" size="small" type="danger">返修中</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="remark" header-align="center" align="center" label="备注"></el-table-column>
       <el-table-column header-align="center" align="center" label="二维码">
         <template slot-scope="scope">
