@@ -240,6 +240,7 @@
               }
             }
             var polygon = new BMap.Polygon(polyList, {strokeColor:'red', strokeWeight:2, strokeOpacity:0.35,fillColor: '#db8385'})
+            polygon.id = bPoint.id
             this.map.addOverlay(polygon)   // 增加多边形
             // 创建标题
             var opts = {
@@ -254,6 +255,7 @@
               lineHeight: '20px',
               fontFamily: '微软雅黑'
             })
+            label.id = bPoint.id
             this.map.addOverlay(label)  // 增加标题
           }
         })
