@@ -21,7 +21,7 @@
       style="width: 100%;">
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
       <el-table-column prop="id" header-align="center" align="center" label="ID" sortable :sort-orders="['descending','ascending']" width="80"></el-table-column>
-      <el-table-column prop="shortcutNote" header-align="center" align="center" label="快捷输入短语内容" min-width="200"></el-table-column>
+      <el-table-column prop="shortcutNote" header-align="center" align="center" label="快捷输入短语内容" min-width="200" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="shortcutName" header-align="center" align="center" sortable :sort-orders="['descending','ascending']" label="输入项">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.shortcutName != ''" v-for="(item,index) in (scope.row.shortcutName || '').split(',')" :key="index"

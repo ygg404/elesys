@@ -84,6 +84,19 @@
               </p>
             </td>
           </tr>
+          <tr style="height:70.5000pt;"><td width="82" valign="center" style="width:62.1500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:1.0000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
+            <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
+              <b><span style="mso-spacerun:'yes';font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">外业作业安全交底</span></b>
+              <b><span style="font-family:黑体;mso-hansi-font-family:宋体;color:rgb(0,0,0);font-weight:bold;font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span></b>
+            </p>
+          </td>
+            <td width="705" valign="center" colspan="8" style="width:528.7500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:none;mso-border-left-alt:none;border-right:1.0000pt solid windowtext;mso-border-right-alt:1.0000pt solid windowtext;border-top:none;mso-border-top-alt:0.5000pt solid windowtext;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:0.5000pt solid windowtext;">
+              <p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">
+                <span style="mso-spacerun:'yes';font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;">{{projectInfo.safeRequire}}</span>
+                <span style="font-family:宋体;color:rgb(0,0,0);font-style:normal;font-size:10.5000pt;mso-font-kerning:0.0000pt;"><o:p></o:p></span>
+              </p>
+            </td>
+          </tr>
           <!--<tr style="height:34.0000pt;">-->
             <!--<td width="82" valign="center" rowspan="2" style="width:62.1500pt;padding:0.7500pt 0.7500pt 0.0000pt 0.7500pt ;border-left:1.0000pt solid windowtext;mso-border-left-alt:1.0000pt solid windowtext;border-right:1.0000pt solid windowtext;mso-border-right-alt:0.5000pt solid windowtext;border-top:none;mso-border-top-alt:none;border-bottom:1.0000pt solid windowtext;mso-border-bottom-alt:1.0000pt solid windowtext;">-->
               <!--<p class="MsoNormal" align="center" style="mso-pagination:widow-orphan;text-align:center;vertical-align:middle;">-->
@@ -280,6 +293,7 @@
           }).then(({data}) => {
             if (data && data.code === 0) {
               data.projectInfo.executeStandard = '☑' + data.projectInfo.executeStandard.replace(/;/g, '☑').slice(0, -1)
+              data.projectInfo.safeRequire = data.projectInfo.safeRequire.replace(/\n/g, '。 ') + '。'
               this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
             } else {

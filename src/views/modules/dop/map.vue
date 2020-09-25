@@ -239,7 +239,7 @@
                 polyList.push(new BMap.Point(point[0],point[1]))
               }
             }
-            var polygon = new BMap.Polygon(polyList, {strokeColor:'red', strokeWeight:2, strokeOpacity:0.35,fillColor: '#db8385'})
+            var polygon = new BMap.Polygon(polyList, {strokeColor:'red', strokeWeight:2, strokeOpacity:0.35,fillColor: '#db8385ef'})
             polygon.id = bPoint.id
             this.map.addOverlay(polygon)   // 增加多边形
             // 创建标题

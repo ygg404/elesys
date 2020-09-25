@@ -15,6 +15,7 @@
           <div>联系人电话：{{projectInfo.userPhone}}</div>
           <div>项目开工时间：{{projectInfo.projectBegunDateTime}}</div>
           <div>执行标准：{{projectInfo.executeStandard}}</div>
+          <div>安全技术要求：{{projectInfo.safeRequire}}</div>
         </div>
       </el-collapse-item>
       <el-collapse-item style="border: 1px solid #2D64B3 ">
@@ -223,6 +224,7 @@
           }).then(({data}) => {
             if (data && data.code === 0) {
               data.projectInfo.executeStandard = '☑' + data.projectInfo.executeStandard.replace(/;/g, '☑').slice(0, -1)
+              data.projectInfo.safeRequire = data.projectInfo.safeRequire.replace(/\n/g, '。 ')
               this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
             } else {

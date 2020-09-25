@@ -5,7 +5,7 @@
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="100px">
       <el-form-item label="短语内容" prop="shortcutNote">
-        <el-input v-model="dataForm.shortcutNote" placeholder="短语内容"></el-input>
+        <el-input v-model="dataForm.shortcutNote" placeholder="短语内容" type="textarea" :rows="4"></el-input>
       </el-form-item>
       <el-form-item label="短语类型" prop="shortcutTypeId">
         <el-select v-model="dataForm.shortcutTypeId" placeholder="请选择短语类型" multiple clearable="true" style="width: 100%;">

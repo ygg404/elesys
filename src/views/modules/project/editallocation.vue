@@ -2,7 +2,7 @@
   <div class="mod-config">
     <el-row :gutter="24">
       <el-col :span="14">
-        <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" style="text-align: left;">
+        <el-form :model="dataForm" :rules="dataRule" ref="dataForm" style="text-align: left;">
           <el-card class="box-card" >
             <div slot="header" class="clearfix" style="padding: 0">
               <span class="span_title">项目安排信息</span>
@@ -28,6 +28,14 @@
             <el-form-item prop="workRequire">
               <el-input type="textarea" placeholder="请输入作业要求" maxlength="1000" show-word-limit class="allo_text" v-model="dataForm.workRequire"></el-input>
             </el-form-item>
+
+            <el-select  placeholder="外业作业安全交底快捷输入" filterable  v-model="saferequireValue" collapse-tags  style="width: 100%;margin-top: 20px;" @change="saferequirelistHandler()">
+              <el-option v-for="item in saferequireList" :label="item.shortcutNote.split('\n')[0]" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
+            </el-select>
+            <el-form-item prop="safeRequire">
+              <el-input type="textarea" placeholder="请输入外业作业安全交底要求" maxlength="2000" show-word-limit class="allo_text" v-model="dataForm.safeRequire"></el-input>
+            </el-form-item>
+
             <el-row :gutter="24">
               <el-col :span="15">
                 <el-form-item label="预计产值:" prop="projectOutput">
@@ -222,6 +230,7 @@
           executeStandard: '',
           workNote: '',
           workRequire: '',
+          safeRequire: '',
           projectWriter: '',
           projectNo: '',
           projectCharge: '',
@@ -264,6 +273,8 @@
         worknoteValue: '',
         workrequireList: [],   // 作业要求列表
         workrequireValue: '',
+        saferequireList: [],  // 作业安全列表
+        saferequireValue: '',
         groupWorkList: [],  // 作业分组情况
 
         projectTypelist: [],  // 项目类型列表
@@ -310,6 +321,7 @@
         this.getExecutelist()
         this.getWorkNotelist()
         this.getWorkRequireList()
+        this.getSafeRequireList()
         this.getWorkGroupDataListFromApi().then(grouplist => {
           this.getProjectDataCoe().then(coeList => {
             this.projectCoeInit(grouplist, coeList)
@@ -498,6 +510,7 @@
                 'projectOutput': this.dataForm.projectOutput,
                 'executeStandard': this.dataForm.executeStandard,
                 'workRequire': this.dataForm.workRequire,
+                'safeRequire': this.dataForm.safeRequire,
                 'workNote': this.dataForm.workNote,
                 'projectWriter': this.projectInfo.createUserName,
                 'projectBegunDateTime': this.dataForm.projectBegunDateTime
@@ -559,6 +572,7 @@
                   this.dataForm.executeStandard = data.projectPlan.executeStandard
                   this.dataForm.workRequire = data.projectPlan.workRequire
                   this.dataForm.workNote = data.projectPlan.workNote
+                  this.dataForm.safeRequire = data.projectPlan.safeRequire
                   this.dataForm.projectBegunDateTime = data.projectPlan.projectBegunDateTime == null ? new Date() : data.projectPlan.projectBegunDateTime
                   this.dataForm.projectCharge = data.projectPlan.projectCharge
                   if ((!stringIsNull(this.dataForm.projectOutput)) && stringIsNull(this.dataForm.projectWorkDate) &&
@@ -665,6 +679,24 @@
           })
         })
       },
+      // 获取作业安全交底要求列表
+      getSafeRequireList () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/set/wpshortcut/getListByShortTypeId/14`),
+            method: 'get',
+            params: this.$http.adornParams()
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.saferequireList = data.list
+              resolve(data.list)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
       // 执行内容处理
       executelistHandler () {
         console.log(this.executeValue)
@@ -692,6 +724,15 @@
         for (let value of this.workrequireValue) {
           for (let worknote of this.workrequireList) {
             if (worknote.id === value) this.dataForm.workRequire = this.dataForm.workRequire + worknote.shortcutNote + ';'
+          }
+        }
+      },
+      // 安全技术交底要求处理
+      saferequirelistHandler () {
+        for (let safenote of this.saferequireList) {
+          if (safenote.id === this.saferequireValue) {
+            // 去除第一行标题
+            this.dataForm.safeRequire = safenote.shortcutNote.replace(safenote.shortcutNote.split('\n')[0] + '\n','')
           }
         }
       },
