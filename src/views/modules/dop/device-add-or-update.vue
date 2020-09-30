@@ -121,6 +121,7 @@
     methods: {
       init (id) {
         this.dataForm.id = id || 0
+        this.dataForm.devStation = 0
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()

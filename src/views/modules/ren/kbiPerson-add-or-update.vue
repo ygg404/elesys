@@ -41,7 +41,7 @@
         visible: false,
         title: '',
         year: '',
-        updown: '',
+        month: '',
         allChecked: false,
         allCheck: false,
         dataListSelections: [],
@@ -57,8 +57,8 @@
         this.allCheck = false
         this.$nextTick( () => {
           this.year = item.checkYear
-          this.updown = item.checkUpdown
-          this.title = '设置 ： ' + item.checkYear + '年' + (item.checkUpdown === 0 ? '上半年' : '下半年') + '   的参评人员'
+          this.month = item.checkMonth
+          this.title = '设置 ： ' + item.checkYear + '年' + (item.checkMonth) + '月   的参评人员'
           this.getKbiPersonList().then(list => {
             for (let dat of list) {
               if (dat.isAttend === 1) {
@@ -89,7 +89,7 @@
             method: 'get',
             params: this.$http.adornParams({
               year: this.year,
-              updown: this.updown
+              month: this.month
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -109,7 +109,7 @@
             method: 'get',
             params: this.$http.adornParams({
               year: this.year,
-              updown: this.updown
+              month: this.month
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -143,7 +143,7 @@
               let personItem = {
                 userId: item.userId,
                 year: this.year,
-                updown: this.updown
+                month: this.month
               }
               kbiCheckList.push(personItem)
             }
@@ -153,7 +153,7 @@
             method: 'post',
             data: this.$http.adornData({
               'year': this.year,
-              'updown': this.updown,
+              'month': this.month,
               'kbiCheckList': kbiCheckList
             })
           }).then(({data}) => {
@@ -174,7 +174,7 @@
               let personItem = {
                 userId: item.userId,
                 year: this.year,
-                updown: this.updown
+                month: this.month
               }
               kbiPersonList.push(personItem)
             }
@@ -184,7 +184,7 @@
             method: 'post',
             data: this.$http.adornData({
               'year': this.year,
-              'updown': this.updown,
+              'month': this.month,
               'kbiPersonList': kbiPersonList,
             })
           }).then(({data}) => {

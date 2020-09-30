@@ -76,7 +76,7 @@
           data: this.$http.adornData({
             'checkUserId': this.checkUserItem.userId,
             'year': this.checkUserItem.year,
-            'updown': this.checkUserItem.updown,
+            'month': this.checkUserItem.month,
             'scoreList': scoreList
           })
         }).then(({data}) => {
@@ -119,7 +119,7 @@
             method: 'get',
             params: this.$http.adornParams({
               year: item.year,
-              updown: item.updown,
+              month: item.month,
               checkUserId: item.userId
             })
           }).then(({data}) => {
@@ -147,7 +147,7 @@
             remark: extra.remark,
             extraType: extra.extraType,
             year: this.checkUserItem.year,
-            updown: this.checkUserItem.updown,
+            month: this.checkUserItem.month,
             checkUserId: this.checkUserItem.userId,
             checkUserName: this.checkUserItem.userName,
             isFirst: false

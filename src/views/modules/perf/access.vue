@@ -4,10 +4,7 @@
       <el-form :inline="true" :model="dataForm" style="display:flex;justify-content: space-between">
         <el-form-item>
           <span class="time_title">考核时间:</span>
-          <el-date-picker v-model="dataForm.curYear" type="year" placeholder="选择年" style="width: 100px;" @change="init"></el-date-picker>
-          <el-select v-model="dataForm.updown" placeholder="时间类型" style="width: 110px;" @change="init">
-            <el-option v-for="item in yearItemList" :label="item.yearItem" :key="item.id" :value="item.id"></el-option>
-          </el-select>
+          <el-date-picker v-model="dataForm.curTime" type="month" placeholder="选择年月" @change="init"></el-date-picker>
         </el-form-item>
         <el-form-item>
           <span class="time_title">考核状态:</span>
@@ -18,7 +15,7 @@
         </el-form-item>
       </el-form>
       <div style="text-align: center;margin-bottom: 10px;">
-        <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核'}}</h1>
+        <h1>{{dataForm.curTime.getFullYear() + '年' + (dataForm.curTime.getMonth() + 1) + '月' + '效能考核'}}</h1>
       </div>
       <div v-for="kbiRole in kbiRoleList" style="margin-top: 20px;" :key="kbiRole.roleId" v-if="isAttend">
         <div style="font-size: 12pt;color: #3b97d7;">
@@ -60,10 +57,8 @@
       return {
         dataForm: {
           key: '',
-          curYear: new Date(2020 , 1 ,1),   // 当前年份
-          updown: 0 // 上下半年
+          curTime: ''
         },
-        yearItemList: getYearItem(),
         dataList: [],
         dataListLoading: false,
         dataListSelections: [],
@@ -90,8 +85,7 @@
       },
     },
     activated () {
-      this.dataForm.curYear = new Date( new Date().getFullYear() , new Date().getMonth() - 3, 1)
-      this.dataForm.updown = this.dataForm.curYear.getMonth() <= 6 ? 0 : 1
+      this.dataForm.curTime = new Date()
       this.init()
     },
     methods: {
@@ -117,8 +111,8 @@
             url: this.$http.adornUrl(`/perf/access/volist`),
             method: 'get',
             params: this.$http.adornParams({
-              year: this.dataForm.curYear.getFullYear(),
-              updown: this.dataForm.updown,
+              year: this.dataForm.curTime.getFullYear(),
+              month: this.dataForm.curTime.getMonth() + 1,
               userId: this.userId
             })
           }).then(({data}) => {
@@ -215,8 +209,8 @@
             url: this.$http.adornUrl(`/ren/kbicheck/info`),
             method: 'get',
             params: this.$http.adornParams({
-              year: this.dataForm.curYear.getFullYear(),
-              updown: this.dataForm.updown
+              year: this.dataForm.curTime.getFullYear(),
+              month: this.dataForm.curTime.getMonth() + 1
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -265,8 +259,8 @@
               let accessItem = {
                 userId: this.userId,
                 userName: this.userName,
-                year: this.dataForm.curYear.getFullYear(),
-                updown: this.dataForm.updown,
+                year: this.dataForm.curTime.getFullYear(),
+                month: this.dataForm.curTime.getMonth(),
                 kbiId: item.kbiId,
                 kbiName: item.kbiName,
                 kbiRatio: item.kbiRatio
@@ -292,8 +286,8 @@
           method: 'post',
           data: this.$http.adornData({
             'userId': this.userId,
-            'year': this.dataForm.curYear.getFullYear(),
-            'updown': this.dataForm.updown,
+            'year': this.dataForm.curTime.getFullYear(),
+            'month': this.dataForm.curTime.getMonth(),
             'accessList': perfAccessList
           })
         }).then(({data}) => {

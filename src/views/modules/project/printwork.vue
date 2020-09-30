@@ -293,7 +293,7 @@
           }).then(({data}) => {
             if (data && data.code === 0) {
               data.projectInfo.executeStandard = '☑' + data.projectInfo.executeStandard.replace(/;/g, '☑').slice(0, -1)
-              data.projectInfo.safeRequire = data.projectInfo.safeRequire.replace(/\n/g, '。 ') + '。'
+              data.projectInfo.safeRequire = data.projectInfo.safeRequire == null ? '' : data.projectInfo.safeRequire.replace(/\n/g, '。 ') + '。'
               this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
             } else {

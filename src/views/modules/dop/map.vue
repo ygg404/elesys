@@ -40,10 +40,17 @@
           </el-collapse-item>
         </el-collapse>
       </div>
-      <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'"></div>
-<!--      <baidu-map :center="center" :zoom="zoom" @ready="initBmap" :style="'height:' + (documentClientHeight - 200) + 'px'"-->
-<!--                 @click="getClickInfo" :scroll-wheel-zoom='true'>-->
-<!--      </baidu-map>-->
+      <div class="map">
+        <el-card class="map_project">
+          <div slot="header" class="clearfix" style="padding: 0">
+            <span class="span_title">项目目录</span>
+          </div>
+          <div :style="'height:' + (documentClientHeight - 500) + 'px'" class="project_ul">
+
+          </div>
+        </el-card>
+        <el-card id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'" ></el-card>
+      </div>
       <!-- 弹窗, 新增 / 修改 -->
       <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
     </div>
@@ -239,7 +246,7 @@
                 polyList.push(new BMap.Point(point[0],point[1]))
               }
             }
-            var polygon = new BMap.Polygon(polyList, {strokeColor:'red', strokeWeight:2, strokeOpacity:0.35,fillColor: '#db8385ef'})
+            var polygon = new BMap.Polygon(polyList, {strokeColor:'red', strokeWeight:3, fillOpacity:0.35,fillColor: '#db8385ef'})
             polygon.id = bPoint.id
             this.map.addOverlay(polygon)   // 增加多边形
             // 创建标题
@@ -334,5 +341,26 @@
     -moz-animation: rotate 2s linear infinite;
     -o-animation: rotate 2s linear infinite;
     animation: rotate 2s linear infinite;
+  }
+
+  .map {
+    display: flex;
+    justify-content: flex-start;
+  }
+  .map #mapId{
+    width: 100%;
+    margin-left: 5px;
+  }
+  .map_project {
+    width: 200px;
+    display: inline-block;
+  }
+  .map .span_title {
+    font-weight: 700;
+    font-size: 14pt;
+  }
+  .map .project_ul {
+    overflow-y: auto;
+    -ms-overflow-y: auto;
   }
 </style>

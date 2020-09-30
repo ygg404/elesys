@@ -27,26 +27,33 @@
           <span v-if="!stringIsNull(scope.row.indate)">{{scope.row.indate}}年</span>
         </template>
       </el-table-column>
-      <el-table-column prop="devStation" header-align="center" align="center" label="设备状况">
+      <el-table-column prop="devStation" header-align="center" align="center" label="设备状况" width="100">
         <template slot-scope="scope" >
           <el-tag v-if="scope.row.devStation === 0" size="small" type="success">闲置中</el-tag>
           <el-tag v-else-if="scope.row.devStation === 1" size="small" type="info">出借中</el-tag>
-          <el-tag v-else-if="scope.row.devStation === 2" size="small" type="danger">返修中</el-tag>
+          <el-tag v-else-if="scope.row.devStation === 2" size="small" type="danger">维修中</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="remark" header-align="center" align="center" label="备注"></el-table-column>
-      <el-table-column header-align="center" align="center" label="二维码">
+      <el-table-column header-align="center" align="center" label="二维码"  width="90">
         <template slot-scope="scope">
           <span class="check_span" @click="qrCodeShowHandle(scope.row)">查看</span>
         </template>
       </el-table-column>
-      <el-table-column prop="fileName" header-align="center" align="center" label="仪器证书">
+      <el-table-column prop="fileName" header-align="center" align="center" label="仪器证书" width="100">
         <template slot-scope="scope">
           <span v-if="!stringIsNull(scope.row.fileName)" class="check_span" @click="fileLoadToHandle(scope.row.fileName)">查看</span>
         </template>
       </el-table-column>
-      <el-table-column fixed="right" header-align="center" align="center" width="150" label="操作">
+      <el-table-column align="center" label="借还记录" width="100">
         <template slot-scope="scope">
+          <span class="check_span" @click="dopHistoryHandle(scope.row)">查看</span>
+        </template>
+      </el-table-column>
+      <el-table-column header-align="center" align="center" width="220" label="操作">
+        <template slot-scope="scope">
+          <el-button v-if="scope.row.devStation === 0" type="warning" size="mini" @click="lendToHandle(scope.row)">出借</el-button>
+          <el-button v-if="scope.row.devStation === 1" type="success" size="mini" @click="lendToHandle(scope.row)">归还</el-button>
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -65,13 +72,19 @@
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
     <!-- 二维码弹窗 -->
     <device-qrcode v-if="qrcodeVisible" ref="deviceQrcode"></device-qrcode>
+    <!-- 仪器借记历史弹窗 -->
+    <device-history v-if="historyVisible" ref="deviceHistory"></device-history>
+    <!-- 借换记录弹窗 -->
+    <history-add-or-update v-if="historyAddOrUpdateVisible" ref="historyAddOrUpdate"></history-add-or-update>
   </div>
 </template>
 
 <script>
   import stringIsNull from '@/utils'
   import deviceQrcode from './device-qrcode'
+  import deviceHistory from './device-history'
   import AddOrUpdate from './device-add-or-update'
+  import historyAddOrUpdate from './history-add-or-update'
 
   export default {
     data () {
@@ -88,12 +101,16 @@
         dataListLoading: false,
         dataListSelections: [],
         addOrUpdateVisible: false,
-        qrcodeVisible: false
+        qrcodeVisible: false,
+        historyVisible: false,
+        historyAddOrUpdateVisible: false
       }
     },
     components: {
       AddOrUpdate,
-      deviceQrcode
+      deviceQrcode,
+      deviceHistory,
+      historyAddOrUpdate
     },
     activated () {
       this.getDataList()
@@ -201,6 +218,20 @@
               this.$message.error(data.msg)
             }
           })
+        })
+      },
+      // 仪器借还记录
+      dopHistoryHandle (item) {
+        this.historyVisible = true
+        this.$nextTick(() => {
+          this.$refs.deviceHistory.init(item)
+        })
+      },
+      // 仪器出借
+      lendToHandle (item) {
+        this.historyAddOrUpdateVisible = true
+        this.$nextTick(() => {
+          this.$refs.historyAddOrUpdate.init(item)
         })
       },
       // 查看仪器文件

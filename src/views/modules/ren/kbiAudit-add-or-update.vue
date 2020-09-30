@@ -21,7 +21,7 @@
 </template>
 
 <script>
-  import {stringIsNull} from '../../../utils'
+  import {stringIsNull} from '@/utils'
 
   export default {
     data () {
@@ -29,7 +29,7 @@
         visible: false,
         title: '',
         year: '',
-        updown: '',
+        month: '',
         kbiAuditList: []
       }
     },
@@ -37,8 +37,8 @@
       init (item) {
         this.visible = true
         this.year = item.checkYear
-        this.updown = item.checkUpdown
-        this.title = item.checkYear + '年' + (item.checkUpdown === 0 ? '上半年' : '下半年') + '   效能考核审核'
+        this.month = item.checkMonth
+        this.title = item.checkYear + '年' + (item.checkMonth) + '月   效能考核审核'
         this.getDataList().then(list => {
           let kbiAuditList = []
           console.log(item)
@@ -69,7 +69,7 @@
             method: 'get',
             params: this.$http.adornParams({
               year: this.year,
-              updown: this.updown
+              month: this.month
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -87,7 +87,7 @@
           method: 'post',
           data: this.$http.adornData({
             'year': this.year,
-            'updown': this.updown,
+            'month': this.month,
             'kbiAuditList': this.kbiAuditList,
           })
         }).then(({data}) => {

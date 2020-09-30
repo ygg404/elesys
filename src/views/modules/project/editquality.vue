@@ -73,12 +73,29 @@
         </el-form-item>
       </el-card>
     </el-form>
+
+    <el-card class="card_header" v-if="isAuth('project:quality:auth')">
+      <div slot="header" class="header_span" >
+        <span>质量综述：  </span>
+      </div>
+      <el-form :model="dataForm" ref="dataForm" class="form_class">
+        <el-select  filterable placeholder="质量综述快捷输入" v-model="qualityNoteValue" style="width: 100%" multiple collapse-tags  @change="qualityNoteHandler()" >
+          <el-option v-for="item in qualityNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
+        </el-select>
+        <el-form-item prop="qualityNote">
+          <el-input type="textarea" maxlength="1000" size="large" show-word-limit rows="4" v-model="dataForm.qualityNote" placeholder="请填写质量综述"></el-input>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
-      <el-button type="primary" size="large" @click="dataFormSubmit" :disabled="isCheck == 2">提交</el-button>
+      <el-button type="success" size="large"  @click="putQualityAuthToApi" :disabled="!isAuth('project:quality:auth')">提交审定</el-button>
+      <el-button type="primary" size="large" @click="dataFormSubmit" :disabled="isCheck == 2">保存</el-button>
       <el-button type="danger" size="large" @click="repairNoteSubmit" :disabled="isCheck == 2">退回返修</el-button>
       <el-button type="danger" size="large" @click="recallRepairHandle" :disabled="isCheck != 2">撤回返修</el-button>
     </div>
+
 
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
     <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="setQualityScore"></qualityscore-add-or-update>
@@ -92,6 +109,7 @@
   import {closeTab} from '@/utils/tabs'
   import qualityscoreAddOrUpdate from './qualityscore-add-or-update'
   import qualityeditAddOrUpdate from './qualityedit-add-or-update'
+  import {stringIsNull} from '../../../utils'
 
   export default {
     data () {
@@ -195,6 +213,30 @@
                 this.$message.error(data.msg)
               }
             })
+          }
+        })
+      },
+      // 提交质量综述
+      putQualityAuthToApi () {
+        if (stringIsNull(this.dataForm.qualityNote)) {
+          this.$message.error('质量综述不能为空！')
+          return
+        }
+        this.$http({
+          url: this.$http.adornUrl(`/project/quality/update`),
+          method: 'post',
+          data: this.$http.adornData({
+            'id': this.dataForm.id,
+            'projectNo': this.projectNo,
+            'qualityNote': this.dataForm.qualityNote
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.$emit('refreshDataList')
+            this.$message.success('提交审定成功！')
+            this.goBack()
+          } else {
+            this.$message.error(data.msg)
           }
         })
       },
@@ -307,14 +349,6 @@
           })
         })
       },
-      qualityNoteHandler () {
-        this.dataForm.qualityNote = ''
-        for (let value of this.qualityNoteValue) {
-          for (let note of this.qualityNotelist) {
-            if (note.id === value) this.dataForm.qualityNote = this.dataForm.qualityNote + note.shortcutNote + ';'
-          }
-        }
-      },
       // 提交退回返修
       repairNoteSubmit () {
         this.activeNames = []
@@ -405,6 +439,30 @@
             }
           })
         })
+      },
+      // 质量审核报告
+      qualityNoteHandler () {
+        this.dataForm.qualityNote = ''
+        for (let value of this.qualityNoteValue) {
+          for (let note of this.qualityNotelist) {
+            if (note.id === value) this.dataForm.qualityNote = this.dataForm.qualityNote + note.shortcutNote + ';'
+          }
+        }
+      },
+      // 根据项目类型快捷输入可见或不可见
+      shortTypeAlive (item) {
+        // 当快捷短语的项目分类为空 或者 项目类型为空则短语可见
+        if (stringIsNull(item.projectType) || stringIsNull(this.projectInfo.projectType)) {
+          return true
+        } else {
+          let itemType = item.projectType.split(',')
+          for (let itype of itemType) {
+            if (this.projectInfo.projectType.indexOf(itype) !== -1) {
+              return true
+            }
+          }
+          return false
+        }
       },
       // 返回
       goBack () {
@@ -503,5 +561,13 @@
     text-align: center;
     background-color: #6f71805f;
     opacity: 0.8;
+  }
+
+  .card_header{
+    margin-top: 18px;
+  }
+  .card_header .header_span{
+    font-weight: 700;
+    font-size: 14pt;
   }
 </style>

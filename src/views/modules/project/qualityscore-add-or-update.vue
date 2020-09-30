@@ -1,85 +1,23 @@
 <template>
-  <el-dialog title="质量评分" :close-on-click-modal="false" :visible.sync="visible" width="95%">
-    <div>
-      <el-form :inline="true" :model="errorForm" class="item">
-        <el-form-item label="点位中误差:">
-          <el-input v-model="errorForm.errorPoint" type="number" ></el-input>
-        </el-form-item>
-        <el-form-item label="间距中误差:">
-          <el-input v-model="errorForm.errorSpace" type="number" ></el-input>
-        </el-form-item>
-        <el-form-item label="高程中误差:">
-          <el-input v-model="errorForm.errorHeigh" type="number" ></el-input>
-        </el-form-item>
-      </el-form>
-    </div>
-<!--    2019 评分表-->
-    <div v-if="score1Visible">
-      <div v-for="(scoreDetail, index) in scoreDetailList">
-        <div class="form_title" v-if="index==0">作业依据、空间基准及数学精度(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></div>
-        <div class="form_title" v-if="index==6">数据采集、处理质量(权:0.4) <span class="from_span">质量元素扣分:<span style="color: red">{{cjScore}}</span></span></div>
-        <div class="form_title" v-if="index==18">成果资料质量(权:0.3) <span class="from_span">质量元素扣分:<span style="color: red">{{cgScore}}</span></span></div>
-        <el-row>
-          <el-col :span="4" ><div class="form_disable_item">检查项内容:{{scoreDetail.checkcontent}}</div></el-col>
-          <!--        <el-col :span="3"><div class="form_disable_item"><el-input placeholder="检查类型" v-model="scoreDetail.check_type"></el-input></div></el-col>-->
-          <el-col :span="8"><div class="form_disable_item"><el-input placeholder="检查结果" v-model="scoreDetail.check_result"></el-input></div></el-col>
-          <el-col :span="2"><div  style="text-align: right">错漏数量:</div></el-col>
-          <el-col :span="2"><div class="form_disable_item"><el-input placeholder="A类" type="number" v-model="scoreDetail.check_a" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
-          <el-col :span="2"><div class="form_disable_item"><el-input placeholder="B类" type="number" v-model="scoreDetail.check_b" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
-          <el-col :span="2"><div class="form_disable_item"><el-input placeholder="C类" type="number" v-model="scoreDetail.check_c" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
-          <el-col :span="2"><div class="form_disable_item"><el-input placeholder="D类" type="number" v-model="scoreDetail.check_d" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
-          <el-col :span="2"><div >检查项扣分:<span style="color: red">{{scoreDetail.score}}</span></div></el-col>
-        </el-row>
-      </div>
-    </div>
+  <el-dialog title="质量评分" :close-on-click-modal="false" :visible.sync="visible" width="80%">
 
-<!--2020 评分表-->
-    <el-table :data="dataList" :span-method="objectSpanMethod" border v-loading="dataListLoading" v-if="score2Visible"
-              :header-cell-style="tableHeaderColor" style="width: 100%;">
-      <el-table-column prop="qualityCate" header-align="center" align="center" label="质量元素类别" width="140"></el-table-column>
-      <el-table-column prop="scoreRadio" header-align="center" align="center" label="评分权重" width="90"></el-table-column>
-      <el-table-column prop="typeaName" header-align="center" align="center" label="A类错误(-42)"></el-table-column>
-      <el-table-column prop="checkA" header-align="center" align="center" label="A类错漏数量">
-        <template slot-scope="scope">
-          <el-input-number v-model="scope.row.checkA" size="mini" :min="0" :max="100" class="te_input"
-            v-if="scope.row.typeaName != null && scope.row.typeaName != ''" @change="scoreNewChangeHandler()"></el-input-number>
-        </template>
-      </el-table-column>
-      <el-table-column prop="typebName" header-align="center" align="center" label="B类错误(-12)"></el-table-column>
-      <el-table-column prop="checkB" header-align="center" align="center" label="B类错漏数量">
-        <template slot-scope="scope">
-          <el-input-number v-model="scope.row.checkB" size="mini" :min="0" :max="100" class="te_input"
-                           v-if="scope.row.typebName != null && scope.row.typebName != ''" @change="scoreNewChangeHandler()"></el-input-number>
-        </template>
-      </el-table-column>
-      <el-table-column prop="typecName" header-align="center" align="center" label="C类错误(-4)"></el-table-column>
-      <el-table-column prop="checkC" header-align="center" align="center" label="C类错漏数量">
-        <template slot-scope="scope">
-          <el-input-number v-model="scope.row.checkC" size="mini" :min="0" :max="100" class="te_input"
-                           v-if="scope.row.typecName != null && scope.row.typecName != ''" @change="scoreNewChangeHandler()"></el-input-number>
-        </template>
-      </el-table-column>
-      <el-table-column prop="typedName" header-align="center" align="center" label="D类错误(-1)"></el-table-column>
-      <el-table-column prop="checkD" header-align="center" align="center" label="D类错漏数量">
-        <template slot-scope="scope">
-          <el-input-number v-model="scope.row.checkD" size="mini" :min="0" :max="100" class="te_input"
-                           v-if="scope.row.typedName != null && scope.row.typedName != ''" @change="scoreNewChangeHandler()"></el-input-number>
-        </template>
-      </el-table-column>
-      <el-table-column header-align="center" align="center" label="检查项扣分">
-        <template slot-scope="scope">
-          <span style="color: red">
-            {{parseInt(scope.row.checkA) * 42 + parseInt(scope.row.checkB) * 12 + parseInt(scope.row.checkC) * 4 + parseInt(scope.row.checkD)}}
-          </span>
-        </template>
-      </el-table-column>
-      <el-table-column header-align="center" align="center" label="质量元素扣分">
-        <template slot-scope="scope">
-          <span style="color: red;font-size: 12pt;">{{scope.row.delScore}}</span>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="form_title_footer">总分：<span style="color: #00b7ee">{{allScore}}</span></div>
+    <div v-for="(scoreDetail, index) in scoreDetailList">
+      <div class="form_title" v-if="index==0">作业依据、空间基准及数学精度(权:0.3) <span class="from_span">质量元素扣分: <span style="color: red">{{kjScore}}</span></span></div>
+      <div class="form_title" v-if="index==6">数据采集、处理质量(权:0.4) <span class="from_span">质量元素扣分:<span style="color: red">{{cjScore}}</span></span></div>
+      <div class="form_title" v-if="index==18">成果资料质量(权:0.3) <span class="from_span">质量元素扣分:<span style="color: red">{{cgScore}}</span></span></div>
+      <el-row>
+        <el-col :span="4" ><div class="form_disable_item">检查项内容:{{scoreDetail.checkcontent}}</div></el-col>
+<!--        <el-col :span="3"><div class="form_disable_item"><el-input placeholder="检查类型" v-model="scoreDetail.check_type"></el-input></div></el-col>-->
+        <el-col :span="8"><div class="form_disable_item"><el-input placeholder="检查结果" v-model="scoreDetail.check_result"></el-input></div></el-col>
+        <el-col :span="2"><div  style="text-align: right">错漏数量:</div></el-col>
+        <el-col :span="2"><div class="form_disable_item"><el-input placeholder="A类" type="number" v-model="scoreDetail.check_a" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
+        <el-col :span="2"><div class="form_disable_item"><el-input placeholder="B类" type="number" v-model="scoreDetail.check_b" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
+        <el-col :span="2"><div class="form_disable_item"><el-input placeholder="C类" type="number" v-model="scoreDetail.check_c" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
+        <el-col :span="2"><div class="form_disable_item"><el-input placeholder="D类" type="number" v-model="scoreDetail.check_d" @change="scoreChangeHandler" min="0"></el-input></div></el-col>
+        <el-col :span="2"><div >检查项扣分:<span style="color: red">{{scoreDetail.score}}</span></div></el-col>
+      </el-row>
+    </div>
+    <div class="form_title">总分：<span style="color: #00b7ee">{{allScore}}</span></div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
       <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
@@ -88,25 +26,13 @@
 </template>
 
 <script>
-  import {stringIsNull} from '../../../utils'
-
   export default {
     data () {
       return {
         visible: false,
         loading: true,
-        dataListLoading: false,
-        dataList: [], // 质量评分表
-        errorForm: {
-          errorPoint: 0, // 点位中误差
-          errorSpace: 0, // 间距中误差
-          errorHeigh: 0 // 高程中误差
-        },
-        dataForm: {
-          fileNo: ''
-        },
         checkcontent: [
-          // 19-6年检查内容
+          // 19年检查内容
           '坐标系统、高程系统的正确性',
           '投影参数、转换参数的正确性',
           '起算数据及选用的正确性、可靠性',
@@ -122,7 +48,7 @@
           '计算质量',
           '技术文档表达质量',
           '资料完整性、规范性',
-          // 19-12年检查内容
+          // 20年检查内容
           '作业依据、原始资料（含行政审批资料）使用的正确性、有效性',
           '平面、高程基准（包括投影、转换参数）',
           '平面坐标精度',
@@ -159,9 +85,6 @@
         tRate: 0,
         projectNo: '',
         scoreList: [],   // 分数列表
-        spanArr: [],
-        score1Visible: false, // 2019评分表
-        score2Visible: false // 2020评分表
       }
     },
     mounted () {
@@ -169,62 +92,26 @@
     },
     methods: {
       init (projectNo) {
-        this.dataListLoading = true
         this.projectNo = projectNo
         this.initScoreTypeList()
-        this.getErrorForm(projectNo).then(errorForm => {
-          if (!stringIsNull(errorForm)) {
-            this.errorForm = errorForm
-          }
-        })
+        console.log(this.scoreDetailList)
         this.getQualityScoreList(projectNo).then(data => {
           this.scoreList = data
-          // 2019 年评分方式
-          if (data.length > 0 && data[0].typeId < 100) {
-            this.score1Visible = true
-            this.score2Visible = false
-            for (let scoreItem of this.scoreList) {
-              for (let detail of this.scoreDetailList) {
-                if (detail.type_id === scoreItem.typeId) {
-                  detail.check_a = scoreItem.checkA
-                  detail.check_b = scoreItem.checkB
-                  detail.check_c = scoreItem.checkC
-                  detail.check_d = scoreItem.checkD
-                  detail.check_result = scoreItem.checkResult
-                  detail.check_type = scoreItem.checkType
-                }
+          for (let scoreItem of this.scoreList) {
+            for (let detail of this.scoreDetailList) {
+              if (detail.type_id === scoreItem.typeId) {
+                detail.check_a = scoreItem.checkA
+                detail.check_b = scoreItem.checkB
+                detail.check_c = scoreItem.checkC
+                detail.check_d = scoreItem.checkD
+                detail.check_result = scoreItem.checkResult
+                detail.check_type = scoreItem.checkType
               }
             }
-            this.scoreChangeHandler()
-            this.dataListLoading = false
-          } else {
-            // 2020 年评分方式
-            this.score1Visible = false
-            this.score2Visible = true
-            this.getQualityScoreList(projectNo).then(data => {
-              this.getScoreFileList().then(fileList => {
-                this.fileList = fileList
-                if (fileList.length > 0) this.dataForm.fileNo = fileList[0]
-                this.getDataList(this.dataForm.fileNo).then(list => {
-                  for (let checkItem of list) {
-                    for (let scoreItem of data) {
-                      if (scoreItem.typeId === checkItem.typeId) {
-                        checkItem.checkA = scoreItem.checkA
-                        checkItem.checkB = scoreItem.checkB
-                        checkItem.checkC = scoreItem.checkC
-                        checkItem.checkD = scoreItem.checkD
-                        break
-                      }
-                    }
-                  }
-                  this.dataList = list
-                  this.scoreNewChangeHandler()
-                  this.dataListLoading = false
-                })
-              })
-            })
           }
+          this.scoreChangeHandler()
         })
+
         this.visible = true
       },
       /**
@@ -282,140 +169,20 @@
           })
         })
       },
-      // 合并单元格
-      objectSpanMethod ({row, column, rowIndex, columnIndex}) {
-        if (columnIndex === 0 || columnIndex === 1 || columnIndex === 11) {
-          const _row = this.spanArr[rowIndex]
-          const _col = _row > 0 ? 1 : 0
-          return {
-            rowspan: _row,
-            colspan: _col
-          }
-        }
-      },
-      // 修改table header的背景色
-      tableHeaderColor ({ row, column, rowIndex, columnIndex }) {
-        if (rowIndex === 0) {
-          return 'background-color: lightblue;color: #fff;font-weight: 700;line-height:200%;font-size:12pt'
-        }
-      },
-      // 根据项目编号获取点、间距、高程误差
-      getErrorForm (projectNo) {
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl(`/project/checkerror/info/${projectNo}`),
-            method: 'get',
-            params: this.$http.adornParams({})
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              resolve(data.checkError)
-            }
-          })
-        })
-      },
-      // 质量评分初始化（2020-08-15）
-      scoreNewChangeHandler () {
-        let delScoreList = []
-        let delScore = 0
-        let id = 0
-        for (let index = 0; index < this.spanArr.length; index++) {
-          if (this.spanArr[index] !== 0 && index !== 0) {
-            delScoreList.push({
-              id: id,
-              delScore: delScore,
-              ratio: this.dataList[index - 1].scoreRadio
-            })
-            id = index
-            delScore = 0
-          }
-          delScore += (parseFloat(this.dataList[index].checkA) * 42 +
-            parseFloat(this.dataList[index].checkB) * 12 +
-            parseFloat(this.dataList[index].checkC) * 4 +
-            parseFloat(this.dataList[index].checkD))
-        }
-        if (delScore !== 0) {
-          delScoreList.push({
-            id: id,
-            delScore: delScore,
-            ratio: this.dataList[this.dataList.length - 1].scoreRadio
-          })
-        }
-        // 合计扣分项
-        let allDelScore = 0
-        for (let dscore of delScoreList) {
-          this.dataList[dscore.id].delScore = (dscore.delScore * dscore.ratio).toFixed(2)
-          allDelScore += parseFloat(this.dataList[dscore.id].delScore)
-        }
-        this.allScore = (100 - allDelScore).toFixed(2)
-      },
-      // 获取数据列表
-      getDataList () {
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl('/set/qualityscore/list'),
-            method: 'get',
-            params: this.$http.adornParams({
-              fileNo: this.dataForm.fileNo
-            })
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.spanArr = []
-              let pos = 0
-              for (let i = 0; i < data.list.length; i++) {
-                data.list[i].checkA = 0
-                data.list[i].checkB = 0
-                data.list[i].checkC = 0
-                data.list[i].checkD = 0
-                data.list[i].delScore = 0
-                if (i === 0) {
-                  this.spanArr.push(1)
-                  pos = 0
-                } else {
-                  // 判断当前元素与上一个元素是否相同
-                  if (data.list[i].qualityCate === data.list[i - 1].qualityCate) {
-                    this.spanArr[pos] += 1
-                    this.spanArr.push(0)
-                  } else {
-                    this.spanArr.push(1)
-                    pos = i
-                  }
-                }
-              }
-              resolve(data.list)
-            } else {
-              this.dataList = []
-            }
-          })
-        })
-      },
-      // 获取评分列表文件
-      getScoreFileList () {
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl('/set/qualityscore/fileList'),
-            method: 'get',
-            params: this.$http.adornParams({})
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              resolve(data.list)
-            }
-          })
-        })
-      },
       // 提交评分明细
       dataFormSubmit () {
         let scoreList = []
-        for (let detail of this.dataList) {
-          if (detail.checkA !== 0 || detail.checkB !== 0 || detail.checkC !== 0 || detail.checkD !== 0) {
+        for (let detail of this.scoreDetailList) {
+          if (detail.check_a !== '' || detail.check_b !== '' || detail.check_c !== '' || detail.check_d !== '') {
             scoreList.push({
-              'checkA': detail.checkA,
-              'checkB': detail.checkB,
-              'checkC': detail.checkC,
-              'checkD': detail.checkD,
+              'checkA': detail.check_a,
+              'checkB': detail.check_b,
+              'checkC': detail.check_c,
+              'checkD': detail.check_d,
               'checkResult': detail.check_result,
               'checkType': detail.check_type,
               'projectNo': this.projectNo,
-              'typeId': detail.typeId
+              'typeId': detail.type_id
             })
           }
         }
@@ -425,10 +192,7 @@
           data: this.$http.adornData({
             'scoreList': scoreList,
             'projectNo': this.projectNo,
-            'qualityScore': this.allScore,
-            'errorPoint': this.errorForm.errorPoint,
-            'errorSpace': this.errorForm.errorSpace,
-            'errorHeigh': this.errorForm.errorHeigh
+            'qualityScore': this.allScore
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -448,7 +212,7 @@
   }
 </script>
 
-<style scoped>
+<style>
   .form_line{
     border-bottom: 1px dotted #ccc;
     border-radius: 0px;
@@ -464,28 +228,10 @@
     font-size: 18px;
     margin-top: 10px;
   }
+
   .form_title .from_span{
     color: black;
     font-weight: 500;
     font-size: 15px;
-  }
-  .form_title_footer {
-    color: black;
-    font-weight: 700;
-    font-size: 18px;
-    margin-top: 10px;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .te_input {
-    width:90px;
-    color: #00a0e9
-  }
-  .te_input > input{
-    color: #00a0e9;
-  }
-  .item .el-form-item__label{
-    color: #00a0e9;
   }
 </style>

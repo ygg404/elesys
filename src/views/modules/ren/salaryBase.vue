@@ -85,21 +85,11 @@
       },
       getDataList () {
         // 由工资时间来获取 考核的年度
-        // (1-6月 考核年度为 去年下半年；7-12月 考核年度为 今年上半年)
-        console.log(this.dataForm.payDate)
-        if (this.dataForm.payDate.getMonth() >= 0 && this.dataForm.payDate.getMonth() < 6) {
-          this.dataForm.updown = 1
-        } else {
-          this.dataForm.updown = 0
-        }
-        this.dataForm.year = this.dataForm.payDate.getFullYear()
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl(`/ren/salarybase/list`),
           method: 'get',
           params: this.$http.adornParams({
-            year: this.dataForm.year,
-            updown: this.dataForm.updown,
             salaryYear: this.dataForm.payDate.getFullYear(),
             salaryMonth: this.dataForm.payDate.getMonth() + 1
           })

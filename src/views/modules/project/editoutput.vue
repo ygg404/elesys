@@ -95,20 +95,6 @@
       </el-col>
     </el-row>
 
-    <el-card class="card_header">
-      <div slot="header" class="header_span" >
-        <span>质量综述：  </span>
-      </div>
-      <el-form :model="dataForm" ref="dataForm" class="form_class">
-        <el-select  filterable placeholder="质量综述快捷输入" v-model="qualityNoteValue" style="width: 100%" multiple collapse-tags  @change="qualityNoteHandler()" >
-          <el-option v-for="item in qualityNotelist" :label="item.shortcutNote" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
-        </el-select>
-        <el-form-item prop="qualityNote">
-          <el-input type="textarea" maxlength="1000" size="large" show-word-limit rows="4" v-model="dataForm.qualityNote" placeholder="请填写质量综述"></el-input>
-        </el-form-item>
-      </el-form>
-    </el-card>
-
     <div class="bottom_btn">
       <el-button type="warning" size="large"  @click="goBack">返回</el-button>
       <el-button type="primary" size="large" @click="saveForm">提交</el-button>
@@ -137,11 +123,6 @@
         qualityNoteValue: '',
         cutOffTime: '',
         remarkList: [],  // 预算备注列表
-        qualityNotelist: [],
-        dataForm: {
-          id: '',
-          qualityNote: '',      // 质检综述
-        },
       }
     },
     computed: {
@@ -161,8 +142,6 @@
       init () {
         this.projectNo = this.$route.query.projectNo
         this.getCutoffTime()
-        this.getQualityNotelist()
-        this.getQualityByProjectNo(this.projectNo)
         this.getInfoByProjectNo(this.projectNo).then(success => {
           this.getProjectTypelist().then(success => {
             this.getWorkTypelist().then(success => {
@@ -299,32 +278,6 @@
           })
         })
       },
-      // 获取质检信息
-      getQualityByProjectNo (projectNo ) {
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl(`/project/quality/getInfo`),
-            method: 'get',
-            params: this.$http.adornParams({
-              'projectNo': projectNo,
-            })
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              if ( data.checkQuality != null) {
-                this.dataForm.id = data.checkQuality.id
-                this.dataForm.qualityNote = data.checkQuality.qualityNote
-                this.dataForm.qualityScore = data.checkQuality.qualityScore
-                this.dataForm.qualityReport = data.checkQuality.qualityReport
-                // this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
-              }
-              resolve(data)
-            } else {
-              this.$message.error(data.msg)
-              reject(data.msg)
-            }
-          })
-        })
-      },
       // 获取项目基本信息
       getInfoByProjectNo (projectNo) {
         return new Promise((resolve, reject) => {
@@ -336,24 +289,6 @@
             if (data && data.code === 0) {
               this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
-            } else {
-              this.$message.error(data.msg)
-              reject(data.msg)
-            }
-          })
-        })
-      },
-      // 获取质量综述列表
-      getQualityNotelist () {
-        return new Promise((resolve, reject) => {
-          this.$http({
-            url: this.$http.adornUrl(`/set/wpshortcut/getListByShortTypeId/9`),
-            method: 'get',
-            params: this.$http.adornParams()
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.qualityNotelist = data.list
-              resolve(data.list)
             } else {
               this.$message.error(data.msg)
               reject(data.msg)
@@ -420,30 +355,6 @@
             }
           })
         })
-      },
-      // 质量审核报告
-      qualityNoteHandler () {
-        this.dataForm.qualityNote = ''
-        for (let value of this.qualityNoteValue) {
-          for (let note of this.qualityNotelist) {
-            if (note.id === value) this.dataForm.qualityNote = this.dataForm.qualityNote + note.shortcutNote + ';'
-          }
-        }
-      },
-      // 根据项目类型快捷输入可见或不可见
-      shortTypeAlive (item) {
-        // 当快捷短语的项目分类为空 或者 项目类型为空则短语可见
-        if (stringIsNull(item.projectType) || stringIsNull(this.projectInfo.projectType)) {
-          return true
-        } else {
-          let itemType = item.projectType.split(',')
-          for (let itype of itemType) {
-            if (this.projectInfo.projectType.indexOf(itype) !== -1) {
-              return true
-            }
-          }
-          return false
-        }
       },
       // 提交结算时间
       postCutoffTimeToApi () {
@@ -521,28 +432,10 @@
           })
         })
       },
-      // 提交质量综述
-      putQualityAuthToApi () {
-        this.$http({
-          url: this.$http.adornUrl(`/project/quality/update`),
-          method: 'post',
-          data: this.$http.adornData({
-            'id': this.dataForm.id,
-            'projectNo': this.projectNo,
-            'qualityNote': this.dataForm.qualityNote
-          })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      },
       saveForm () {
         this.postCutoffTimeToApi().then(success => {
           this.postOutputToApi()
           this.putRemarkToApi()
-          this.putQualityAuthToApi()
         })
       },
       // 项目类型改变

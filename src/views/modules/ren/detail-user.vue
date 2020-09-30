@@ -21,8 +21,7 @@
       return {
         uRoleList: [],
         dataForm: {
-          curYear: '',
-          updown: 0
+          curTime: ''
         },
         person: 0,
         count: 0
@@ -47,8 +46,8 @@
             url: this.$http.adornUrl(`/ren/kbicheck/getUcheckList`),
             method: 'get',
             params: this.$http.adornParams({
-              year: this.dataForm.curYear.getFullYear(),
-              updown: this.dataForm.updown
+              year: this.dataForm.curTime.getFullYear(),
+              month: this.dataForm.curTime.getMonth() + 1
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -81,8 +80,8 @@
             url: this.$http.adornUrl(`/ren/kbicheck/getCount`),
             method: 'get',
             params: this.$http.adornParams({
-              year: this.dataForm.curYear.getFullYear(),
-              updown: this.dataForm.updown
+              year: this.dataForm.curTime.getFullYear(),
+              month: this.dataForm.curTime.getMonth()
             })
           }).then(({data}) => {
             if (data && data.code === 0) {

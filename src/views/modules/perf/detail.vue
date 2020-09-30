@@ -4,14 +4,11 @@
         <el-form :inline="true" :model="dataForm" style="display:flex;justify-content: space-between">
           <el-form-item>
             <span class="time_title">考核时间:</span>
-            <el-date-picker v-model="dataForm.curYear" type="year" placeholder="选择年" style="width: 100px;" @change="init"></el-date-picker>
-            <el-select v-model="dataForm.updown" placeholder="时间类型" style="width: 110px;" @change="init">
-              <el-option v-for="item in yearItemList" :label="item.yearItem" :key="item.id" :value="item.id"></el-option>
-            </el-select>
+            <el-date-picker v-model="dataForm.curTime" type="month" placeholder="选择年月"  @change="init"></el-date-picker>
           </el-form-item>
         </el-form>
         <div style="text-align: center;margin-bottom: 10px;">
-          <h1>{{dataForm.curYear.getFullYear() + '年' + (dataForm.updown == 0 ? '上半年':'下半年') + '效能考核明细'}}</h1>
+          <h1>{{dataForm.curTime.getFullYear() + '年' + (dataForm.curTime.getMonth() + 1) + '月  效能考核明细'}}</h1>
         </div>
         <div style="display: flex">
 <!--          <div style="width: 200px" v-if="isAuth()">-->
@@ -97,8 +94,7 @@
       return {
         dataLoading: false,
         dataForm: {
-          curYear: new Date(2020 , 1 ,1),   // 当前年份
-          updown: 0 // 上下半年
+          curTime: new Date()
         },
         yearItemList: getYearItem(),
         checkUserList: [],
@@ -110,8 +106,6 @@
       }
     },
     activated () {
-      this.dataForm.curYear = new Date(new Date().getFullYear() , new Date().getMonth() - 3, 1)
-      this.dataForm.updown = this.dataForm.curYear.getMonth() <= 6 ? 0 : 1
       this.init()
     },
     methods: {
@@ -193,8 +187,8 @@
             url: this.$http.adornUrl(`/perf/access/list`),
             method: 'get',
             params: this.$http.adornParams({
-              year: this.dataForm.curYear.getFullYear(),
-              updown: this.dataForm.updown
+              year: this.dataForm.curTime.getFullYear(),
+              month: this.dataForm.curTime.getMonth() + 1
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -213,8 +207,8 @@
             url: this.$http.adornUrl(`/perf/access/uAssessList`),
             method: 'get',
             params: this.$http.adornParams({
-              year: this.dataForm.curYear.getFullYear(),
-              updown: this.dataForm.updown
+              year: this.dataForm.curTime.getFullYear(),
+              month: this.dataForm.curTime.getMonth() + 1
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -346,8 +340,8 @@
             url: this.$http.adornUrl('/perf/extrascoring/list'),
             method: 'get',
             params: this.$http.adornParams({
-              year: this.dataForm.curYear.getFullYear(),
-              updown: this.dataForm.updown
+              year: this.dataForm.curTime.getFullYear(),
+              month: this.dataForm.curTime.getMonth() + 1
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
