@@ -81,7 +81,7 @@
             method: 'get',
             params: this.$http.adornParams({
               year: this.dataForm.curTime.getFullYear(),
-              month: this.dataForm.curTime.getMonth()
+              month: this.dataForm.curTime.getMonth() + 1
             })
           }).then(({data}) => {
             if (data && data.code === 0) {

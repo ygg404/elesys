@@ -8,6 +8,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="success" @click="exportExcelHandle" icon="el-icon-printer">导出excel</el-button>
+<!--          <el-button type="primary" @click="saveFormHandle" >保存工资记录</el-button>-->
         </el-form-item>
       </el-form>
       <div style="text-align: center">
@@ -132,6 +133,10 @@
           window.URL.revokeObjectURL(href) // 释放掉blob对象
           this.dataListLoading = false
         })
+      },
+      // 保存工资记录
+      saveFormHandle () {
+
       }
     }
   }

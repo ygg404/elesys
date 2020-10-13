@@ -12,6 +12,7 @@
           <el-tag type="primary" v-else>已审定</el-tag>
         </el-form-item>
         <el-form-item>
+          <el-button type="success" size="large" icon="el-icon-printer" @click="exportExcelHandle()">导出评分表</el-button>
           <el-button type="primary" size="large" icon="el-icon-s-custom" @click="editPersonHandle()">编辑参评人员</el-button>
           <el-button type="primary" size="large" icon="el-icon-document-checked" @click="auditScoreHandle()">审定效能分</el-button>
         </el-form-item>
@@ -588,6 +589,29 @@
           })
         })
       },
+      // 导出excel
+      exportExcelHandle () {
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl(`/ren/kbiaudit/exportExcel`),
+          method: 'get',
+          params: this.$http.adornParams({
+            year: this.dataForm.curTime.getFullYear(),
+            month: this.dataForm.curTime.getMonth() + 1
+          }),
+          responseType: 'blob'
+        }).then(({data}) => {
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = '评分列表（' + this.dataForm.curTime.getFullYear() + '-' + (this.dataForm.curTime.getMonth() + 1) + '）.xls' // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          this.dataListLoading = false
+        })
+      }
     }
   }
 </script>

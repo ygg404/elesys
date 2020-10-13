@@ -49,7 +49,7 @@
               'username': checkUser.checkUserName,
               'kbiScore': checkUser.standardScore,  // 效能基准分
               'kbiAllScore': this.getFinalKbiScore(checkUser),   // 效能评分
-              'kbiAuditScore': parseInt((this.getFinalKbiScore(checkUser) > checkUser.standardScore) ? this.getFinalKbiScore(checkUser): checkUser.standardScore)
+              'kbiAuditScore': parseInt(this.getFinalKbiScore(checkUser))
             })
           }
           for (let dat of list) {
