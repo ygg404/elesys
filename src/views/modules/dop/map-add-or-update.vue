@@ -5,7 +5,7 @@
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" label-width="140px">
       <el-form-item label="标题:" prop="label">
-        <el-input v-model="dataForm.label" placeholder="标题"></el-input>
+        <el-input v-mlodel="dataForm.label" placeholder="标题"></el-input>
       </el-form-item>
       <el-form-item label="面积(平方米):" prop="area">
         <span>{{dataForm.area}}</span>

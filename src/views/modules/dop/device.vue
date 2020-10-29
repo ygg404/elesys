@@ -30,8 +30,10 @@
       <el-table-column prop="devStation" header-align="center" align="center" label="设备状况" width="100">
         <template slot-scope="scope" >
           <el-tag v-if="scope.row.devStation === 0" size="small" type="success">闲置中</el-tag>
-          <el-tag v-else-if="scope.row.devStation === 1" size="small" type="info">出借中</el-tag>
+          <el-tag v-else-if="scope.row.devStation === 1" size="small" type="warning">出借中</el-tag>
           <el-tag v-else-if="scope.row.devStation === 2" size="small" type="danger">维修中</el-tag>
+          <el-tag v-else-if="scope.row.devStation === 3" size="small" type="info">已丢失</el-tag>
+          <el-tag v-else-if="scope.row.devStation === 4" size="small" type="info">已报废</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="remark" header-align="center" align="center" label="备注"></el-table-column>
@@ -52,6 +54,7 @@
       </el-table-column>
       <el-table-column header-align="center" align="center" width="220" label="操作">
         <template slot-scope="scope">
+          <el-button size="mini" @click="lendProcessHandle(scope.row)" type="primary">借记</el-button>
           <el-button v-if="scope.row.devStation === 0" type="warning" size="mini" @click="lendToHandle(scope.row)">出借</el-button>
           <el-button v-if="scope.row.devStation === 1" type="success" size="mini" @click="lendToHandle(scope.row)">归还</el-button>
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
@@ -74,8 +77,11 @@
     <device-qrcode v-if="qrcodeVisible" ref="deviceQrcode"></device-qrcode>
     <!-- 仪器借记历史弹窗 -->
     <device-history v-if="historyVisible" ref="deviceHistory"></device-history>
+    <!-- 借记流程弹窗 -->
+    <device-process v-if="processVisible" ref="deviceProcess"></device-process>
     <!-- 借换记录弹窗 -->
     <history-add-or-update v-if="historyAddOrUpdateVisible" ref="historyAddOrUpdate"></history-add-or-update>
+
   </div>
 </template>
 
@@ -83,6 +89,7 @@
   import stringIsNull from '@/utils'
   import deviceQrcode from './device-qrcode'
   import deviceHistory from './device-history'
+  import deviceProcess from './device-process'
   import AddOrUpdate from './device-add-or-update'
   import historyAddOrUpdate from './history-add-or-update'
 
@@ -102,6 +109,7 @@
         dataListSelections: [],
         addOrUpdateVisible: false,
         qrcodeVisible: false,
+        processVisible: false,
         historyVisible: false,
         historyAddOrUpdateVisible: false
       }
@@ -110,26 +118,13 @@
       AddOrUpdate,
       deviceQrcode,
       deviceHistory,
+      deviceProcess,
       historyAddOrUpdate
     },
     activated () {
       this.getDataList()
     },
     methods: {
-      // 排序字段改变
-      changeSort (val) {
-        switch (val.order) {
-          case 'ascending':
-            this.dataForm.order = 'asc'
-            break
-          case 'descending':
-            this.dataForm.order = 'desc'
-            break
-          default:
-            this.dataForm.order = 'desc'
-        }
-        this.getDataList()
-      },
       // 排序字段改变
       changeSort (val) {
         console.log(val)
@@ -232,6 +227,13 @@
         this.historyAddOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.historyAddOrUpdate.init(item)
+        })
+      },
+      // 仪器借记流程
+      lendProcessHandle (item) {
+        this.processVisible = true
+        this.$nextTick(() => {
+          this.$refs.deviceProcess.init(item)
         })
       },
       // 查看仪器文件

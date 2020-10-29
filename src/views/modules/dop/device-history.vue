@@ -22,7 +22,7 @@
         </template>
         <el-form :inline="true" :model="dataForm">
           <el-form-item>
-            <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+            <el-input v-model="dataForm.key" placeholder="关键字搜索" clearable></el-input>
           </el-form-item>
           <el-form-item>
             <el-button @click="getDataList()">查询</el-button>
@@ -31,11 +31,14 @@
         <el-table :data="dataList" border v-loading="dataListLoading"  @sort-change="changeSort" style="width: 100%;">
           <el-table-column prop="deviceName" header-align="center" align="center" label="仪器名"></el-table-column>
           <el-table-column prop="borrowerName" header-align="center" align="center" label="借物人"></el-table-column>
-          <el-table-column prop="lenderName" header-align="center" align="center" label="出借人"></el-table-column>
+          <el-table-column prop="lenderName" header-align="center" align="center" label="审批人"></el-table-column>
+          <!--0-撤销申请,1-申请出借,2-批准出借,3-归还仪器, 4-确定归还-->
           <el-table-column prop="rentStatus" header-align="center" align="center" label="出借情况">
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.rentStatus == 2">已归还</el-tag>
-              <el-tag v-el>已归还</el-tag>
+              <el-tag v-if="scope.row.rentStatus == 1">申请出借</el-tag>
+              <el-tag v-if="scope.row.rentStatus == 2">批准出借</el-tag>
+              <el-tag v-if="scope.row.rentStatus == 3">归还仪器</el-tag>
+              <el-tag v-if="scope.row.rentStatus == 4">确定归还</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="remark" header-align="center" align="center" label="备注"></el-table-column>
@@ -64,7 +67,8 @@
           key: '',
           sidx: 'id',
           order: 'desc',
-          deviceId: ''
+          deviceId: '',
+          deviceName: ''
         },
         dataList: [],
         pageIndex: 1,

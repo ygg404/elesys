@@ -82,26 +82,32 @@
         })
       },
       dataFormSubmit () {
-        this.$http({
-          url: this.$http.adornUrl(`/ren/kbiaudit/save`),
-          method: 'post',
-          data: this.$http.adornData({
-            'year': this.year,
-            'month': this.month,
-            'kbiAuditList': this.kbiAuditList,
-          })
-        }).then(({data}) => {
-          if (data && data.code === 0) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1500
+        this.$confirm('审定效能分后，当前年月度的效能分将计入并更新成员的最终效能分， 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl(`/ren/kbiaudit/save`),
+            method: 'post',
+            data: this.$http.adornData({
+              'year': this.year,
+              'month': this.month,
+              'kbiAuditList': this.kbiAuditList
             })
-            this.visible = false
-            this.$emit('refreshDataList')
-          } else {
-            this.$message.error(data.msg)
-          }
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.visible = false
+              this.$emit('refreshDataList')
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
         })
       },
       getFinalKbiScore (item) {

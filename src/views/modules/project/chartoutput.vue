@@ -1,24 +1,28 @@
 <template>
   <div class="mod-config">
     <el-card>
-      <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+      <el-form :inline="true" :model="dataForm">
+        <el-radio-group v-model="typeRadio" size="small" style="margin-right: 20px;" @change="getOutputChart">
+          <el-radio-button label="作业" name="1"></el-radio-button>
+          <el-radio-button label="质检" name="2"></el-radio-button>
+        </el-radio-group>
         <el-form-item label="结算时间:">
-          <el-date-picker v-model="dataForm.startDate" type="month"  placeholder="起始月份" class="month_type" @change="startDateHandle"></el-date-picker>至
-          <el-date-picker v-model="dataForm.endDate" type="month"  placeholder="结束月份" class="month_type" @change="endDateHandle"></el-date-picker>
+          <el-date-picker v-model="dataForm.startDate" type="month"  placeholder="起始月份" class="month_type" @change="startDateHandle" size="small"></el-date-picker>至
+          <el-date-picker v-model="dataForm.endDate" type="month"  placeholder="结束月份" class="month_type" @change="endDateHandle" size="small"></el-date-picker>
         </el-form-item>
-        <el-form-item label="作业组:" >
-          <el-select v-model="dataForm.groupId" placeholder="请选择工作组" clearable  style="width: 150px;" @change="getOutputChart">
+        <el-form-item label="作业组:" v-if="typeRadio === '作业'">
+          <el-select v-model="dataForm.groupId" placeholder="请选择工作组" clearable  style="width: 150px;" @change="getOutputChart" size="small">
             <el-option v-for="item in workGroupList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button icon="el-icon-printer" type="primary" @click="printChartHandle">打印</el-button>
-          <el-button icon="el-icon-printer" type="success" @click="exportChartHandle">导出Excel</el-button>
+          <el-button icon="el-icon-printer" type="primary" @click="printChartHandle" size="small">打印</el-button>
+          <el-button icon="el-icon-printer" type="success" @click="exportChartHandle" size="small">导出Excel</el-button>
         </el-form-item>
       </el-form>
       <div id="chartId">
         <div class="chart_title">
-          <div>产值统计表</div>
+          <div>{{ typeRadio + '产值统计表'}}</div>
           <div class="date_title">{{monthTitle}}</div>
         </div>
         <div class="table_class" v-loading="dataListLoading">
@@ -26,23 +30,27 @@
             <el-col :span="11"><div class="grid-header">项目名称</div></el-col>
             <el-col :span="3"><div class="grid-header">项目负责人</div></el-col>
             <el-col :span="4"><div class="grid-header">项目启动时间</div></el-col>
-            <el-col :span="3"><div class="grid-header">作业完成时间</div></el-col>
+            <el-col :span="3" v-if="typeRadio === '作业'"><div class="grid-header">作业完成时间</div></el-col>
+            <el-col :span="3" v-if="typeRadio === '质检'"><div class="grid-header">质检完成时间</div></el-col>
             <el-col :span="3"><div class="grid-header">实际产值</div></el-col>
           </el-row>
           <div v-for="(data, index) in dataList">
             <el-row v-if="data.groupShow" class="table_row">
-              <el-col :span="12"><div class="group-header">{{data.groupName}}</div></el-col>
+              <el-col :span="12" v-if="typeRadio === '作业'"><div class="group-header">{{data.groupName}}</div></el-col>
+              <el-col :span="12" v-if="typeRadio === '质检'"><div class="group-header">{{data.qualityUserName}}</div></el-col>
               <el-col :span="12"></el-col>
             </el-row>
             <el-row  v-if="data.groupName != null" class="item_row">
               <el-col :span="11"><div>{{data.projectName}}</div></el-col>
               <el-col :span="3"><div >{{data.projectCharge === null? '&ensp; ':data.projectCharge}}</div></el-col>
               <el-col :span="4"><div >{{data.projectStartDateTime === null? '&ensp; ':data.projectStartDateTime}}</div></el-col>
-              <el-col :span="3"><div >{{data.wFinishDateTime === null? '&ensp; ':data.wFinishDateTime}}</div></el-col>
+              <el-col :span="3" v-if="typeRadio === '作业'"><div >{{data.wFinishDateTime === null? '&ensp; ':data.wFinishDateTime}}</div></el-col>
+              <el-col :span="3" v-if="typeRadio === '质检'"><div >{{data.qFinishDateTime === null? '&ensp; ':data.qFinishDateTime}}</div></el-col>
               <el-col :span="3"><div >{{data.projectActuallyOutput}}</div></el-col>
             </el-row>
             <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
-              <el-col :span="11"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
+              <el-col :span="11" v-if="typeRadio === '作业'"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
+              <el-col :span="11" v-if="typeRadio === '质检'"><div class="group-header">{{data.qualityUserName}}:合计{{data.projectSum}}个项目</div></el-col>
               <el-col :span="3"><div class="group-header">{{'&ensp; '}}</div></el-col>
               <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
               <el-col :span="3"><div class="group-header">{{'&ensp; '}}</div></el-col>
@@ -75,6 +83,7 @@
           startDate: '',
           endDate: ''
         },
+        typeRadio: '作业',
         monthTitle: '', // 月份标题
         workGroupList: [],
         totalOutput: 0, // 合计总产值
@@ -106,6 +115,7 @@
           method: 'get',
           params: this.$http.adornParams({
             'groupId': this.dataForm.groupId,
+            'sidx': this.typeRadio === '作业' ? 'work' : 'quality',
             'startDate': startDate,
             'endDate': endDate
           })
@@ -125,6 +135,7 @@
         this.totalProjectSum = 0
         this.dataList = []
         let groupName = null
+        let qualityUserName = null
         datalist.forEach((item, index) => {
           item.groupShow = false
           item.footerShow = false
@@ -132,15 +143,15 @@
           let outputtemp = parseFloat((item.projectActuallyOutput == null ? 0 : item.projectActuallyOutput).toFixed(2))
           this.totalOutPut = parseFloat((this.totalOutPut + outputtemp).toFixed(2))
         })
-        console.log(this.totalOutPut)
         datalist.forEach((item, index) => {
-          if (groupName !== item.groupName) {
+          if ((this.typeRadio === '作业' && groupName !== item.groupName) || (this.typeRadio === '质检' && qualityUserName !== item.qualityUserName) ) {
             item.groupShow = true
             groupName = item.groupName
+            qualityUserName = item.qualityUserName
             let projectSum = 0
             let outputSum = 0
             for (let i = index; i < datalist.length; i++) {
-              if (datalist[i].groupName === groupName) {
+              if ((this.typeRadio === '作业' && datalist[i].groupName === groupName) || (this.typeRadio === '质检' && datalist[i].qualityUserName === qualityUserName)) {
                 projectSum += 1
                 outputSum += datalist[i].projectActuallyOutput
                 datalist[i].projectSum = projectSum

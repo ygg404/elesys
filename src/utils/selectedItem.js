@@ -82,7 +82,9 @@ export function getLendItem () {
   let itemList = [
     {'id': 0, 'lendItem': '闲置中'},
     {'id': 1, 'lendItem': '已出借'},
-    {'id': 2, 'lendItem': '维修中'}
+    {'id': 2, 'lendItem': '维修中'},
+    {'id': 3, 'lendItem': '已丢失'},
+    {'id': 4, 'lendItem': '已报废'}
   ]
   return itemList
 }

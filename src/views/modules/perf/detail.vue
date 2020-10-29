@@ -424,16 +424,15 @@
           }
         }
         // 计算加减分最终的结果
-        for (let checkUser of checkUserList ) {
+        for (let checkUser of checkUserList) {
           let branch = branchMaxScoreList.find(branch => branch.branchId === checkUser.branchId)
-          if ( branch === undefined ) {
+          if (branch === undefined) {
             checkUser.maxScore = 0
           } else {
             checkUser.maxScore = branch.maxScore
           }
           checkUser.finalExtra = parseFloat((checkUser.allScore + 10) * 9 / (checkUser.maxScore + 10)).toFixed(2)
         }
-        console.log(branchMaxScoreList)
         return checkUserList
       },
       // 计算每用户的效能评价得分
@@ -514,7 +513,7 @@
         if (stringIsNull(item.standardScore)) {
           return ''
         } else {
-          return Math.round(parseInt((1 + (parseFloat(item.kbiAllScore) + parseFloat(item.finalExtra) - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
+          return Math.round(parseInt((1 + (parseFloat(item.kbiAllScore) * 0.9 + parseFloat(item.finalExtra) - 75) * 0.6 / 75) * 100) * item.standardScore / 100)
         }
       }
     }

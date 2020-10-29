@@ -151,7 +151,6 @@
       },
       // 根据项目编号删除
       deleteHandle (projectNo) {
-        console.log(projectNo)
         let tip = '此操作将永久删除编号为[' + projectNo + ']的项目信息, 是否继续?'
         this.$confirm(tip, '提示', {
           confirmButtonText: '确定',
