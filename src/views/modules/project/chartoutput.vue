@@ -214,7 +214,8 @@
         let startDate = moment(new Date(this.dataForm.startDate.getFullYear(), this.dataForm.startDate.getMonth(), 1)).format('YYYY-MM-DD')
         let endDate = moment(new Date(this.dataForm.endDate.getFullYear(), this.dataForm.endDate.getMonth() + 1, 1)).format('YYYY-MM-DD')
         let downTitle = this.monthTitle
-        let downurl = window.SITE_CONFIG['baseUrl'] + '/project/chartoutput/exportExcel?startDate=' + startDate + '&endDate=' + endDate + '&groupId=' + this.dataForm.groupId
+        let downurl = window.SITE_CONFIG['baseUrl'] + '/project/chartoutput/exportExcel?startDate=' + startDate + '&endDate=' + endDate
+                      + '&groupId=' + this.dataForm.groupId + '&sidx=' + (this.typeRadio === '作业' ? 'work' : 'quality')
         let xhr = new XMLHttpRequest()
         // GET请求,请求路径url,async(是否异步)
         xhr.open('GET', downurl, true)

@@ -266,7 +266,6 @@
             a.click()
             // 释放之前创建的URL对象
             window.URL.revokeObjectURL(url)
-
           }
         }
         // 发送请求

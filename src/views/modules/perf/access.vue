@@ -260,7 +260,7 @@
                 userId: this.userId,
                 userName: this.userName,
                 year: this.dataForm.curTime.getFullYear(),
-                month: this.dataForm.curTime.getMonth(),
+                month: this.dataForm.curTime.getMonth() + 1,
                 kbiId: item.kbiId,
                 kbiName: item.kbiName,
                 kbiRatio: item.kbiRatio
@@ -287,7 +287,7 @@
           data: this.$http.adornData({
             'userId': this.userId,
             'year': this.dataForm.curTime.getFullYear(),
-            'month': this.dataForm.curTime.getMonth(),
+            'month': this.dataForm.curTime.getMonth() + 1,
             'accessList': perfAccessList
           })
         }).then(({data}) => {
