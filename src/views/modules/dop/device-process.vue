@@ -20,15 +20,55 @@
           <el-step title="申请出借">
             <template slot="description">
               <el-button @click="applyLendHandle" :disabled="active !== 1" type="primary" size="small">申请</el-button>
+              <div class="lend_row">
+                <el-row class="lend_line">
+                  <div class="span_property">申请人：</div><div :span="16" class="span_value">{{processList.applyLend.applyMan}}</div>
+                </el-row>
+                <el-row class="lend_line">
+                  <div class="span_property">申请时间：</div><div :span="16" class="span_value">{{processList.applyLend.applyTime}}</div>
+                </el-row>
+              </div>
             </template>
           </el-step>
           <el-step title="审批人同意">
             <template slot="description">
               <el-button @click="" :disabled="active !== 2" type="primary" size="small">批准出借</el-button>
+              <div class="lend_row">
+                <el-row class="lend_line">
+                  <div class="span_property">审批人：</div><div :span="16" class="span_value">{{processList.applyLend.authMan}}</div>
+                </el-row>
+                <el-row class="lend_line">
+                  <div class="span_property">审批时间：</div><div :span="16" class="span_value">{{processList.applyLend.authTime}}</div>
+                </el-row>
+              </div>
             </template>
           </el-step>
-          <el-step title="归还仪器" description="这是一段很长很长很长的描述性文字"></el-step>
-          <el-step title="确定归还" description="这是一段很长很长很长的描述性文字"></el-step>
+          <el-step title="归还仪器">
+            <template slot="description">
+              <el-button @click="" :disabled="active !== 3" type="primary" size="small">归还</el-button>
+              <div class="lend_row">
+                <el-row class="lend_line">
+                  <div class="span_property">归还人：</div><div :span="16" class="span_value">{{processList.applyReturn.applyMan}}</div>
+                </el-row>
+                <el-row class="lend_line">
+                  <div class="span_property">归还时间：</div><div :span="16" class="span_value">{{processList.applyReturn.returnTime}}</div>
+                </el-row>
+              </div>
+            </template>
+          </el-step>
+          <el-step title="确定归还">
+            <template slot="description">
+              <el-button @click="" :disabled="active !== 4" type="primary" size="small">确认归还</el-button>
+              <div class="lend_row">
+                <el-row class="lend_line">
+                  <div class="span_property">审定人：</div><div :span="16" class="span_value">{{processList.authReturn.authMan}}</div>
+                </el-row>
+                <el-row class="lend_line">
+                  <div class="span_property">审定时间：</div><div :span="16" class="span_value">{{processList.authReturn.authTime}}</div>
+                </el-row>
+              </div>
+            </template>
+          </el-step>
         </el-steps>
       </div>
     </el-card>
@@ -50,7 +90,29 @@
         visible: false,
         historyVisible: false,
         active: 0,
-        processList: [], // 租借流程列表
+        // 借还流程
+        processList: {
+          // 申请借物
+          applyLend: {
+            applyMan: '',   // 申请人
+            applyTime: ''   // 申请时间
+          },
+          // 同意出借
+          authLend: {
+            authMan: '',    // 审批人
+            authTime: ''    // 批准时间
+          },
+          // 归还借物
+          applyReturn: {
+            applyMan: '',
+            returnTime: ''
+          },
+          // 确认归还
+          authReturn: {
+            authMan: '',
+            authTime: ''
+          }
+        }, // 租借流程列表
         dataForm: {
           id: 0,
           deviceName: '',
@@ -101,7 +163,17 @@
           if (data && data.code === 0) {
             for (let lItem of data.list) {
               this.active = lItem.rentStatus + 1
-
+              console.log(lItem)
+              switch (lItem.rentStatus) {
+                case 1:
+                  this.processList.applyLend.applyMan = lItem.borrowerName
+                  this.processList.applyLend.applyTime = lItem.createTime
+                  break
+                case 2:
+                  break
+                default:
+                  break
+              }
             }
           } else {
             this.$message.error(data.msg)
@@ -120,5 +192,19 @@
   }
   .font_span {
     color: $--color-primary;
+  }
+  .lend_row {
+    margin-top: 15px;
+    .lend_line {
+      display: flex;
+      .span_property {
+        font-weight: bold;
+        color: black;
+        min-width: 70px;
+      }
+      .span_value {
+        color: $--color-primary;
+      }
+    }
   }
 </style>

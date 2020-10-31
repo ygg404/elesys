@@ -297,7 +297,7 @@
             method: 'get',
             params: this.$http.adornParams({
               year: this.dataForm.curTime.getFullYear(),
-              month: this.dataForm.curTime.getMonth()
+              month: this.dataForm.curTime.getMonth() + 1
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -312,7 +312,7 @@
       // 个人加减分编辑
       editExtraHandle (item) {
         item.year = this.dataForm.curTime.getFullYear()
-        item.month = this.dataForm.curTime.getMonth()
+        item.month = this.dataForm.curTime.getMonth() + 1
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.extraAddOrUpdate.init(item)
