@@ -469,7 +469,7 @@
   }
   .detail_card {
     position: absolute;
-    right: 21px;
+    right: 20px;
     background: #2BCBBBaf;
     color: white;
     z-index: 1000;

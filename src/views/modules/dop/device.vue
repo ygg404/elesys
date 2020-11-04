@@ -55,8 +55,8 @@
       <el-table-column header-align="center" align="center" width="220" label="操作">
         <template slot-scope="scope">
           <el-button size="mini" @click="lendProcessHandle(scope.row)" type="primary">借记</el-button>
-          <el-button v-if="scope.row.devStation === 0" type="warning" size="mini" @click="lendToHandle(scope.row)">出借</el-button>
-          <el-button v-if="scope.row.devStation === 1" type="success" size="mini" @click="lendToHandle(scope.row)">归还</el-button>
+<!--          <el-button v-if="scope.row.devStation === 0" type="warning" size="mini" @click="lendToHandle(scope.row)">出借</el-button>-->
+<!--          <el-button v-if="scope.row.devStation === 1" type="success" size="mini" @click="lendToHandle(scope.row)">归还</el-button>-->
           <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="danger" size="mini" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -78,7 +78,7 @@
     <!-- 仪器借记历史弹窗 -->
     <device-history v-if="historyVisible" ref="deviceHistory"></device-history>
     <!-- 借记流程弹窗 -->
-    <device-process v-if="processVisible" ref="deviceProcess"></device-process>
+    <device-process v-if="processVisible" ref="deviceProcess" @refreshDataList="getDataList"></device-process>
     <!-- 借换记录弹窗 -->
     <history-add-or-update v-if="historyAddOrUpdateVisible" ref="historyAddOrUpdate"></history-add-or-update>
 
