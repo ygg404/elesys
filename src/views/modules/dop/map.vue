@@ -1,15 +1,16 @@
 <template>
   <div>
-    <el-form :inline="true" :model="dataForm" >
-      <el-form-item>
-        <el-input id="searchId" v-model="dataForm.key" placeholder="地址关键字搜索" prefix-icon="el-icon-map-location" clearable></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="searchPlaceHandle()" icon="el-icon-search" type="primary">搜索</el-button>
+    <div class="ef_line">
+      <div>
         <el-button @click="addProjectHandle(null)" icon="el-icon-plus" type="success">新建项目</el-button>
         <el-button @click="importKMLHandle()" icon="el-icon-s-order" type="success">导入KML</el-button>
-      </el-form-item>
-    </el-form>
+      </div>
+      <div>
+        <el-input id="searchId" v-model="dataForm.key" placeholder="地址关键字搜索" prefix-icon="el-icon-map-location" clearable
+            style="width: 250px;" @input="menuVisible = false"></el-input>
+        <el-button @click="searchPlaceHandle()" icon="el-icon-search" type="primary">搜索</el-button>
+      </div>
+    </div>
     <div v-loading="loading" element-loading-text="加载中...">
       <div class="detail_card" :class="menuVisible? 'open_setting':'close_setting'">
         <el-button class="btn" type="primary" size="mini" @click="menuVisible = !menuVisible">
@@ -152,7 +153,7 @@
         })
         this.loading = false
         var map = new BMap.Map('mapId', {minZoom: 12, maxZoom: 20, enableMapClick: false})
-        let point = new BMap.Point(116.24, 23.13)   // 设置默认的坐标
+        let point = new BMap.Point(116.72 , 23.37)   // 设置默认的坐标
         map.centerAndZoom(point, 17)  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true)     // 开启鼠标滚轮缩放
         map.panTo(point)
@@ -201,34 +202,64 @@
           rectangleOptions: styleOptions,  // 矩形的样式
           labelOptions: labelOptions      // label样式
         })
-        // 绘制完成后获取相关的信息(面积等)
+        // 绘制完成后获取相关的信息
         this.drawingManager.addEventListener('overlaycomplete', function (e) {
-          if (stringIsNull(e.calculate)) {
-            that.$message.error('绘制图形有误，请重新绘制!')
-            that.map.removeOverlay(e.overlay)
-            that.map.removeOverlay(e.label)
-            return
+          let item = {}
+          switch (e.drawingMode) {
+            // 点
+            case 'marker':
+              item = {
+                id: '',
+                area: 0,
+                type: 1,
+                lay: '',
+                labelLng: e.overlay.point.lng,
+                labelLat: e.overlay.point.lat
+              }
+              break
+            // 线
+            case 'polyline':
+              var polylinePath = e.overlay.getPath()
+              console.log(polylinePath)
+              item = {
+                id: '',
+                lay: e.overlay,
+                area: 0,
+                type: 2,
+                labelLng: e.label.point.lng,
+                labelLat: e.label.point.lat
+              }
+              break
+            // 面
+            case 'polygon':
+              if (stringIsNull(e.calculate)) {
+                that.$message.error('绘制图形有误，请重新绘制!')
+                return
+              }
+              item = {
+                id: '',
+                lay: e.overlay,
+                area: e.calculate,
+                type: 3,
+                labelLng: e.label.point.lng,
+                labelLat: e.label.point.lat
+              }
+              break
+            // 其他图项
+            default:
+              return
           }
-          let item = {
-            id: '',
-            lay: e.overlay,
-            area: e.calculate,
-            type: 3,
-            labelLng: e.label.point.lng,
-            labelLat: e.label.point.lat
-          }
-          this.addOrUpdateHandle(item)
-          this.map.removeOverlay(e.overlay)
-          this.map.removeOverlay(e.label)
+          that.addOrUpdateHandle(item)
+          that.map.removeOverlay(e.overlay)
+          that.map.removeOverlay(e.label)
         })
-        // 建立一个自动完成的对象
+        // 地址搜索 建立一个自动完成的对象
         var ac = new BMap.Autocomplete({'input': 'searchId', 'location': map})
         ac.addEventListener('onconfirm', function (e) {
           var _value = e.item.value
           that.dataForm.key = _value.province + _value.city + _value.district + _value.street + _value.business
           that.searchPlaceHandle()
         })
-
       },
       // 获取项目列表
       getBampProjectList () {
@@ -277,8 +308,30 @@
         })
         local.search(this.dataForm.key)
       },
-      // 绘制标注
-      draw () {
+      // 绘制标注点
+      drawPoint () {
+        // 需要自己手动去关闭
+        if (this.drawingManager._isOpen === true) {
+          this.drawingManager._isOpen = false
+        }
+        this.menuVisible = false
+        this.drawingManager.setDrawingMode(BMAP_DRAWING_MARKER)
+        this.drawingManager.open()
+      },
+      // 绘制多段线
+      drawPolyline () {
+        if (this.drawingManager._isOpen === true) {
+          this.drawingManager._isOpen = false
+        }
+        this.menuVisible = false
+        this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYLINE)
+        this.drawingManager.open()
+      },
+      // 绘制面
+      drawPolygon () {
+        if (this.drawingManager._isOpen === true) {
+          this.drawingManager._isOpen = false
+        }
         this.menuVisible = false
         this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON)
         this.drawingManager.open()
@@ -558,6 +611,11 @@
     animation: rotate 2s linear infinite;
   }
 
+  .ef_line{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
   .map {
     display: flex;
     justify-content: flex-start;

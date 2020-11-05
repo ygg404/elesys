@@ -70,7 +70,7 @@
         set (val) { this.$store.commit('common/updateMainTabsActiveName', val) }
       },
       siteContentViewHeight () {
-        var height = this.documentClientHeight - 50 - 30 - 2
+        var height = this.documentClientHeight - 82
         if (this.$route.meta.isTab) {
           height -= 40
           return isURL(this.$route.meta.iframeUrl) ? { height: height + 'px' } : { minHeight: height + 'px' }

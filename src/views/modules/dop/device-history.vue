@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <div class="main_card">
-      <el-card class="latest_item">
+      <el-card class="latest_item" :body-style="{ padding: '3px' }">
         <template slot="header">
           <span class="header">最新借还记录</span>
         </template>

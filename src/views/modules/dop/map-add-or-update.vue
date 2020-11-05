@@ -5,7 +5,7 @@
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" label-width="140px">
       <el-form-item label="标题:" prop="label">
-        <el-input v-mlodel="dataForm.label" placeholder="标题"></el-input>
+        <el-input v-model="dataForm.label" placeholder="标题"></el-input>
       </el-form-item>
       <el-form-item label="面积(平方米):" prop="area">
         <span>{{dataForm.area}}</span>
@@ -25,7 +25,15 @@
         <el-input v-model="dataForm.lat" placeholder="纬度（中心坐标）" disabled></el-input>
       </el-form-item>
       <el-form-item label="各点经纬度:" prop="coordinate">
-        <span>{{dataForm.coordinate}}</span>
+        <table border="1" cellspacing="0" cellpadding="0" class="cor_table">
+          <tr>
+            <th>经度</th><th>纬度</th>
+          </tr>
+          <tr v-for="item in dataForm.coordinate.split(';')">
+            <td class="cor_td">{{item.split(',')[0]}}</td>
+            <td class="cor_td">{{item.split(',')[1]}}</td>
+          </tr>
+        </table>
       </el-form-item>
       <el-form-item label="创建用户名:" prop="createUserName">
         <span>{{dataForm.createUserName}}</span>
@@ -120,15 +128,31 @@
             let coordinate = ''
             let lngall = 0
             let latall = 0
-            // 计算中心坐标
-            for (let point of item.lay.Ao) {
-              coordinate += point.lng + ',' + point.lat + ';'
-              lngall += point.lng
-              latall += point.lat
+            switch (item.type) {
+              // 点
+              case 1:
+                this.dataForm.lng = item.labelLng
+                this.dataForm.lat = item.labelLat
+                coordinate = item.labelLng + ',' + item.labelLat
+                break
+              // 线和面
+              case 2:
+              case 3:
+                // 计算中心坐标
+                for (let point of item.lay.Ao) {
+                  coordinate += point.lng + ',' + point.lat + ';'
+                  lngall += point.lng
+                  latall += point.lat
+                }
+                coordinate = coordinate.substring(0, coordinate.length - 1)
+                this.dataForm.lng = (lngall / item.lay.Ao.length).toFixed(6)
+                this.dataForm.lat = (latall / item.lay.Ao.length).toFixed(6)
+                break
+              default:
+                break
             }
-            this.dataForm.lng = (lngall / item.lay.Ao.length).toFixed(6)
-            this.dataForm.lat = (latall / item.lay.Ao.length).toFixed(6)
             this.dataForm.coordinate = coordinate
+            this.dataForm.label = ''
             this.dataForm.area = item.area
             this.dataForm.type = item.type
             this.dataForm.labelLng = item.labelLng
@@ -174,3 +198,12 @@
     }
   }
 </script>
+
+<style lang="scss" scoped>
+  .cor_table{
+    text-align: center;
+  }
+  .cor_td {
+    padding: 0px 6px 0px 6px;
+  }
+</style>
