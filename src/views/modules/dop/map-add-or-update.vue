@@ -137,6 +137,16 @@
                 break
               // 线和面
               case 2:
+                console.log(item.lay)
+                for (let point of item.lay) {
+                  coordinate += point.lng + ',' + point.lat + ';'
+                  lngall += point.lng
+                  latall += point.lat
+                }
+                coordinate = coordinate.substring(0, coordinate.length - 1)
+                this.dataForm.lng = (lngall / item.lay.length).toFixed(6)
+                this.dataForm.lat = (latall / item.lay.length).toFixed(6)
+                break
               case 3:
                 // 计算中心坐标
                 for (let point of item.lay.Ao) {

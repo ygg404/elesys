@@ -26,7 +26,6 @@
               <el-button type="danger" icon="el-icon-s-marketing" @click="drawPolyline()">线</el-button>
               <el-button type="danger" icon="el-icon-picture" @click="drawPolygon()">面</el-button>
             </el-row>
-            <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
           </el-collapse-item>
           <el-collapse-item name="2">
             <template slot="title">
@@ -39,9 +38,6 @@
             <template slot="title">
               <span class="title_span">查找标注信息</span>
             </template>
-            <div>简化流程：设计简洁直观的操作流程；</div>
-            <div>清晰明确：语言表达清晰且表意明确，让用户快速理解进而作出决策；</div>
-            <div>帮助用户识别：界面简单直白，让用户快速识别而非回忆，减少用户记忆负担。</div>
           </el-collapse-item>
         </el-collapse>
       </div>
@@ -99,6 +95,9 @@
 <script>
   import AddOrUpdate from './map-add-or-update'
   import mapProjectAddOrUpdate from './mapproject-add-or-update'
+  import polyGonObj from '@/utils/bMap/customPolygon'
+  import polylineObj from '@/utils/bMap/customPolyline'
+  import pointObj from '@/utils/bMap/customPoint'
   import {stringIsNull} from '@/utils'
 
   export default {
@@ -220,10 +219,9 @@
             // 线
             case 'polyline':
               var polylinePath = e.overlay.getPath()
-              console.log(polylinePath)
               item = {
                 id: '',
-                lay: e.overlay,
+                lay: polylinePath,
                 area: 0,
                 type: 2,
                 labelLng: e.label.point.lng,
@@ -366,6 +364,8 @@
           this.totalPage = page.totalPage
           this.totalCount = page.totalCount
           this.pageList = Array.from(new Array(page.totalPage), (item, index) => index + 1)
+          let polyList = []
+          let corlist = []
           for (let bProject of page.list) {
             bProject.label = bProject.projectName
             if (bProject.bmapList.length !== 0) {
@@ -376,50 +376,45 @@
 
             for (let bPoint of bProject.bmapList) {
               switch (bPoint.type) {
+                // 点
                 case '1':
                   bPoint.icon = 'el-icon-s-opportunity'
+                  var point = new pointObj()
+                  point.createPointObj(bPoint, this)
                   break
+                // 线
                 case '2':
                   bPoint.icon = 'el-icon-s-marketing'
+                  polyList = []
+                  // 创建多边形
+                  corlist = bPoint.coordinate.split(';')
+                  for (let cor of corlist) {
+                    if (!stringIsNull(cor)) {
+                      let point = cor.split(',')
+                      polyList.push(new BMap.Point(point[0], point[1]))
+                    }
+                  }
+                  var polyline = new polylineObj()
+                  polyline.createpolyLineObj(bPoint, polyList, this)
                   break
+                // 面
                 case '3':
                   bPoint.icon = 'el-icon-picture'
+                  polyList = []
+                  // 创建多边形
+                  corlist = bPoint.coordinate.split(';')
+                  for (let cor of corlist) {
+                    if (!stringIsNull(cor)) {
+                      let point = cor.split(',')
+                      polyList.push(new BMap.Point(point[0],point[1]))
+                    }
+                  }
+                  var polygon = new polyGonObj()
+                  polygon.createpolyGonObj(bPoint, polyList, this)
                   break
                 default:
                   break
               }
-              let polyList = []
-              // 创建多边形
-              let corlist = bPoint.coordinate.split(';')
-              for (let cor of corlist) {
-                if (!stringIsNull(cor)) {
-                  let point = cor.split(',')
-                  polyList.push(new BMap.Point(point[0] , point[1]))
-                }
-              }
-              var polygon = new BMap.Polygon(polyList, {
-                strokeColor: 'red',
-                strokeWeight: 3,
-                fillOpacity: 0.35,
-                fillColor: '#db8385ef'
-              })
-              polygon.id = bPoint.id
-              this.map.addOverlay(polygon)   // 增加多边形
-              // 创建标题
-              var opts = {
-                position: new BMap.Point(bPoint.labelLng, bPoint.labelLat),    // 指定文本标注所在的地理位置
-                offset: new BMap.Size(0, 0)    // 设置文本偏移量
-              }
-              var label = new BMap.Label(bPoint.label, opts) // 创建文本标注对象
-              label.setStyle({
-                color: 'red',
-                fontSize: '12px',
-                height: '20px',
-                lineHeight: '20px',
-                fontFamily: '微软雅黑'
-              })
-              label.id = bPoint.id
-              this.map.addOverlay(label)  // 增加标题
             }
           }
           this.projectList = page.list
@@ -456,15 +451,39 @@
       deleteMenuHandle () {
         switch (this.selectNode.data.type) {
           // 点标注 线标注 面标注
-          case 1:
-          case 2:
-          case 3:
+          case '1':
+          case '2':
+          case '3':
+            this.delDimHandle(this.selectNode.data)
             break
           // 项目属性
           default:
             this.delProjectHandle(this.selectNode.data)
             break
         }
+      },
+      // 图形编辑之后执行的数据库更新操作
+      updateAfterGraEdit (eachPoint) {
+        this.$http({
+          url: this.$http.adornUrl('/dop/bmap/update'),
+          method: 'post',
+          data: this.$http.adornData({
+            'id': eachPoint.id,
+            'labelLng': eachPoint.labelLng,
+            'labelLat': eachPoint.labelLat,
+            'lng': eachPoint.lng,
+            'lat': eachPoint.lat,
+            'coordinate': eachPoint.coordinate,
+            'area': eachPoint.area,
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.visible = false
+            this.$emit('refreshDataList')
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
       },
       // 新增 / 修改
       addOrUpdateHandle (id) {
@@ -480,6 +499,33 @@
           this.$refs.mapProjectAddOrUpdate.init(projectId)
         })
       },
+      // 删除标注点事件
+      delDimHandle (item) {
+        console.log(item)
+        let tip = '此操作将永久删除名称为  [' + item.label + ']   的标注点信息, 是否继续?'
+        this.$confirm(tip, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$http({
+            url: this.$http.adornUrl(`/dop/bmap/delete/${item.id}`),
+            method: 'get'
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: '删除成功',
+                type: 'success',
+                duration: 1500
+              })
+              this.getDataList()
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 删除项目事件
       delProjectHandle (item) {
         let tip = '此操作将永久删除名称为  [' + item.projectName + ']   的项目信息及其以下标注点信息, 是否继续?'
         this.$confirm(tip, '提示', {
