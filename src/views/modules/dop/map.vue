@@ -1,9 +1,19 @@
 <template>
   <div>
     <div class="ef_line">
-      <div>
+      <div style="display:flex;">
         <el-button @click="addProjectHandle(null)" icon="el-icon-plus" type="success">新建项目</el-button>
-        <el-button @click="importKMLHandle()" icon="el-icon-s-order" type="success">导入KML</el-button>
+        <el-upload :action="upKmlUrl" style="margin-left: 10px;"
+                   :limit="1"
+                   name="file"
+                   ref="upload"
+                   accept=".kml"
+                   :headers="tokenHeaders"
+                   :before-upload="handleBeforeUpload"
+                   :on-success="importKMLHandle"
+                   :on-error="handleError">
+          <el-button type="success" icon="el-icon-printer">导入KML</el-button>
+        </el-upload>
       </div>
       <div>
         <el-input id="searchId" v-model="dataForm.key" placeholder="地址关键字搜索" prefix-icon="el-icon-map-location" clearable
@@ -16,7 +26,7 @@
         <el-button class="btn" type="primary" size="mini" @click="menuVisible = !menuVisible">
           <i class="btn_rotate el-icon-s-tools"></i>
         </el-button>
-        <el-collapse v-model="activeNames" @change="handleChange" v-if="menuVisible" class="collapse_item">
+        <el-collapse v-model="activeNames" v-if="menuVisible" class="collapse_item">
           <el-collapse-item name="1">
             <template slot="title">
               <span class="title_span">工具栏</span>
@@ -31,8 +41,21 @@
             <template slot="title">
               <span class="title_span">标注基本信息</span>
             </template>
-            <div>控制反馈：通过界面样式和交互动效让用户可以清晰的感知自己的操作；</div>
-            <div>页面反馈：操作后，通过页面元素的变化清晰地展现当前状态。</div>
+            <div style="padding: 5px;">
+              <el-row><el-col :span="8">标题：</el-col><el-col :span="16" style="color: blue">{{selectItem.label}}</el-col></el-row>
+              <el-row><el-col :span="8">绘制类型：</el-col>
+                <el-col :span="16" v-if="selectItem.type == 1" style="color: blue">点</el-col>
+                <el-col :span="16" v-if="selectItem.type == 2" style="color: blue">线</el-col>
+                <el-col :span="16" v-if="selectItem.type == 3" style="color: blue">面</el-col>
+              </el-row>
+              <el-row><el-col :span="8">备注：</el-col><el-col :span="16" style="color: blue">{{selectItem.remark}}</el-col></el-row>
+              <el-row><el-col :span="8">中心坐标：</el-col><el-col :span="16" style="color: blue" v-if="!stringIsNull(selectItem.lng)">
+                {{selectItem.lng + ' ,  ' + selectItem.lat }}</el-col>
+              </el-row>
+              <el-row><el-col :span="8">创建用户：</el-col><el-col :span="16" style="color: blue">{{selectItem.createUserName}}</el-col></el-row>
+              <el-row><el-col :span="8">创建时间：</el-col><el-col :span="16" style="color: blue">{{selectItem.createTime}}</el-col></el-row>
+
+            </div>
           </el-collapse-item>
           <el-collapse-item name="3">
             <template slot="title">
@@ -63,10 +86,13 @@
             <div v-show = "rightVisible" ref="rightMenu" id="rightMenu"  @mouseleave="rightVisible = false">
               <el-card class="box_card" :body-style="{ padding: '3px' }">
                 <div class="text_item">
-                  <el-link :underline="false" @click="editMenuHandle"><i class="el-icon-edit"></i>  <span>编辑</span></el-link>
+                  <el-link :underline="false" @click="readMenuHandle"><i class="el-icon-info"></i>  <span>详情&#12288&#12288</span></el-link>
                 </div>
                 <div class="text_item">
-                  <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-delete"></i>  <span>删除</span></el-link>
+                  <el-link :underline="false" @click="editMenuHandle"><i class="el-icon-edit"></i>  <span>编辑&#12288&#12288</span></el-link>
+                </div>
+                <div class="text_item">
+                  <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-delete"></i>  <span>删除&#12288&#12288</span></el-link>
                 </div>
                 <div class="text_item">
                   <el-link :underline="false"><i class="el-icon-printer"></i>  <span>导出KML</span></el-link>
@@ -99,6 +125,7 @@
   import polylineObj from '@/utils/bMap/customPolyline'
   import pointObj from '@/utils/bMap/customPoint'
   import {stringIsNull} from '@/utils'
+  import Vue from 'vue'
 
   export default {
     data () {
@@ -123,11 +150,14 @@
         map: '',
         activeNames: [],
         selectNode: {},  // 被选中的节点
+        selectItem: {},  // 查看详情
         menuVisible: false,
         rightVisible: false,
         drawingManager: '',
         addOrUpdateVisible: false,
-        mproVisible: false  // 添加项目可视图
+        mproVisible: false,  // 添加项目可视图
+        upKmlUrl: window.SITE_CONFIG['baseUrl'] + '/dop/bmap/upKmlFile/',  // 合同上传地址
+        tokenHeaders: { token: Vue.cookie.get('token') }  // token请求
       }
     },
     computed: {
@@ -151,7 +181,7 @@
           that.rightVisible = false
         })
         this.loading = false
-        var map = new BMap.Map('mapId', {minZoom: 12, maxZoom: 20, enableMapClick: false})
+        var map = new BMap.Map('mapId', {minZoom: 12, maxZoom: 24, enableMapClick: false})
         let point = new BMap.Point(116.72 , 23.37)   // 设置默认的坐标
         map.centerAndZoom(point, 17)  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true)     // 开启鼠标滚轮缩放
@@ -171,7 +201,7 @@
         var styleOptions = {
           strokeColor: '#db2311',   // 边线颜色
           fillColor: '#db8385',     // 填充颜色。当参数为空时，圆形没有填充颜色
-          strokeWeight: 2,          // 边线宽度，以像素为单位
+          strokeWeight: 3,          // 边线宽度，以像素为单位
           strokeOpacity: 1,         // 边线透明度，取值范围0-1
           fillOpacity: 0.2          // 填充透明度，取值范围0-1
         }
@@ -377,13 +407,13 @@
             for (let bPoint of bProject.bmapList) {
               switch (bPoint.type) {
                 // 点
-                case '1':
+                case 1:
                   bPoint.icon = 'el-icon-s-opportunity'
                   var point = new pointObj()
                   point.createPointObj(bPoint, this)
                   break
                 // 线
-                case '2':
+                case 2:
                   bPoint.icon = 'el-icon-s-marketing'
                   polyList = []
                   // 创建多边形
@@ -398,7 +428,7 @@
                   polyline.createpolyLineObj(bPoint, polyList, this)
                   break
                 // 面
-                case '3':
+                case 3:
                   bPoint.icon = 'el-icon-picture'
                   polyList = []
                   // 创建多边形
@@ -428,18 +458,35 @@
         menu.style.cssText = 'position: fixed; left: ' + (rect.right - 100) + 'px' + '; top: ' + rect.top + 'px; z-index: 999; cursor:pointer;'
         this.selectNode = value
       },
+      // 查看详情
+      readMenuHandle () {
+        switch (this.selectNode.data.type) {
+          // 点标注 // 线标注 // 面标注 则地图中心跳到 该标注中心
+          case 1:
+          case 2:
+          case 3:
+            let point = new BMap.Point(this.selectNode.data.lng, this.selectNode.data.lat)   // 设置默认的坐标
+            this.map.centerAndZoom(point, 17)  // 初始化地图,设置中心点坐标和地图级别
+            this.menuVisible = true
+            this.activeNames = ['2']
+            this.selectItem = this.selectNode.data
+            break
+          // 项目属性
+          default:
+            this.menuVisible = true
+
+            break
+        }
+      },
       // 右键菜单 编辑事件
       editMenuHandle () {
         switch (this.selectNode.data.type) {
-          // 点标注
+          // 点标注 // 线标注 // 面标注
           case 1:
-
-            break
-          // 线标注
           case 2:
-            break
-          // 面标注
           case 3:
+            console.log(this.selectNode.data)
+            this.addOrUpdateHandle(this.selectNode.data)
             break
           // 项目属性
           default:
@@ -451,9 +498,9 @@
       deleteMenuHandle () {
         switch (this.selectNode.data.type) {
           // 点标注 线标注 面标注
-          case '1':
-          case '2':
-          case '3':
+          case 1:
+          case 2:
+          case 3:
             this.delDimHandle(this.selectNode.data)
             break
           // 项目属性
@@ -549,7 +596,19 @@
             }
           })
         })
-      }
+      },
+      // 上传KML文件  上传成功时的钩子
+      importKMLHandle (res, file, fileList) {
+        this.loading = false
+        this.$message({
+          message: 'Kml文件上传成功',
+          type: 'success',
+          duration: 1500,
+          onClose: () => {
+            this.$refs.upload.clearFiles()
+          }
+        })
+      },
     }
   }
 </script>

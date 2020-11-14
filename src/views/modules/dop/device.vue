@@ -12,17 +12,17 @@
     <el-table :data="dataList" border v-loading="dataListLoading" @sort-change="changeSort" style="width: 100%;">
       <el-table-column prop="id" header-align="center" align="center" label="序号ID" width="91"
                        sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
-      <el-table-column prop="deviceName" header-align="center" align="center" label="仪器名称"
+      <el-table-column prop="deviceName" header-align="center" align="center" label="仪器名称" width="110"
                        sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
       <el-table-column prop="factoryNum" header-align="center" align="center" label="出厂编号"></el-table-column>
       <el-table-column prop="factoryName" header-align="center" align="center" label="生产厂家"></el-table-column>
       <el-table-column prop="specNum" header-align="center" align="center" label="型号规格"></el-table-column>
       <el-table-column prop="accuracy" header-align="center" align="center" label="标称精度"></el-table-column>
-      <el-table-column prop="price" header-align="center" align="center" label="购置金额"
+      <el-table-column prop="price" header-align="center" align="center" label="购置金额" width="110"
                        sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
-      <el-table-column prop="buyTime" header-align="center" align="center" label="购置时间"
+      <el-table-column prop="buyTime" header-align="center" align="center" label="购置时间" width="110"
                        sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
-      <el-table-column prop="indate" header-align="center" align="center" label="有效期">
+      <el-table-column prop="indate" header-align="center" align="center" label="有效期" >
         <template slot-scope="scope">
           <span v-if="!stringIsNull(scope.row.indate)">{{scope.row.indate}}年</span>
         </template>
@@ -52,7 +52,7 @@
           <span class="check_span" @click="dopHistoryHandle(scope.row)">查看</span>
         </template>
       </el-table-column>
-      <el-table-column header-align="center" align="center" width="220" label="操作">
+      <el-table-column header-align="center" align="center" width="220" label="操作" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" @click="lendProcessHandle(scope.row)" type="primary">借记</el-button>
 <!--          <el-button v-if="scope.row.devStation === 0" type="warning" size="mini" @click="lendToHandle(scope.row)">出借</el-button>-->
@@ -238,7 +238,8 @@
       },
       // 查看仪器文件
       fileLoadToHandle (fileName) {
-        window.open("https://www.gdjxch.cn//uploadFile/report/20200811-01(d9aTnOsG)//word/media/image1.png")
+        let urlpath = window.SITE_CONFIG['uploadUrl']
+        window.open(urlpath + 'dop/' + fileName)
       },
       // 二维码显示
       qrCodeShowHandle (item) {

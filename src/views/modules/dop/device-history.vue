@@ -163,6 +163,7 @@
                   dat.deviceName = dopDevice.deviceName
                   dat.factoryNum = dopDevice.factoryNum
                 }
+                this.title = dopDevice.deviceName + '（' + dopDevice.factoryNum + '）'
                 this.dataList = page.list
                 this.totalCount = page.totalCount
               })

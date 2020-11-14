@@ -21,9 +21,26 @@
       <el-table-column prop="userPhone" header-align="center" align="center" label="联系电话" width="150"></el-table-column>
       <el-table-column prop="projectStartDateTime" header-align="center" align="center" label="项目启动时间"
                        width="130" sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
-      <el-table-column  header-align="center" align="center" width="130" label="操作">
+      <el-table-column prop="sigImage" header-align="center" align="center"  label="签署情况" width="110">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="addOrUpdateHandle(scope.row.id)" icon="el-icon-edit">签名</el-button>
+          <el-tag v-if="stringIsNull(scope.row.sigImage)" size="small" type="info">未签署</el-tag>
+          <el-popover v-else placement="right" width="340" trigger="hover" >
+            <div style="background-color:#f0f0f0;">
+              <div>项目编号: {{scope.row.projectNo}}</div>
+              <div>项目名称: {{scope.row.projectName}}</div>
+              <div>签署时间: {{scope.row.createTime}}</div>
+              <div style="color: #00a0e9;border:1px solid #5daf34;">
+                <img class="sig_canvas" :src="scope.row.sigImage">
+              </div>
+            </div>
+            <span slot="reference" style="cursor: pointer"><el-tag size="small" type="primary">已签署</el-tag></span>
+          </el-popover>
+        </template>
+      </el-table-column>
+      <el-table-column  header-align="center" align="center" width="200" label="操作">
+        <template slot-scope="scope">
+          <el-button type="primary" size="mini" @click="getWxQRImg(scope.row.projectNo)" icon="el-icon-edit">签名</el-button>
+          <el-button type="success" size="mini" @click="addOrUpdateHandle(scope.row.id)" icon="el-icon-printer">导出</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -154,10 +171,30 @@
         }
         this.getDataList()
       },
+      // 获取微信小程序二维码（带项目编号）
+      getWxQRImg (projectNo) {
+        this.$http({
+          url: this.$http.adornUrl('/sys/wx/getWxQR'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'projectNo': projectNo
+          })
+        }).then(({data}) => {
+          this.dataListLoading = false
+          if (data && data.code === 0) {
+
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      }
     }
   }
 </script>
 
 <style scoped>
-
+  .sig_canvas {
+    width: 99%;
+    padding: 3px;
+  }
 </style>

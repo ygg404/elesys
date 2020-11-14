@@ -5,10 +5,10 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址
-  window.SITE_CONFIG['baseUrl'] = 'https://test.gdjxch.cn/ttsys';
+  window.SITE_CONFIG['baseUrl'] = 'https://dop.gdjxch.cn/dopsys';
 
   // 文件地址
-  window.SITE_CONFIG['uploadUrl'] = 'https://test.gdjxch.cn/uploadFile/';
+  window.SITE_CONFIG['uploadUrl'] = 'https://dop.gdjxch.cn/uploadFile/';
 
   // cdn地址 = 域名 + 版本号
   window.SITE_CONFIG['domain']  = './'; // 域名

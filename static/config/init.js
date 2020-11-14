@@ -18,7 +18,10 @@
       // 插件 - ueditor
       window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor-1.4.3.3/ueditor.config.js',
       window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor-1.4.3.3/ueditor.all.min.js',
-      window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor-1.4.3.3/lang/zh-cn/zh-cn.js'
+      window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor-1.4.3.3/lang/zh-cn/zh-cn.js',
+      // 插件 - 百度地图
+      window.SITE_CONFIG.cdnUrl + '/static/plugins/bmap/DrawingManager_min.js',
+      window.SITE_CONFIG.cdnUrl + '/static/plugins/bmap/DrawingManager_min.css'
     ]
   };
 

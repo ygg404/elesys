@@ -104,24 +104,24 @@
           this.$refs['dataForm'].resetFields()
           if (this.dataForm.id) {
             this.$http({
-              url: this.$http.adornUrl(`/set/dopbmap/info/${this.dataForm.id}`),
+              url: this.$http.adornUrl(`/dop/bmap/info/${this.dataForm.id}`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.label = data.dopbmap.label
-                this.dataForm.lng = data.dopbmap.lng
-                this.dataForm.lat = data.dopbmap.lat
-                this.dataForm.labelLng = data.dopbmap.labelLng
-                this.dataForm.labelLat = data.dopbmap.labelLat
-                this.dataForm.coordinate = data.dopbmap.coordinate
-                this.dataForm.area = data.dopbmap.area
-                this.dataForm.type = data.dopbmap.type
-                this.dataForm.remark = data.dopbmap.remark
-                this.dataForm.createUserId = data.dopbmap.createUserId
-                this.dataForm.createUserName = data.dopbmap.createUserName
-                this.dataForm.createTime = data.dopbmap.createTime
-                this.dataForm.modifyTime = data.dopbmap.modifyTime
+                this.dataForm.label = data.dopBmap.label
+                this.dataForm.lng = data.dopBmap.lng
+                this.dataForm.lat = data.dopBmap.lat
+                this.dataForm.labelLng = data.dopBmap.labelLng
+                this.dataForm.labelLat = data.dopBmap.labelLat
+                this.dataForm.coordinate = data.dopBmap.coordinate
+                this.dataForm.area = data.dopBmap.area
+                this.dataForm.type = data.dopBmap.type
+                this.dataForm.remark = data.dopBmap.remark
+                this.dataForm.createUserId = data.dopBmap.createUserId
+                this.dataForm.createUserName = data.dopBmap.createUserName
+                this.dataForm.createTime = data.dopBmap.createTime
+                this.dataForm.modifyTime = data.dopBmap.modifyTime
               }
             })
           } else {

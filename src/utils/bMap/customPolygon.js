@@ -80,6 +80,7 @@ var polyGonObj = (function () {
     this.vueHandleObj = vueObj
     this.vueHandleMap = vueObj.map
     this.editFlag = false
+    this.bPoint = bPoint
     //线段样式
     var linestyle = {
       strokeColor: '#db2311',   // 边线颜色
@@ -247,7 +248,8 @@ var polyGonObj = (function () {
       //  alert(info)
     })
     this.polygon.addEventListener('rightclick', function (e) {
-      label.setPosition(e.point)
+      console.log(e)
+      // label.setPosition(e.point)
     })
   }
 
