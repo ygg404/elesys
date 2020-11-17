@@ -606,6 +606,7 @@
           duration: 1500,
           onClose: () => {
             this.$refs.upload.clearFiles()
+            this.getDataList()
           }
         })
       },

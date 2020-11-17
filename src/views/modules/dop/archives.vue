@@ -40,7 +40,7 @@
       <el-table-column  header-align="center" align="center" width="200" label="操作">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="getWxQRImg(scope.row.projectNo)" icon="el-icon-edit">签名</el-button>
-          <el-button type="success" size="mini" @click="addOrUpdateHandle(scope.row.id)" icon="el-icon-printer">导出</el-button>
+          <el-button type="success" size="mini" @click="exportExcelHandle(scope.row)" icon="el-icon-printer">导出</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -186,6 +186,31 @@
           } else {
             this.$message.error(data.msg)
           }
+        })
+      },
+      exportExcelHandle (item) {
+        this.$http({
+          url: this.$http.adornUrl('/dop/archives/exportAuthExcel'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'projectNo': item.projectNo
+          }),
+          withCredentials: false, // 允许携带cookie
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+          },
+          responseType: 'blob'
+        }).then(({data}) => {
+          console.log(data)
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = item.projectName + '.xlsx' // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          this.dataListLoading = false
         })
       }
     }
