@@ -1,31 +1,18 @@
-//点类
-var pointObj = (function () {
-  //句柄
-  var vueHandleObj
+// 点类
+var pointObj = function () {
+  // 句柄
+  var handleObj
   // 地图对象
-  var vueHandleMap
-  //点
+  var handleMap
+  // 点
   var marker
-  //移动标志
+  // 移动标志
   var editFlag
+  // 信息窗
   var infoWindow
-  //存放和数据库交互的数据
-  var bPoint = {
-    area: null,
-    coordinate: null,
-    createTime: null,
-    createUserId: null,
-    createUserName: null,
-    id: null,
-    label: null,
-    labelLat: null,
-    labelLng: null,
-    lat: null,
-    lng: null,
-    modifyTime: null,
-    remark: null,
-    type: null
-  }
+  // 存放和数据库交互的数据
+  var bPoint
+
   pointObj.prototype.getvueHandleObj = function () {
     return this.vueHandleObj
   }
@@ -51,8 +38,8 @@ var pointObj = (function () {
     return this.infoWindow
   }
   pointObj.prototype.createPointInfowindow = function () {
-    var vuemap = this.getvueHandleMap()
-    var objbpoint = this.getbPoint()
+    var vuemap = this.handleMap
+    var objbpoint = this.bPoint
     var opts = {
       position: new BMap.Point(objbpoint.labelLng, objbpoint.labelLat),    // 指定文本标注所在的地理位置
       offset: new BMap.Size(0, 0)    // 设置文本偏移量
@@ -69,22 +56,23 @@ var pointObj = (function () {
     var that = this
     this.marker.addEventListener('mouseover', function (e) {
       var point = new BMap.Point(e.point.lng, e.point.lat)
-      that.vueHandleMap.openInfoWindow(that.infoWindow, point)
+      console.log(e)
+      // that.handleMap.openInfoWindow(that.infoWindow, point)
     })
     //   this.marker.addEventListener('mouseout', function(){
     //     that.vueHandleMap.hideInfoWindow();
     // })
   }
   // 构造
-  pointObj.prototype.createPointObj = function (bPoint, vueObj) {
-    this.vueHandleObj = vueObj
-    this.vueHandleMap = vueObj.map
+  pointObj.prototype.init = function (bPoint, vueObj) {
+    this.handleObj = vueObj
+    this.handleMap = vueObj.map
     this.editFlag = false
     this.marker = new BMap.Marker(new BMap.Point(bPoint.lng, bPoint.lat))
-    this.bPoint = new Object(bPoint)
+    this.bPoint = bPoint
     this.marker.id = bPoint.id
-    this.createpointContextMenu()
-    this.createPointInfowindow()
+    // this.createpointContextMenu()
+    // this.createPointInfowindow()
     this.pointEvent()
     let opts = {
       position: new BMap.Point(bPoint.lng, bPoint.lat),    // 指定文本标注所在的地理位置
@@ -98,11 +86,11 @@ var pointObj = (function () {
       lineHeight: '20px',
       fontFamily: '微软雅黑'
     })
-    this.vueHandleMap.addOverlay(this.marker)
-    this.vueHandleMap.addOverlay(label)
+    this.handleMap.addOverlay(this.marker)
+    this.handleMap.addOverlay(label)
   }
 
-  //创建右键菜单
+  // 创建右键菜单
   pointObj.prototype.createpointContextMenu = function () {
     var vueobj = this.getvueHandleObj()
     //   var label = this.getlabel()
@@ -123,7 +111,7 @@ var pointObj = (function () {
       {
         text: '移动位置',
         callback: () => {
-          if (this.geteditFlag() == false) {
+          if (this.geteditFlag() === false) {
             this.changeeditFlag()
             this.marker.enableDragging()
           }
@@ -132,14 +120,14 @@ var pointObj = (function () {
       {
         text: '关闭移动',
         callback: () => {
-          if (this.geteditFlag() == true) {
+          if (this.geteditFlag() === true) {
             var marker = this.getMarker().point
             var eachPoint = this.getbPoint()
             eachPoint.lng = marker.lng
             eachPoint.lat = marker.lat
             eachPoint.labelLat = marker.lng
             eachPoint.labelLng = marker.lat
-            this.vueHandleObj.updateAfterGraEdit(eachPoint)
+            this.handleObj.updateAfterGraEdit(eachPoint)
             this.marker.disableDragging()
             this.changeeditFlag()
           } else {
@@ -160,6 +148,6 @@ var pointObj = (function () {
   // //   getmarker:_getMarker
   // createpointContextMenu:_createpointContextMenu
   // }
-})
+}
 
 export default pointObj

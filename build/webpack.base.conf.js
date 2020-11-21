@@ -102,5 +102,6 @@ module.exports = {
     ueditor: 'UE',
     BMapLib: 'BMapLib',
     BMap: 'BMap',
+    AMap: 'AMap'
   }
 }

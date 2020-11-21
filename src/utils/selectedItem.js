@@ -100,3 +100,63 @@ export function getMapDrawingItem () {
   ]
   return itemList
 }
+
+/**
+ * 获取定位方法类型列表
+ */
+export function getPosMethodItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '卫星定位'},
+    {'id': 2, 'nameItem': '导线测量'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取定位方法类型列表
+ */
+export function getCorSysItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '2000国家大地坐标系'},
+    {'id': 2, 'nameItem': '1954年北京坐标系'},
+    {'id': 3, 'nameItem': '1980西安坐标系'},
+    {'id': 4, 'nameItem': '独立坐标系'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取来源列表
+ */
+export function getOrginItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '自测'},
+    {'id': 2, 'nameItem': '业主提供'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取控制点类级列表
+ */
+export function getPosCateItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '一级RTK'},
+    {'id': 2, 'nameItem': '二级RTK'},
+    {'id': 3, 'nameItem': '一导线'},
+    {'id': 4, 'nameItem': '二导线'},
+    {'id': 5, 'nameItem': '三级导线'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取控制点类级列表
+ */
+export function getMeasureItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '是'},
+    {'id': 0, 'nameItem': '否'}
+  ]
+  return itemList
+}

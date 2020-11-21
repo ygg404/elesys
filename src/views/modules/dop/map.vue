@@ -95,7 +95,7 @@
                   <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-delete"></i>  <span>删除&#12288&#12288</span></el-link>
                 </div>
                 <div class="text_item">
-                  <el-link :underline="false"><i class="el-icon-printer"></i>  <span>导出KML</span></el-link>
+                  <el-link :underline="false" @click="exportKMLHandle"><i class="el-icon-printer"></i>  <span>导出KML</span></el-link>
                 </div>
               </el-card>
             </div>
@@ -410,7 +410,7 @@
                 case 1:
                   bPoint.icon = 'el-icon-s-opportunity'
                   var point = new pointObj()
-                  point.createPointObj(bPoint, this)
+                  point.init(bPoint, this)
                   break
                 // 线
                 case 2:
@@ -485,7 +485,6 @@
           case 1:
           case 2:
           case 3:
-            console.log(this.selectNode.data)
             this.addOrUpdateHandle(this.selectNode.data)
             break
           // 项目属性
@@ -508,6 +507,33 @@
             this.delProjectHandle(this.selectNode.data)
             break
         }
+      },
+      // 右键菜单 导出Kml 文件
+      exportKMLHandle () {
+        let projectId = this.selectNode.data.id
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl(`/dop/bmapproject/exportKML/${projectId}`),
+          method: 'get',
+          params: this.$http.adornParams(),
+          withCredentials: false, // 允许携带cookie
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+          },
+          responseType: 'blob'
+        }).then(({data}) => {
+          console.log(data)
+          let projectName = this.selectNode.data.projectName
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = projectName + '.kml' // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          this.dataListLoading = false
+        })
       },
       // 图形编辑之后执行的数据库更新操作
       updateAfterGraEdit (eachPoint) {
@@ -609,7 +635,7 @@
             this.getDataList()
           }
         })
-      },
+      }
     }
   }
 </script>

@@ -92,12 +92,6 @@
         if (this.dataForm.startDate != null) startDate = moment(new Date(this.dataForm.startDate)).format('YYYY-MM-DD')
         if (this.dataForm.endDate != null) endDate = moment(new Date(this.dataForm.endDate)).format('YYYY-MM-DD')
         this.dataListLoading = true
-        // if (!stringIsNull(this.argsPageIndex)) {
-        //   this.pageIndex = this.argsPageIndex
-        // }
-        // if (!stringIsNull(this.argsPageSize)) {
-        //   this.pageSize = this.argsPageSize
-        // }
         this.$http({
           url: this.$http.adornUrl('/dop/archives/page'),
           method: 'get',
@@ -188,6 +182,7 @@
           }
         })
       },
+      // 导出签名表
       exportExcelHandle (item) {
         this.$http({
           url: this.$http.adornUrl('/dop/archives/exportAuthExcel'),
@@ -201,7 +196,6 @@
           },
           responseType: 'blob'
         }).then(({data}) => {
-          console.log(data)
           var downloadElement = document.createElement('a')
           var href = window.URL.createObjectURL(data) // 创建下载的链接
           downloadElement.href = href
