@@ -16,6 +16,14 @@
           <div>工作内容：{{projectInfo.workNote}}</div>
           <div>工作要求：{{projectInfo.workRequire}}</div>
           <div>工作小结：{{projectInfo.briefSummary}}</div>
+          <div style="display:flex;padding-bottom: 4px;">项目清单：
+            <el-table :data="projectInfo.projectBillList" border >
+              <el-table-column prop="billName" header-align="center" align="center" label="项目" ></el-table-column>
+              <el-table-column prop="spec" header-align="center" align="center" label="规格"></el-table-column>
+              <el-table-column prop="num" header-align="center" align="center" label="数量" ></el-table-column>
+              <el-table-column prop="remark" header-align="center" align="center" label="备注"></el-table-column>
+            </el-table>
+          </div>
         </div>
       </el-collapse-item>
       <el-collapse-item name="preReport">

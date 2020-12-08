@@ -71,7 +71,7 @@
           </div>
           <el-form :inline="true" :model="dataForm" >
             <el-form-item>
-              <el-input v-model="dataForm.projectName" placeholder="项目关键字" clearable style="width: 145px;" @clear="pageIndex=1,getDataList()"></el-input>
+              <el-input v-model="dataForm.labelName" placeholder="关键字搜索" clearable style="width: 145px;" @clear="pageIndex=1,getDataList()"></el-input>
               <el-button @click="pageIndex = 1,getDataList()" icon="el-icon-search" type="primary" size="small"></el-button>
             </el-form-item>
           </el-form>
@@ -95,6 +95,9 @@
                   <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-delete"></i>  <span>删除&#12288&#12288</span></el-link>
                 </div>
                 <div class="text_item">
+                  <el-link :underline="false" @click="exportWordHandle"><i class="el-icon-printer"></i>  <span>导出Word</span></el-link>
+                </div>
+                <div class="text_item">
                   <el-link :underline="false" @click="exportKMLHandle"><i class="el-icon-printer"></i>  <span>导出KML</span></el-link>
                 </div>
               </el-card>
@@ -108,7 +111,7 @@
             <el-button size="mini" type="primary" :disabled="pageIndex >= totalPage?true:false" @click="++pageIndex,getDataList()">下一页</el-button>
           </div>
         </el-card>
-        <el-card id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'" ></el-card>
+        <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'" ></div>
       </div>
       <!-- 标注弹窗, 新增 / 修改 -->
       <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
@@ -125,6 +128,7 @@
   import polylineObj from '@/utils/bMap/customPolyline'
   import pointObj from '@/utils/bMap/customPoint'
   import {stringIsNull} from '@/utils'
+  import html2canvas from 'html2canvas'
   import Vue from 'vue'
 
   export default {
@@ -137,7 +141,9 @@
         pageList: [],
         dataForm: {
           key: '',
-          projectName: ''
+          sidx: 'id',
+          order: 'desc',
+          labelName: ''
         },
         defaultProps: {
           children: 'bmapList',
@@ -171,6 +177,7 @@
     },
     activated () {
       this.init()
+
     },
     methods: {
       // 初始化
@@ -261,6 +268,8 @@
             // 面
             case 'polygon':
               if (stringIsNull(e.calculate)) {
+                that.map.removeOverlay(e.overlay)
+                that.map.removeOverlay(e.label)
                 that.$message.error('绘制图形有误，请重新绘制!')
                 return
               }
@@ -278,6 +287,7 @@
               return
           }
           that.addOrUpdateHandle(item)
+          that.drawingManager.close()
           that.map.removeOverlay(e.overlay)
           that.map.removeOverlay(e.label)
         })
@@ -288,16 +298,20 @@
           that.dataForm.key = _value.province + _value.city + _value.district + _value.street + _value.business
           that.searchPlaceHandle()
         })
+
       },
       // 获取项目列表
       getBampProjectList () {
         return new Promise((resolve, reject) => {
           this.$http({
-            url: this.$http.adornUrl('/dop/bmapproject/page'),
+            url: this.$http.adornUrl('/dop/bmap/page'),
             method: 'get',
             params: this.$http.adornParams({
               'page': this.pageIndex,
-              'key': this.dataForm.projectName
+              'limit': this.pageSize,
+              'key': this.dataForm.labelName,
+              'sidx': this.dataForm.sidx,
+              'order': this.dataForm.order
             })
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -335,6 +349,13 @@
           }
         })
         local.search(this.dataForm.key)
+
+        new html2canvas(document.getElementById('mapId'), {})
+          .then((canvas) => {
+            console.log(canvas)
+            let imgData = canvas.toDataURL('image/png') // 将canvas转成base64图片格式
+            console.log(imgData)
+          })
       },
       // 绘制标注点
       drawPoint () {
@@ -507,6 +528,36 @@
             this.delProjectHandle(this.selectNode.data)
             break
         }
+      },
+      // 右键菜单 导出Word 文件
+      exportWordHandle () {
+        let bmapId = this.selectNode.data.id
+        console.log(bmapId)
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl('/dop/bmap/exportWord'),
+          method: 'get',
+          params: this.$http.adornParams({
+            bmapId: bmapId
+          }),
+          withCredentials: false, // 允许携带cookie
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+          },
+          responseType: 'blob'
+        }).then(({data}) => {
+          console.log(data)
+          let projectName = this.selectNode.data.label
+          var downloadElement = document.createElement('a')
+          var href = window.URL.createObjectURL(data) // 创建下载的链接
+          downloadElement.href = href
+          downloadElement.download = projectName + '.zip' // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+          this.dataListLoading = false
+        })
       },
       // 右键菜单 导出Kml 文件
       exportKMLHandle () {

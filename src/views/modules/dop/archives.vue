@@ -23,23 +23,25 @@
                        width="130" sortable="custom" :sort-orders="['descending','ascending']"></el-table-column>
       <el-table-column prop="sigImage" header-align="center" align="center"  label="签署情况" width="110">
         <template slot-scope="scope">
-          <el-tag v-if="stringIsNull(scope.row.sigImage)" size="small" type="info">未签署</el-tag>
+          <el-tag v-if="stringIsNull(scope.row.sigImage)" size="small" type="info">未签字</el-tag>
           <el-popover v-else placement="right" width="340" trigger="hover" >
             <div style="background-color:#f0f0f0;">
               <div>项目编号: {{scope.row.projectNo}}</div>
               <div>项目名称: {{scope.row.projectName}}</div>
-              <div>签署时间: {{scope.row.createTime}}</div>
+              <div>签字微信头像: <img class="sig_img" :src="scope.row.avatarUrl"/></div>
+              <div>签字微信昵称: {{scope.row.nickName}}</div>
+              <div>签字时间: {{scope.row.createTime}}</div>
               <div style="color: #00a0e9;border:1px solid #5daf34;">
                 <img class="sig_canvas" :src="scope.row.sigImage">
               </div>
             </div>
-            <span slot="reference" style="cursor: pointer"><el-tag size="small" type="primary">已签署</el-tag></span>
+            <span slot="reference" style="cursor: pointer"><el-tag size="small" type="primary">已签字</el-tag></span>
           </el-popover>
         </template>
       </el-table-column>
       <el-table-column  header-align="center" align="center" width="200" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="getWxQRImg(scope.row.projectNo)" icon="el-icon-edit">签名</el-button>
+          <el-button type="primary" size="mini" @click="getWxQRImg(scope.row)" icon="el-icon-edit">签名</el-button>
           <el-button type="success" size="mini" @click="exportExcelHandle(scope.row)" icon="el-icon-printer">导出</el-button>
         </template>
       </el-table-column>
@@ -54,12 +56,14 @@
       layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
 
+    <archives-sig v-if="sigVisible" ref="archivesSig"></archives-sig>
   </div>
 </template>
 
 <script>
   import moment from 'moment'
-  import {stringIsNull} from '../../../utils'
+  import archivesSig from './archives-sig'
+  import {stringIsNull} from '@/utils'
 
   export default {
     data () {
@@ -71,6 +75,7 @@
           startDate: '',
           endDate: ''
         },
+        sigVisible: false,
         pickerOptionsStart: {},
         pickerOptionsEnd: {},
         pageIndex: 1,
@@ -79,6 +84,9 @@
         dataListLoading: false,
         dataList: []
       }
+    },
+    components: {
+      archivesSig
     },
     mounted () {
       this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
@@ -165,23 +173,7 @@
         }
         this.getDataList()
       },
-      // 获取微信小程序二维码（带项目编号）
-      getWxQRImg (projectNo) {
-        this.$http({
-          url: this.$http.adornUrl('/sys/wx/getWxQR'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'projectNo': projectNo
-          })
-        }).then(({data}) => {
-          this.dataListLoading = false
-          if (data && data.code === 0) {
 
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      },
       // 导出签名表
       exportExcelHandle (item) {
         this.$http({
@@ -206,7 +198,14 @@
           window.URL.revokeObjectURL(href) // 释放掉blob对象
           this.dataListLoading = false
         })
-      }
+      },
+      // 仪器出借
+      getWxQRImg (item) {
+        this.sigVisible = true
+        this.$nextTick(() => {
+          this.$refs.archivesSig.init(item)
+        })
+      },
     }
   }
 </script>
@@ -215,5 +214,11 @@
   .sig_canvas {
     width: 99%;
     padding: 3px;
+  }
+  .sig_img {
+    width: 35px;
+    height: 35px;
+    margin: 5px;
+    border-radius: 50%;
   }
 </style>

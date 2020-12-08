@@ -143,8 +143,8 @@ export function getPosCateItem () {
   let itemList = [
     {'id': 1, 'nameItem': '一级RTK'},
     {'id': 2, 'nameItem': '二级RTK'},
-    {'id': 3, 'nameItem': '一导线'},
-    {'id': 4, 'nameItem': '二导线'},
+    {'id': 3, 'nameItem': '一级导线'},
+    {'id': 4, 'nameItem': '二级导线'},
     {'id': 5, 'nameItem': '三级导线'}
   ]
   return itemList
@@ -157,6 +157,35 @@ export function getMeasureItem () {
   let itemList = [
     {'id': 1, 'nameItem': '是'},
     {'id': 0, 'nameItem': '否'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取清单规格列表
+ */
+export function getBillSpecItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '40cm×50cm'},
+    {'id': 2, 'nameItem': '50cm×50cm'},
+    {'id': 3, 'nameItem': '50cm×60cm'},
+    {'id': 4, 'nameItem': '50cm×70cm'},
+    {'id': 5, 'nameItem': '70cm×80cm'},
+    {'id': 6, 'nameItem': 'A3'},
+    {'id': 7, 'nameItem': 'A4'},
+    {'id': 8, 'nameItem': '待定'},
+    {'id': 9, 'nameItem': '任意图幅'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取清单备注列表
+ */
+export function getBillRemarkItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '纸质版'},
+    {'id': 2, 'nameItem': '电子版'}
   ]
   return itemList
 }

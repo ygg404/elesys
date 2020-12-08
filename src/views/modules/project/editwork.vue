@@ -16,6 +16,14 @@
           <div>项目开工时间：{{projectInfo.projectBegunDateTime}}</div>
           <div>执行标准：{{projectInfo.executeStandard}}</div>
           <div>安全技术要求：{{projectInfo.safeRequire}}</div>
+          <div style="display:flex;padding-bottom: 4px;">项目清单：
+            <el-table :data="projectInfo.projectBillList" border >
+              <el-table-column prop="billName" header-align="center" align="center" label="项目" ></el-table-column>
+              <el-table-column prop="spec" header-align="center" align="center" label="规格"></el-table-column>
+              <el-table-column prop="num" header-align="center" align="center" label="数量" ></el-table-column>
+              <el-table-column prop="remark" header-align="center" align="center" label="备注"></el-table-column>
+            </el-table>
+          </div>
         </div>
       </el-collapse-item>
       <el-collapse-item style="border: 1px solid #2D64B3 ">

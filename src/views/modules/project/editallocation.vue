@@ -29,6 +29,48 @@
               <el-input type="textarea" placeholder="请输入作业要求" maxlength="1000" show-word-limit class="allo_text" v-model="dataForm.workRequire"></el-input>
             </el-form-item>
 
+            <el-form-item prop="projectBill">
+              <div class="bill_line">
+                <span class="title_span">项目清单：</span>
+                <el-button icon="el-icon-plus" type="primary" size="small" @click="addBillHandle">添加清单项</el-button>
+              </div>
+              <el-table border :data="dataForm.billList">
+                <el-table-column prop="billName" header-align="center" align="center" label="项目">
+                  <template slot-scope="scope">
+                    <el-input  v-model="scope.row.billName"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="spec" header-align="center" align="center" label="规格" width="180">
+                  <template slot-scope="scope">
+                    <el-autocomplete v-model="scope.row.spec" :fetch-suggestions="querySpecSearch" @select="((item)=>{handleSpecSelect(item, scope.row.id)})">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="num" header-align="center" align="center" label="数量(份)" width="100">
+                  <template slot-scope="scope">
+                    <el-input  v-model="scope.row.num" type="number"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="remark" header-align="center" align="center" label="备注" width="100">
+                  <template slot-scope="scope">
+                    <el-autocomplete v-model="scope.row.remark" :fetch-suggestions="queryRemarkSearch" @select="((item)=>{handleRemarkSelect(item, scope.row.id)})">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
+                  </template>
+                </el-table-column>
+                <el-table-column  header-align="center" align="center" label="操作" width="80">
+                  <template slot-scope="scope">
+                    <el-button type="danger" icon="el-icon-delete" size="small" @click="deleteBillHandle(scope.row.id)"></el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-form-item>
+
             <el-select  placeholder="外业作业安全交底快捷输入" filterable  v-model="saferequireValue" collapse-tags  style="width: 100%;margin-top: 20px;" @change="saferequirelistHandler()">
               <el-option v-for="item in saferequireList" :label="item.shortcutNote.split('\n')[0]" :key="item.id" :value="item.id"  v-if="shortTypeAlive(item)"></el-option>
             </el-select>
@@ -214,6 +256,8 @@
   import {closeTab} from '@/utils/tabs'
   import {stringIsNull, treeDataTranslate} from '@/utils'
   import moment from 'moment'
+  import {getUUID} from '../../../utils'
+  import {getBillRemarkItem, getBillSpecItem} from '@/utils/selectedItem'
 
   export default {
     data () {
@@ -227,6 +271,7 @@
         outputCalVisible: false, // 产值明细计算
         projectInfo: '',
         dataForm: {
+          billList: [],
           executeStandard: '',
           workNote: '',
           workRequire: '',
@@ -276,7 +321,6 @@
         saferequireList: [],  // 作业安全列表
         saferequireValue: '',
         groupWorkList: [],  // 作业分组情况
-
         projectTypelist: [],  // 项目类型列表
         workTypelist: [],     // 工作类型列表
         totalOutPut: 0    // 预计总产值计算数值
@@ -331,6 +375,7 @@
         // 获取项目基本信息
         this.getInfoByProjectNo(this.projectNo).then(projectInfo => {
           this.projectInfo = projectInfo
+          this.dataForm.billList = projectInfo.projectBillList
           // 获取项目分组情况
           this.getGroupByProjectNo(this.projectNo)
         })
@@ -522,7 +567,10 @@
                   type: 'success',
                   duration: 1500
                 })
-                if (goback) this.goBack()
+                if (goback) {
+                  this.submitBillToApi()
+                  this.goBack()
+                }
               } else {
                 this.$message.error(data.msg)
               }
@@ -907,7 +955,6 @@
       },
       // 工作类型在表格勾选显示
       chooseRatio (params) {
-        //  console.log(params)
         let temp = []
         params.forEach(e => {
           if (e.checked) {
@@ -922,6 +969,74 @@
           }
         })
         return temp
+      },
+      // 规格选项
+      querySpecSearch (queryString, cb) {
+        var list = getBillSpecItem()
+        var results = queryString ? list.filter(this.createFilter(queryString)) : list
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      // 备注选项
+      queryRemarkSearch (queryString, cb) {
+        var list = getBillRemarkItem()
+        var results = queryString ? list.filter(this.createFilter(queryString)) : list
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      createFilter (queryString) {
+        return (restaurant) => {
+          return (restaurant.nameItem.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        }
+      },
+      handleSpecSelect (item,id) {
+        this.dataForm.billList.find(dat => dat.id === id).spec = item.nameItem
+      },
+      handleRemarkSelect (item,id) {
+        this.dataForm.billList.find(dat => dat.id === id).remark = item.nameItem
+      },
+      // 添加项目清单项
+      addBillHandle () {
+        let billItem = {
+          'id': getUUID(),
+          'projectNo': this.dataForm.projectNo,
+          'billName': '',
+          'spec': '',
+          'num': '',
+          'remark': ''
+        }
+        this.dataForm.billList.push(billItem)
+      },
+      // 删除项目清单项
+      deleteBillHandle (id) {
+        let billList = []
+        for (let bill of this.dataForm.billList) {
+          if (bill.id !== id) {
+            billList.push(bill)
+          }
+        }
+        this.dataForm.billList = billList
+      },
+      // 提交清单
+      submitBillToApi () {
+        this.dataForm.billList.forEach(item => {item.id = ''})
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/bill/save`),
+            method: 'post',
+            data: this.$http.adornData({
+              'projectNo': this.projectInfo.projectNo,
+              'projectBillList': this.dataForm.billList
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              ;
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
       },
       // 根据工作类型可见不可见 来显示右侧工作组工作类型数据
       checkOutputVoInit () {
@@ -1044,5 +1159,15 @@
   .card_work{
     margin-top: 20px;
     font-size: 16px;
+  }
+
+  .bill_line{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #45b3ff;
+  }
+  .bill_line .title_span {
+    font-size: 11pt;
+    font-weight: 700;
   }
 </style>

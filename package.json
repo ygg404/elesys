@@ -42,6 +42,7 @@
     "vue-amap": "^0.5.10",
     "vue-baidu-map": "^0.21.22",
     "vue-cookie": "1.1.4",
+    "vue-cropper": "^0.5.5",
     "vue-router": "3.0.1",
     "vuedraggable": "^2.23.2",
     "vuex": "3.0.1",
