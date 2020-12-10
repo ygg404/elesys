@@ -75,8 +75,8 @@
               <el-button @click="pageIndex = 1,getDataList()" icon="el-icon-search" type="primary" size="small"></el-button>
             </el-form-item>
           </el-form>
-          <div :style="'height:' + (documentClientHeight - 440) + 'px'" class="project_ul block">
-            <el-tree :data="projectList" show-checkbox node-key="id" :props="defaultProps"  highlight-current current-node-key
+          <div :style="'height:' + (documentClientHeight - 400) + 'px'" class="project_ul block">
+            <el-tree :data="bmapList" show-checkbox node-key="id" :props="defaultProps"  highlight-current current-node-key
                      :expand-on-click-node="true" @node-contextmenu = "rightClickHandle" >
               <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span><i :class="data.icon"></i>{{ node.label }}</span>
@@ -127,7 +127,7 @@
   import polyGonObj from '@/utils/bMap/customPolygon'
   import polylineObj from '@/utils/bMap/customPolyline'
   import pointObj from '@/utils/bMap/customPoint'
-  import {stringIsNull} from '@/utils'
+  import {stringIsNull,treeDataTranslate} from '@/utils'
   import html2canvas from 'html2canvas'
   import Vue from 'vue'
 
@@ -146,10 +146,10 @@
           labelName: ''
         },
         defaultProps: {
-          children: 'bmapList',
+          children: 'children',
           label: 'label'
         },
-        projectList: [],
+        bmapList: [],
         loading: true,
         zoom: 14,
         BMap: '',
@@ -300,8 +300,8 @@
         })
 
       },
-      // 获取项目列表
-      getBampProjectList () {
+      // 获取所有标注列表
+      getBampList () {
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl('/dop/bmap/page'),
@@ -411,64 +411,56 @@
       // 获取标注数据并绘制
       getDataList () {
         this.map.clearOverlays()
-        this.getBampProjectList().then(page => {
+        this.getBampList().then(page => {
           this.totalPage = page.totalPage
           this.totalCount = page.totalCount
           this.pageList = Array.from(new Array(page.totalPage), (item, index) => index + 1)
           let polyList = []
           let corlist = []
-          for (let bProject of page.list) {
-            bProject.label = bProject.projectName
-            if (bProject.bmapList.length !== 0) {
-              bProject.icon = 'el-icon-folder-opened'
-            } else {
-              bProject.icon = 'el-icon-folder'
-            }
-
-            for (let bPoint of bProject.bmapList) {
-              switch (bPoint.type) {
-                // 点
-                case 1:
-                  bPoint.icon = 'el-icon-s-opportunity'
-                  var point = new pointObj()
-                  point.init(bPoint, this)
-                  break
-                // 线
-                case 2:
-                  bPoint.icon = 'el-icon-s-marketing'
-                  polyList = []
-                  // 创建多边形
-                  corlist = bPoint.coordinate.split(';')
-                  for (let cor of corlist) {
-                    if (!stringIsNull(cor)) {
-                      let point = cor.split(',')
-                      polyList.push(new BMap.Point(point[0], point[1]))
-                    }
+          for (let bPoint of page.list) {
+            switch (bPoint.type) {
+              // 点
+              case 1:
+                bPoint.icon = 'el-icon-s-opportunity'
+                var point = new pointObj()
+                point.init(bPoint, this)
+                break
+              // 线
+              case 2:
+                bPoint.icon = 'el-icon-s-marketing'
+                polyList = []
+                // 创建多边形
+                corlist = bPoint.coordinate.split(';')
+                for (let cor of corlist) {
+                  if (!stringIsNull(cor)) {
+                    let point = cor.split(',')
+                    polyList.push(new BMap.Point(point[0], point[1]))
                   }
-                  var polyline = new polylineObj()
-                  polyline.createpolyLineObj(bPoint, polyList, this)
-                  break
-                // 面
-                case 3:
-                  bPoint.icon = 'el-icon-picture'
-                  polyList = []
-                  // 创建多边形
-                  corlist = bPoint.coordinate.split(';')
-                  for (let cor of corlist) {
-                    if (!stringIsNull(cor)) {
-                      let point = cor.split(',')
-                      polyList.push(new BMap.Point(point[0],point[1]))
-                    }
+                }
+                var polyline = new polylineObj()
+                polyline.createpolyLineObj(bPoint, polyList, this)
+                break
+              // 面
+              case 3:
+                bPoint.icon = 'el-icon-picture'
+                polyList = []
+                // 创建多边形
+                corlist = bPoint.coordinate.split(';')
+                for (let cor of corlist) {
+                  if (!stringIsNull(cor)) {
+                    let point = cor.split(',')
+                    polyList.push(new BMap.Point(point[0],point[1]))
                   }
-                  var polygon = new polyGonObj()
-                  polygon.createpolyGonObj(bPoint, polyList, this)
-                  break
-                default:
-                  break
-              }
+                }
+                var polygon = new polyGonObj()
+                polygon.createpolyGonObj(bPoint, polyList, this)
+                break
+              default:
+                bPoint.icon = 'el-icon-folder'
+                break
             }
           }
-          this.projectList = page.list
+          this.bmapList = treeDataTranslate(page.list)
         })
       },
       // 右键点击事件
@@ -561,10 +553,10 @@
       },
       // 右键菜单 导出Kml 文件
       exportKMLHandle () {
-        let projectId = this.selectNode.data.id
+        let id = this.selectNode.data.id
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl(`/dop/bmapproject/exportKML/${projectId}`),
+          url: this.$http.adornUrl(`/dop/bmap/exportKML/${id}`),
           method: 'get',
           params: this.$http.adornParams(),
           withCredentials: false, // 允许携带cookie
