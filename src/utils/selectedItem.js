@@ -171,10 +171,10 @@ export function getBillSpecItem () {
     {'id': 3, 'nameItem': '50cm×60cm'},
     {'id': 4, 'nameItem': '50cm×70cm'},
     {'id': 5, 'nameItem': '70cm×80cm'},
-    {'id': 6, 'nameItem': 'A3'},
+    {'id': 6, 'nameItem': '任意图幅'},
     {'id': 7, 'nameItem': 'A4'},
-    {'id': 8, 'nameItem': '待定'},
-    {'id': 9, 'nameItem': '任意图幅'}
+    {'id': 8, 'nameItem': 'A3'},
+    {'id': 9, 'nameItem': '待定'}
   ]
   return itemList
 }
@@ -186,6 +186,17 @@ export function getBillRemarkItem () {
   let itemList = [
     {'id': 1, 'nameItem': '纸质版'},
     {'id': 2, 'nameItem': '电子版'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取成果清单项目名
+ */
+export function getBillNameItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '待定'},
+    {'id': 2, 'nameItem': '本项目无需提交项目成果'}
   ]
   return itemList
 }

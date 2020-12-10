@@ -31,13 +31,17 @@
 
             <el-form-item prop="projectBill">
               <div class="bill_line">
-                <span class="title_span">项目清单：</span>
+                <span class="title_span">项目成果清单：</span>
                 <el-button icon="el-icon-plus" type="primary" size="small" @click="addBillHandle">添加清单项</el-button>
               </div>
               <el-table border :data="dataForm.billList">
                 <el-table-column prop="billName" header-align="center" align="center" label="项目">
                   <template slot-scope="scope">
-                    <el-input  v-model="scope.row.billName"></el-input>
+                    <el-autocomplete v-model="scope.row.billName" :fetch-suggestions="queryNameSearch" @select="((item)=>{handleNameSelect(item, scope.row.id)})" style="width: 100%">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
                   </template>
                 </el-table-column>
                 <el-table-column prop="spec" header-align="center" align="center" label="规格" width="180">
@@ -254,10 +258,9 @@
 <script>
   import projectgroupAddOrUpdate from './projectgroup-add-or-update'
   import {closeTab} from '@/utils/tabs'
-  import {stringIsNull, treeDataTranslate} from '@/utils'
+  import {stringIsNull, treeDataTranslate, getUUID} from '@/utils'
   import moment from 'moment'
-  import {getUUID} from '../../../utils'
-  import {getBillRemarkItem, getBillSpecItem} from '@/utils/selectedItem'
+  import {getBillRemarkItem, getBillSpecItem, getBillNameItem} from '@/utils/selectedItem'
 
   export default {
     data () {
@@ -271,7 +274,12 @@
         outputCalVisible: false, // 产值明细计算
         projectInfo: '',
         dataForm: {
-          billList: [],
+          billList: [{
+            'billName': '',
+            'spec': '',
+            'num': 0,
+            'remark': ''
+          }],
           executeStandard: '',
           workNote: '',
           workRequire: '',
@@ -375,8 +383,8 @@
         // 获取项目基本信息
         this.getInfoByProjectNo(this.projectNo).then(projectInfo => {
           this.projectInfo = projectInfo
-          this.dataForm.billList = projectInfo.projectBillList
-          // 获取项目分组情况
+          if (projectInfo.projectBillList.length > 0) this.dataForm.billList = projectInfo.projectBillList
+            // 获取项目分组情况
           this.getGroupByProjectNo(this.projectNo)
         })
         this.getWorkTypelist(this.projectNo).then(success => {
@@ -541,6 +549,19 @@
       },
       // 表单提交
       dataFormSubmit (goback = true) {
+        // 判断清单项是否为空
+        if (goback) {
+          let flag = false
+          for (let billItem of this.dataForm.billList) {
+            billItem.id = ''
+            billItem.projectNo = this.projectNo
+            if (stringIsNull(billItem.billName)) {
+              this.$message.error('项目成果清单项为空，请仔细填写！')
+              flag = true
+            }
+          }
+          if (flag) return
+        }
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
@@ -970,6 +991,13 @@
         })
         return temp
       },
+      // 项目清单名
+      queryNameSearch(queryString, cb) {
+        var list = getBillNameItem()
+        var results = queryString ? list.filter(this.createFilter(queryString)) : list
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
       // 规格选项
       querySpecSearch (queryString, cb) {
         var list = getBillSpecItem()
@@ -988,6 +1016,9 @@
         return (restaurant) => {
           return (restaurant.nameItem.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
         }
+      },
+      handleNameSelect (item,id) {
+        this.dataForm.billList.find(dat => dat.id === id).billName = item.nameItem
       },
       handleSpecSelect (item,id) {
         this.dataForm.billList.find(dat => dat.id === id).spec = item.nameItem
@@ -1019,7 +1050,6 @@
       },
       // 提交清单
       submitBillToApi () {
-        this.dataForm.billList.forEach(item => {item.id = ''})
         return new Promise((resolve, reject) => {
           this.$http({
             url: this.$http.adornUrl(`/project/bill/save`),
@@ -1037,6 +1067,7 @@
             }
           })
         })
+
       },
       // 根据工作类型可见不可见 来显示右侧工作组工作类型数据
       checkOutputVoInit () {

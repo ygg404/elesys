@@ -83,13 +83,29 @@
               </span>
             </el-tree>
             <!--定义菜单及菜单项的操作-->
-            <div v-show = "rightVisible" ref="rightMenu" id="rightMenu"  @mouseleave="rightVisible = false">
+            <div v-show = "rightVisible" ref="rightMenu" id="rightMenu"  @mouseleave="rightVisible = false" style="display:flex;">
+              <!--主面板-->
               <el-card class="box_card" :body-style="{ padding: '3px' }">
                 <div class="text_item">
                   <el-link :underline="false" @click="readMenuHandle"><i class="el-icon-info"></i>  <span>详情&#12288&#12288</span></el-link>
                 </div>
                 <div class="text_item">
                   <el-link :underline="false" @click="editMenuHandle"><i class="el-icon-edit"></i>  <span>编辑&#12288&#12288</span></el-link>
+                </div>
+                <div class="text_item add_item_box">
+                  <el-link :underline="false"><i class="el-icon-plus"></i>  <span>创建对象 》</span></el-link>
+                  <!--副面板 添加元素-->
+                  <el-card class="box_card add_item" :body-style="{ padding: '3px' }">
+                    <div class="text_item">
+                      <el-link :underline="false" @click="readMenuHandle"><i class="el-icon-location"></i><span>创建点对象</span></el-link>
+                    </div>
+                    <div class="text_item">
+                      <el-link :underline="false" @click="editMenuHandle"><i class="el-icon-s-marketing"></i>  <span>创建线对象</span></el-link>
+                    </div>
+                    <div class="text_item">
+                      <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-picture"></i>  <span>创建面对象</span></el-link>
+                    </div>
+                  </el-card>
                 </div>
                 <div class="text_item">
                   <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-delete"></i>  <span>删除&#12288&#12288</span></el-link>
@@ -101,6 +117,7 @@
                   <el-link :underline="false" @click="exportKMLHandle"><i class="el-icon-printer"></i>  <span>导出KML</span></el-link>
                 </div>
               </el-card>
+
             </div>
           </div>
           <div class="">
@@ -758,6 +775,17 @@
     .text_item span{
       font-size: 13pt;
     }
+  }
+  .add_item_box:hover .add_item{
+    display: block;
+  }
+  .add_item {
+    font-size: 11pt;
+    position:absolute;
+    left:115px;
+    top:60px;
+    min-width:138px;
+    display: none;
   }
   @-webkit-keyframes rotate{
     from{-webkit-transform: rotate(0deg)}
