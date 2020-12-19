@@ -1,41 +1,44 @@
 // 点类
 var pointObj = function () {
   // 句柄
-  var handleObj
+  let handleObj
   // 地图对象
-  var handleMap
+  let handleMap
   // 点
-  var marker
+  let marker
   // 移动标志
-  var editFlag
+  let editFlag
   // 信息窗
-  var infoWindow
+  let infoWindow
   // 存放和数据库交互的数据
-  var bPoint
+  let bPoint
+  // 初始化
+  pointObj.prototype.init = function (bPoint, vueObj) {
+    this.handleObj = vueObj
+    this.handleMap = vueObj.map
+    this.editFlag = false
+    this.marker = new BMap.Marker(new BMap.Point(bPoint.lng, bPoint.lat))
+    this.bPoint = bPoint
+    this.marker.id = bPoint.id
 
-  pointObj.prototype.getvueHandleObj = function () {
-    return this.vueHandleObj
-  }
-  pointObj.prototype.getvueHandleMap = function () {
-    return this.vueHandleMap
-  }
-  pointObj.prototype.changeeditFlag = function () {
-    this.editFlag = !this.editFlag
-  }
-  pointObj.prototype.geteditFlag = function () {
-    return this.editFlag
-  }
-  pointObj.prototype.getMakerId = function () {
-    return this.marker.id
-  }
-  pointObj.prototype.getMarker = function () {
-    return this.marker
-  }
-  pointObj.prototype.getbPoint = function () {
-    return this.bPoint
-  }
-  pointObj.prototype.getinfoWindow = function () {
-    return this.infoWindow
+    let opts = {
+      position: new BMap.Point(bPoint.lng, bPoint.lat),    // 指定文本标注所在的地理位置
+      offset: new BMap.Size(0, 0)    // 设置文本偏移量
+    }
+    let label = new BMap.Label(bPoint.label, opts)  // 创建文本标注对象
+    label.setStyle({
+      color: 'red',
+      fontSize: '12px',
+      height: '20px',
+      lineHeight: '20px',
+      fontFamily: '微软雅黑'
+    })
+    this.handleMap.addOverlay(this.marker)
+    this.handleMap.addOverlay(label)
+
+    this.createpointContextMenu()
+    // this.createPointInfowindow()
+    this.pointEvent()
   }
   pointObj.prototype.createPointInfowindow = function () {
     var vuemap = this.handleMap
@@ -63,56 +66,29 @@ var pointObj = function () {
     //     that.vueHandleMap.hideInfoWindow();
     // })
   }
-  // 构造
-  pointObj.prototype.init = function (bPoint, vueObj) {
-    this.handleObj = vueObj
-    this.handleMap = vueObj.map
-    this.editFlag = false
-    this.marker = new BMap.Marker(new BMap.Point(bPoint.lng, bPoint.lat))
-    this.bPoint = bPoint
-    this.marker.id = bPoint.id
-    // this.createpointContextMenu()
-    // this.createPointInfowindow()
-    this.pointEvent()
-    let opts = {
-      position: new BMap.Point(bPoint.lng, bPoint.lat),    // 指定文本标注所在的地理位置
-      offset: new BMap.Size(0, 0)    // 设置文本偏移量
-    }
-    let label = new BMap.Label(bPoint.label, opts)  // 创建文本标注对象
-    label.setStyle({
-      color: 'red',
-      fontSize: '12px',
-      height: '20px',
-      lineHeight: '20px',
-      fontFamily: '微软雅黑'
-    })
-    this.handleMap.addOverlay(this.marker)
-    this.handleMap.addOverlay(label)
-  }
-
   // 创建右键菜单
   pointObj.prototype.createpointContextMenu = function () {
-    var vueobj = this.getvueHandleObj()
+    var vueobj = this.handleObj
     //   var label = this.getlabel()
     this.menu = new BMap.ContextMenu()
     var txtMenuItem = [
       {
         text: '删除',
         callback: () => {
-          vueobj.deleteOverlay(this.getMakerId())
+          vueobj.delDimHandle(this.bPoint)
         }
       },
       {
         text: '信息编辑',
         callback: () => {
-          vueobj.editOverlay(this.getMarker())
+          vueobj.addOrUpdateHandle(this.bPoint)
         }
       },
       {
         text: '移动位置',
         callback: () => {
-          if (this.geteditFlag() === false) {
-            this.changeeditFlag()
+          if (this.editFlag === false) {
+            this.editFlag = true
             this.marker.enableDragging()
           }
         }
@@ -120,16 +96,16 @@ var pointObj = function () {
       {
         text: '关闭移动',
         callback: () => {
-          if (this.geteditFlag() === true) {
-            var marker = this.getMarker().point
-            var eachPoint = this.getbPoint()
+          if (this.editFlag === true) {
+            var marker = this.marker.point
+            var eachPoint = this.bPoint
             eachPoint.lng = marker.lng
             eachPoint.lat = marker.lat
             eachPoint.labelLat = marker.lng
             eachPoint.labelLng = marker.lat
             this.handleObj.updateAfterGraEdit(eachPoint)
             this.marker.disableDragging()
-            this.changeeditFlag()
+            this.editFlag = false
           } else {
 
           }

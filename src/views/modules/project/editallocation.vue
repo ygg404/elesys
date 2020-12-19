@@ -37,7 +37,7 @@
               <el-table border :data="dataForm.billList">
                 <el-table-column prop="billName" header-align="center" align="center" label="项目">
                   <template slot-scope="scope">
-                    <el-autocomplete v-model="scope.row.billName" :fetch-suggestions="queryNameSearch" @select="((item)=>{handleNameSelect(item, scope.row.id)})" style="width: 100%">
+                    <el-autocomplete v-model="scope.row.billName" :fetch-suggestions="queryNameSearch" @select="((item)=>{handleNameSelect(item, scope.row.id)})" required="true" style="width: 100%">
                       <template slot-scope="{ item }">
                         <div class="name">{{ item.nameItem }}</div>
                       </template>

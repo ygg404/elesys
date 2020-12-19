@@ -4,8 +4,8 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" label-width="120px">
-      <el-form-item label="项目名称:" prop="projectName">
-        <el-input v-model="dataForm.projectName" placeholder="项目名称"></el-input>
+      <el-form-item label="图层名称:" prop="projectName">
+        <el-input v-model="dataForm.label" placeholder="图层名称"></el-input>
       </el-form-item>
       <el-form-item label="创建用户名:" prop="createUserName">
         <span>{{this.dataForm.createUserName}}</span>
@@ -28,35 +28,42 @@
         visible: false,
         dataForm: {
           id: 0,
-          projectName: '',
+          label: '',
           createUserId: '',
           createUserName: '',
-          createTime: ''
+          createTime: '',
+          type: 0,
+          parentId: 0
         },
         dataRule: {
-          projectName: [
-            { required: true, message: '项目名称不能为空', trigger: 'blur' }
+          labelName: [
+            { required: true, message: '图层名称不能为空', trigger: 'blur' }
+          ],
+          parentId: [
+            { required: true, message: '父类图层不能为空', trigger: 'blur' }
           ]
         }
       }
     },
     methods: {
-      init (id) {
-        this.dataForm.id = id || 0
+      init (item) {
+        this.dataForm.id = item.id || 0
+        this.dataForm.parentId = item.parentId || 0
         this.visible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].resetFields()
           if (this.dataForm.id) {
             this.$http({
-              url: this.$http.adornUrl(`/dop/bmapproject/info/${this.dataForm.id}`),
+              url: this.$http.adornUrl(`/dop/bmap/info/${this.dataForm.id}`),
               method: 'get',
               params: this.$http.adornParams()
             }).then(({data}) => {
               if (data && data.code === 0) {
-                this.dataForm.projectName = data.dopBmapProject.projectName
-                this.dataForm.createUserId = data.dopBmapProject.createUserId
-                this.dataForm.createUserName = data.dopBmapProject.createUserName
-                this.dataForm.createTime = data.dopBmapProject.createTime
+                this.dataForm.label = data.dopBmap.label
+                this.dataForm.parentId = data.dopBmap.parentId
+                this.dataForm.createUserId = data.dopBmap.createUserId
+                this.dataForm.createUserName = data.dopBmap.createUserName
+                this.dataForm.createTime = data.dopBmap.createTime
               }
             })
           }
@@ -67,14 +74,10 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
-              url: this.$http.adornUrl(`/dop/bmapproject/${!this.dataForm.id ? 'save' : 'update'}`),
+              url: this.$http.adornUrl(`/dop/bmap/${!this.dataForm.id ? 'save' : 'update'}`),
               method: 'post',
               data: this.$http.adornData({
-                'id': this.dataForm.id || undefined,
-                'projectName': this.dataForm.projectName,
-                'createUserId': this.dataForm.createUserId,
-                'createUserName': this.dataForm.createUserName,
-                'createTime': this.dataForm.createTime
+                'dopBmapEntity': this.dataForm
               })
             }).then(({data}) => {
               if (data && data.code === 0) {

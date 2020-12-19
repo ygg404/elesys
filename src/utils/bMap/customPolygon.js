@@ -1,7 +1,5 @@
 //多面线类
-import {console} from 'vuedraggable/src/util/helper'
-
-var polyGonObj = (function () {
+var polyGonObj = function () {
   //句柄
   var vueHandleObj
   // 地图对象
@@ -381,7 +379,6 @@ var polyGonObj = (function () {
     totalArea = (Sum - (Count - 2) * Math.PI) * Radius * Radius;
     return Math.abs(totalArea); // 返回总面积
   }
-
-})
+}
 
 export default polyGonObj

@@ -2,7 +2,7 @@
   <div>
     <div class="ef_line">
       <div style="display:flex;">
-        <el-button @click="addProjectHandle(null)" icon="el-icon-plus" type="success">新建项目</el-button>
+        <el-button @click="addProjectHandle(null,0)" icon="el-icon-plus" type="success">新建项目</el-button>
         <el-upload :action="upKmlUrl" style="margin-left: 10px;"
                    :limit="1"
                    name="file"
@@ -67,7 +67,7 @@
       <div class="map">
         <el-card class="map_project" :body-style="{ padding: '2px' }">
           <div slot="header" class="clearfix">
-            <div class="span_title">项目目录</div>
+            <div class="span_title">图层目录</div>
           </div>
           <el-form :inline="true" :model="dataForm" >
             <el-form-item>
@@ -77,44 +77,54 @@
           </el-form>
           <div :style="'height:' + (documentClientHeight - 400) + 'px'" class="project_ul block">
             <el-tree :data="bmapList" show-checkbox node-key="id" :props="defaultProps"  highlight-current current-node-key
-                     :expand-on-click-node="true" @node-contextmenu = "rightClickHandle" >
-              <span class="custom-tree-node" slot-scope="{ node, data }">
-                <span><i :class="data.icon"></i>{{ node.label }}</span>
-              </span>
+                     :expand-on-click-node="true" @node-contextmenu = "rightClickHandle" @node-click="rightVisible = false"
+                     :indent="0" :render-content="renderContent" default-expand-all="true">
             </el-tree>
             <!--定义菜单及菜单项的操作-->
-            <div v-show = "rightVisible" ref="rightMenu" id="rightMenu"  @mouseleave="rightVisible = false" style="display:flex;">
+            <div v-show = "rightVisible" ref="rightMenu" id="rightMenu" style="display:flex;">
               <!--主面板-->
               <el-card class="box_card" :body-style="{ padding: '3px' }">
                 <div class="text_item">
-                  <el-link :underline="false" @click="readMenuHandle"><i class="el-icon-info"></i>  <span>详情&#12288&#12288</span></el-link>
+                  <div :underline="false" @click="readMenuHandle"><i class="el-icon-info"></i>  <span>详情&#12288&#12288</span></div>
                 </div>
                 <div class="text_item">
-                  <el-link :underline="false" @click="editMenuHandle"><i class="el-icon-edit"></i>  <span>编辑&#12288&#12288</span></el-link>
+                  <div :underline="false" @click="editMenuHandle"><i class="el-icon-edit"></i>  <span>编辑&#12288&#12288</span></div>
                 </div>
-                <div class="text_item add_item_box">
+                <div class="text_item">
+                  <div :underline="false" @click="copyMenuHandle"><i class="el-icon-document-copy"></i>  <span>复制&#12288&#12288</span></div>
+                </div>
+                <div class="text_item">
+                  <div :underline="false" @click="cutMenuHandle"><i class="el-icon-scissors"></i>  <span>剪切&#12288&#12288</span></div>
+                </div>
+                <div class="text_item" :style="'display:' + (selectNode.type === 0 && !stringIsNull(copyItem.data) ? 'block': 'none')">
+                  <div :underline="false" @click="pasteMenuHandle"><i class="el-icon-copy-document"></i>  <span>粘贴&#12288&#12288</span></div>
+                </div>
+                <div class="text_item add_item_box" v-if="selectNode.type === 0">
                   <el-link :underline="false"><i class="el-icon-plus"></i>  <span>创建对象 》</span></el-link>
                   <!--副面板 添加元素-->
                   <el-card class="box_card add_item" :body-style="{ padding: '3px' }">
                     <div class="text_item">
-                      <el-link :underline="false" @click="readMenuHandle"><i class="el-icon-location"></i><span>创建点对象</span></el-link>
+                      <div :underline="false" @click="addProjectHandle(null,selectNode.id)"><i class="el-icon-tickets"></i><span>创建图层</span></div>
                     </div>
                     <div class="text_item">
-                      <el-link :underline="false" @click="editMenuHandle"><i class="el-icon-s-marketing"></i>  <span>创建线对象</span></el-link>
+                      <div :underline="false" @click="drawPoint()"><i class="el-icon-location"></i><span>创建点对象</span></div>
                     </div>
                     <div class="text_item">
-                      <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-picture"></i>  <span>创建面对象</span></el-link>
+                      <div :underline="false" @click="drawPolyline()"><i class="el-icon-s-marketing"></i>  <span>创建线对象</span></div>
+                    </div>
+                    <div class="text_item">
+                      <div :underline="false" @click="drawPolygon()"><i class="el-icon-picture"></i>  <span>创建面对象</span></div>
                     </div>
                   </el-card>
                 </div>
                 <div class="text_item">
-                  <el-link :underline="false" @click="deleteMenuHandle"><i class="el-icon-delete"></i>  <span>删除&#12288&#12288</span></el-link>
+                  <div :underline="false" @click="deleteMenuHandle"><i class="el-icon-delete"></i>  <span>删除&#12288&#12288</span></div>
                 </div>
                 <div class="text_item">
-                  <el-link :underline="false" @click="exportWordHandle"><i class="el-icon-printer"></i>  <span>导出Word</span></el-link>
+                  <div :underline="false" @click="exportWordHandle"><i class="el-icon-printer"></i>  <span>导出Word</span></div>
                 </div>
                 <div class="text_item">
-                  <el-link :underline="false" @click="exportKMLHandle"><i class="el-icon-printer"></i>  <span>导出KML</span></el-link>
+                  <div :underline="false" @click="exportKMLHandle"><i class="el-icon-printer"></i>  <span>导出KML</span></div>
                 </div>
               </el-card>
 
@@ -172,8 +182,16 @@
         BMap: '',
         map: '',
         activeNames: [],
-        selectNode: {},  // 被选中的节点
+        selectNode: {
+          id: '',
+          type: ''
+        },  // 被选中的节点
+        searchMarker: '',   // 搜索地址
         selectItem: {},  // 查看详情
+        copyItem: {
+          data: '',
+          type: ''
+        },  // 复制剪切对象(数据集、类型剪切粘贴)
         menuVisible: false,
         rightVisible: false,
         drawingManager: '',
@@ -303,6 +321,7 @@
             default:
               return
           }
+          item.parentId = that.selectNode.id
           that.addOrUpdateHandle(item)
           that.drawingManager.close()
           that.map.removeOverlay(e.overlay)
@@ -317,6 +336,24 @@
         })
 
       },
+      // 树状显示列表
+      renderContent (h, {node, data, store}) {
+        // 高亮显示
+        let flag = (this.dataForm.labelName.trim() !== '') && (data.label.indexOf(this.dataForm.labelName.trim()) !== -1)
+        return h('span', {
+          domProps: {
+            className: data.parentId === 0 ? 'main_ul fh' : 'other_ul fh'
+          },
+          id: data.id,
+          style: {
+            color: flag ? 'white' : '',
+            backgroundColor: flag ? 'red' : ''
+          }
+        }, [h('i', {
+          domProps: {
+            className: data.icon
+          }}), data.label])
+      },
       // 获取所有标注列表
       getBampList () {
         return new Promise((resolve, reject) => {
@@ -326,7 +363,7 @@
             params: this.$http.adornParams({
               'page': this.pageIndex,
               'limit': this.pageSize,
-              'key': this.dataForm.labelName,
+              'key': this.dataForm.labelName.trim(),
               'sidx': this.dataForm.sidx,
               'order': this.dataForm.order
             })
@@ -357,22 +394,27 @@
       // 地址搜索
       searchPlaceHandle () {
         let that = this
-        // this.map.clearOverlays()    // 清除地图上所有覆盖物
+        this.map.removeOverlay(this.searchMarker)    // 清除地图上所有覆盖物
         var local = new BMap.LocalSearch(this.map, { // 智能搜索
           onSearchComplete: function (e) {
+            let myIcon = new BMap.Icon(
+              require('@/assets/img/mapImg/pos.png'),
+              new BMap.Size(34, 34)
+            )
             let searchPoint = local.getResults().getPoi(0).point
             that.map.centerAndZoom(searchPoint, 16)
-            that.map.addOverlay(new BMap.Marker(searchPoint))    // 添加标注
+            that.searchMarker = new BMap.Marker(searchPoint,{ icon: myIcon })
+            that.map.addOverlay(that.searchMarker)    // 添加标注
           }
         })
         local.search(this.dataForm.key)
 
-        new html2canvas(document.getElementById('mapId'), {})
-          .then((canvas) => {
-            console.log(canvas)
-            let imgData = canvas.toDataURL('image/png') // 将canvas转成base64图片格式
-            console.log(imgData)
-          })
+        // new html2canvas(document.getElementById('mapId'), {})
+        //   .then((canvas) => {
+        //     console.log(canvas)
+        //     let imgData = canvas.toDataURL('image/png') // 将canvas转成base64图片格式
+        //     console.log(imgData)
+        //   })
       },
       // 绘制标注点
       drawPoint () {
@@ -401,29 +443,6 @@
         this.menuVisible = false
         this.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON)
         this.drawingManager.open()
-      },
-      // 根据经纬度范围获取标注列表
-      getBampLabelList () {
-        return new Promise((resolve, reject) => {
-          let bounds = this.map.getBounds()
-          this.$http({
-            url: this.$http.adornUrl('/dop/bmap/list'),
-            method: 'get',
-            params: this.$http.adornParams({
-              'minlng': bounds.Ne,
-              'maxlng': bounds.Je,
-              'minlat': bounds.Zd,
-              'maxlat': bounds.Xd
-            })
-          }).then(({data}) => {
-            this.dataListLoading = false
-            if (data && data.code === 0) {
-              resolve(data.list)
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
       },
       // 获取标注数据并绘制
       getDataList () {
@@ -486,20 +505,21 @@
         let menu = document.querySelector('#rightMenu')
         let rect = element.$el.getClientRects()[0]
         menu.style.cssText = 'position: fixed; left: ' + (rect.right - 100) + 'px' + '; top: ' + rect.top + 'px; z-index: 999; cursor:pointer;'
-        this.selectNode = value
+        this.selectNode = value.data
+
       },
       // 查看详情
       readMenuHandle () {
-        switch (this.selectNode.data.type) {
+        switch (this.selectNode.type) {
           // 点标注 // 线标注 // 面标注 则地图中心跳到 该标注中心
           case 1:
           case 2:
           case 3:
-            let point = new BMap.Point(this.selectNode.data.lng, this.selectNode.data.lat)   // 设置默认的坐标
+            let point = new BMap.Point(this.selectNode.lng, this.selectNode.lat)   // 设置默认的坐标
             this.map.centerAndZoom(point, 17)  // 初始化地图,设置中心点坐标和地图级别
             this.menuVisible = true
             this.activeNames = ['2']
-            this.selectItem = this.selectNode.data
+            this.selectItem = this.selectNode
             break
           // 项目属性
           default:
@@ -510,38 +530,69 @@
       },
       // 右键菜单 编辑事件
       editMenuHandle () {
-        switch (this.selectNode.data.type) {
+        switch (this.selectNode.type) {
           // 点标注 // 线标注 // 面标注
           case 1:
           case 2:
           case 3:
-            this.addOrUpdateHandle(this.selectNode.data)
+            this.addOrUpdateHandle(this.selectNode)
             break
           // 项目属性
           default:
-            this.addProjectHandle(this.selectNode.data.id)
+            this.addProjectHandle(this.selectNode.id)
             break
         }
+      },
+      // 右键菜单 复制事件
+      copyMenuHandle () {
+        this.copyItem.data = this.selectNode
+        this.copyItem.type = 'copy'
+      },
+      // 右键菜单 剪切事件
+      cutMenuHandle () {
+        this.copyItem.data = this.selectNode
+        this.copyItem.type = 'cut'
+      },
+      // 右键菜单 粘贴事件
+      pasteMenuHandle () {
+        let pasteItem = {
+          'id': this.copyItem.data.id,
+          'parentId': this.selectNode.id
+        }
+        let tip = '是否将【' + this.copyItem.data.label + '】|PASTETYPE|【' + this.selectNode.label + '】目录下'
+        switch (this.copyItem.type) {
+          case 'cut':
+            this.$confirm(tip.replace('|PASTETYPE|', '移动至'), '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.updateAfterGraEdit(pasteItem)
+              this.copyItem.data = ''
+            })
+            break
+          case 'copy':
+            this.$confirm(tip.replace('|PASTETYPE|', '复制到'), '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.copyAfterGraEdit(pasteItem)
+              this.copyItem.data = ''
+            })
+            break
+          default:
+            break
+        }
+
       },
       // 右键菜单 删除事件
       deleteMenuHandle () {
-        switch (this.selectNode.data.type) {
-          // 点标注 线标注 面标注
-          case 1:
-          case 2:
-          case 3:
-            this.delDimHandle(this.selectNode.data)
-            break
-          // 项目属性
-          default:
-            this.delProjectHandle(this.selectNode.data)
-            break
-        }
+        this.delDimHandle(this.selectNode)
       },
       // 右键菜单 导出Word 文件
       exportWordHandle () {
-        let bmapId = this.selectNode.data.id
-        console.log(bmapId)
+        let bmapId = this.selectNode.id
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/dop/bmap/exportWord'),
@@ -556,7 +607,7 @@
           responseType: 'blob'
         }).then(({data}) => {
           console.log(data)
-          let projectName = this.selectNode.data.label
+          let projectName = this.selectNode.label
           var downloadElement = document.createElement('a')
           var href = window.URL.createObjectURL(data) // 创建下载的链接
           downloadElement.href = href
@@ -570,7 +621,7 @@
       },
       // 右键菜单 导出Kml 文件
       exportKMLHandle () {
-        let id = this.selectNode.data.id
+        let id = this.selectNode.id
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl(`/dop/bmap/exportKML/${id}`),
@@ -583,7 +634,7 @@
           responseType: 'blob'
         }).then(({data}) => {
           console.log(data)
-          let projectName = this.selectNode.data.projectName
+          let projectName = this.selectNode.projectName
           var downloadElement = document.createElement('a')
           var href = window.URL.createObjectURL(data) // 创建下载的链接
           downloadElement.href = href
@@ -601,18 +652,29 @@
           url: this.$http.adornUrl('/dop/bmap/update'),
           method: 'post',
           data: this.$http.adornData({
-            'id': eachPoint.id,
-            'labelLng': eachPoint.labelLng,
-            'labelLat': eachPoint.labelLat,
-            'lng': eachPoint.lng,
-            'lat': eachPoint.lat,
-            'coordinate': eachPoint.coordinate,
-            'area': eachPoint.area,
+            'dopBmapEntity': eachPoint
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
             this.visible = false
-            this.$emit('refreshDataList')
+            this.getDataList()
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
+      // 图形编辑之后执行的数据库更新操作
+      copyAfterGraEdit (pasteItem) {
+        this.$http({
+          url: this.$http.adornUrl('/dop/bmap/copy'),
+          method: 'get',
+          params: this.$http.adornParams({
+            'id': pasteItem.id,
+            'pId': pasteItem.parentId
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.getDataList()
           } else {
             this.$message.error(data.msg)
           }
@@ -626,16 +688,19 @@
         })
       },
       // 新增 / 修改 项目
-      addProjectHandle (projectId) {
+      addProjectHandle (id,pId) {
+        let item = {
+          id: id,
+          parentId: pId
+        }
         this.mproVisible = true
         this.$nextTick(() => {
-          this.$refs.mapProjectAddOrUpdate.init(projectId)
+          this.$refs.mapProjectAddOrUpdate.init(item)
         })
       },
       // 删除标注点事件
       delDimHandle (item) {
-        console.log(item)
-        let tip = '此操作将永久删除名称为  [' + item.label + ']   的标注点信息, 是否继续?'
+        let tip = '此操作将永久删除名称为  [' + item.label + ']   的' + (item.type === 0 ? '项目' : '标注点') + '信息, 是否继续?'
         this.$confirm(tip, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -643,31 +708,6 @@
         }).then(() => {
           this.$http({
             url: this.$http.adornUrl(`/dop/bmap/delete/${item.id}`),
-            method: 'get'
-          }).then(({data}) => {
-            if (data && data.code === 0) {
-              this.$message({
-                message: '删除成功',
-                type: 'success',
-                duration: 1500
-              })
-              this.getDataList()
-            } else {
-              this.$message.error(data.msg)
-            }
-          })
-        })
-      },
-      // 删除项目事件
-      delProjectHandle (item) {
-        let tip = '此操作将永久删除名称为  [' + item.projectName + ']   的项目信息及其以下标注点信息, 是否继续?'
-        this.$confirm(tip, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$http({
-            url: this.$http.adornUrl(`/dop/bmapproject/delete/${item.id}`),
             method: 'get'
           }).then(({data}) => {
             if (data && data.code === 0) {
@@ -699,6 +739,30 @@
     }
   }
 </script>
+
+<style>
+  .fh{
+    display: inline-block;
+    max-width:220px;
+    word-wrap:break-word;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+  }
+  .fh:hover{
+    white-space:normal;
+    overflow:auto;
+    color: #0000ff;
+  }
+  .main_ul {
+    color: #00a0e9;
+    font-weight: 700;
+    font-size: 13pt;
+  }
+  .other_ul {
+    font-size: 10pt;
+  }
+</style>
 
 <style lang="scss" scoped>
   @import "src/assets/scss/_variables.scss";
@@ -783,7 +847,7 @@
     font-size: 11pt;
     position:absolute;
     left:115px;
-    top:60px;
+    top:100px;
     min-width:138px;
     display: none;
   }
@@ -828,7 +892,7 @@
     margin-left: 5px;
   }
   .map_project {
-    width: 268px;
+    width: 275px;
     display: inline-block;
   }
   .map .span_title {
@@ -838,7 +902,67 @@
   .map .project_ul {
     overflow-y: auto;
     -ms-overflow-y: auto;
+    overflow-x: hidden;
     font-size: 11pt;
+  }
+  .map .project_ul /deep/{
+    .el-tree > .el-tree-node:after {
+      border-top: none;
+    }
+    .el-tree-node {
+      position: relative;
+      padding-left: 0px;
+    }
+    //节点有间隙，隐藏掉展开按钮就好了,如果觉得空隙没事可以删掉
+    .el-tree-node__expand-icon.is-leaf{
+      display: none;
+    }
+    .el-tree-node__children {
+      padding-left: 16px;
+    }
+
+    .el-tree-node :last-child:before {
+      height: 38px;
+    }
+
+    .el-tree > .el-tree-node:before {
+      border-left: none;
+    }
+
+    .el-tree > .el-tree-node:after {
+      border-top: none;
+    }
+
+    .el-tree-node:before {
+      content: "";
+      left: -4px;
+      position: absolute;
+      right: auto;
+      border-width: 1px;
+    }
+
+    .el-tree-node:after {
+      content: "";
+      left: -4px;
+      position: absolute;
+      right: auto;
+      border-width: 1px;
+    }
+
+    .el-tree-node:before {
+      border-left: 1px dashed rgba($--color-primary,0.7);
+      bottom: 0px;
+      height: 100%;
+      top: -26px;
+      width: 1px;
+    }
+
+    .el-tree-node:after {
+      border-top: 1px dashed rgba($--color-primary,0.7);
+      height: 20px;
+      top: 12px;
+      width: 11px;
+    }
   }
   .map .project_ul .el-tree-node__content {
     .el-checkbox .el-checkbox__inner{

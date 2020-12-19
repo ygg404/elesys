@@ -281,8 +281,7 @@
           createUserName: '',
           createTime: '',
           modifyTime: '',
-          projectId: '',
-          projectName: ''
+          parentId: ''
         },
         dataRule: {
           label: [
@@ -346,11 +345,10 @@
                 this.dataForm.createUserName = data.dopBmap.createUserName
                 this.dataForm.createTime = data.dopBmap.createTime
                 this.dataForm.modifyTime = data.dopBmap.modifyTime
-                this.dataForm.projectId = data.dopBmap.projectId
-                this.dataForm.projectName = data.dopBmap.projectName
-                this.imgFar = window.SITE_CONFIG['uploadUrl'] + data.dopBmap.photoFar
-                this.imgScene = window.SITE_CONFIG['uploadUrl'] + data.dopBmap.photoScene
-                this.imgTrans = window.SITE_CONFIG['uploadUrl'] + data.dopBmap.imgTrans
+                this.dataForm.parentId = data.dopBmap.parentId
+                this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.photoFar
+                this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.photoScene
+                this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.transImg
               }
             })
           } else {
@@ -396,6 +394,7 @@
             this.dataForm.type = item.type
             this.dataForm.labelLng = item.labelLng
             this.dataForm.labelLat = item.labelLat
+            this.dataForm.parentId = item.parentId
             this.findLocationName(item.labelLng , item.labelLat)
           }
         })
@@ -507,7 +506,6 @@
         html2canvas(this.$el.parentElement.querySelector('#mapId'), {})
           .then((canvas) => {
             let imgData = canvas.toDataURL('image/png') // 将canvas转成base64图片格式
-            console.log(imgData)
           })
       },
       upImgToApi (rst, imgType) {
@@ -528,12 +526,15 @@
             switch (imgType) {
               case 'trans':
                 this.dataForm.transImg = data.imgPath
+                this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.imgPath
                 break
               case 'scene':
                 this.dataForm.photoScene = data.imgPath
+                this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.imgPath
                 break
               case 'far':
                 this.dataForm.photoFar = data.imgPath
+                this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.imgPath
                 break
               default:
                 break
