@@ -1,108 +1,64 @@
-//多面线类
-import {console} from 'vuedraggable/src/util/helper'
+// 线类
+import {stringIsNull} from '../index'
 
-var polyLineObj = (function () {
-  //句柄
-  var vueHandleObj
+var polyLineObj = function () {
+  // 句柄
+  var handleObj
   // 地图对象
-  var vueHandleMap
-  //多面线
+  var handleMap
+  // 线
   var polyLine
-  //信息窗口
+  // 信息窗口
   // var infoBox;
-  //标题
+  // 标题
   var title
-  //标签
+  // 标签
   var label
-  //右键菜单
+  // 右键菜单
   var menu
-  //图形编辑标识
+  // 图形编辑标识
   var editFlag
-  //存放和数据库交互的数据
-  var bPoint = {
-    area: null,
-    coordinate: null,
-    createTime: null,
-    createUserId: null,
-    createUserName: null,
-    id: null,
-    label: null,
-    labelLat: null,
-    labelLng: null,
-    lat: null,
-    lng: null,
-    modifyTime: null,
-    remark: null,
-    type: null
-  }
+  // 存放和数据库交互的数据
+  var bPoint
 
-  var graUpdateFlag = false
-  polyLineObj.prototype.getbPoint = function () {
-    return this.bPoint
-  }
-
-  polyLineObj.prototype.geteditFlag = function () {
-    return this.editFlag
-  }
-  polyLineObj.prototype.changeeditFlag = function () {
-    this.editFlag = !this.editFlag
-  }
-  polyLineObj.prototype.getpolyLine = function () {
-    return this.polyLine
-  }
-  polyLineObj.prototype.getpolyLineId = function () {
-    return this.polyLine.id
-  }
-  polyLineObj.prototype.changeCoordinate = function (coordinate) {
-    this.bPoint.coordinate = coordinate
-  }
-  polyLineObj.prototype.changeArea = function (area) {
-    this.bPoint.area = area
-  }
-  polyLineObj.prototype.getlabel = function () {
-    return this.label
-  }
-  polyLineObj.prototype.getvueHandleObj = function () {
-    return this.vueHandleObj
-  }
-  polyLineObj.prototype.getvueHandleMap = function () {
-    return this.vueHandleMap
-  }
-  polyLineObj.prototype.setTitle = function (title) {
-    this.title = title
-  }
-  polyLineObj.prototype.getTitle = function () {
-    return this.title
-  }
-
-  // 构造
-  polyLineObj.prototype.createpolyLineObj = function (bPoint, polyList, vueObj) {
-    this.vueHandleObj = vueObj
-    this.vueHandleMap = vueObj.map
+  // 初始化
+  polyLineObj.prototype.init = function (bPoint, vueObj) {
+    this.handleObj = vueObj
+    this.handleMap = vueObj.map
+    this.bPoint = bPoint
     this.editFlag = false
+    // 创建线段
+    let polyList = []
+    let corlist = bPoint.coordinate.split(';')
+    for (let cor of corlist) {
+      if (!stringIsNull(cor)) {
+        let point = cor.split(',')
+        polyList.push(new BMap.Point(point[0], point[1]))
+      }
+    }
     // 线段样式
     var linestyle = {strokeColor: 'red', strokeWeight: 4, strokeOpacity: 0.7, fillColor: '#db8385'}
     this.polyLine = new BMap.Polyline(polyList, linestyle)
-    this.bPoint = bPoint
     this.polyLine.id = bPoint.id
-    this.createpolyLineContextMenu()
-    this.polyLineEvent()
-    this.vueHandleMap.addOverlay(this.getpolyLine())
 
+    this.handleMap.addOverlay(this.polyLine)
     // 标题
     let opts = {
       position: new BMap.Point(bPoint.lng, bPoint.lat),    // 指定文本标注所在的地理位置
       offset: new BMap.Size(0, 0)    // 设置文本偏移量
     }
-    let label = new BMap.Label(bPoint.label, opts)  // 创建文本标注对象
-    label.setStyle({
+    this.label = new BMap.Label(bPoint.label, opts)  // 创建文本标注对象
+    this.label.setStyle({
       color: 'red',
       fontSize: '12px',
       height: '20px',
       lineHeight: '20px',
       fontFamily: '微软雅黑'
     })
-    this.vueHandleMap.addOverlay(label)
+    this.handleMap.addOverlay(this.label)
+
+    this.createpolyLineContextMenu()
+    // this.polyLineEvent()
   }
 
   // 创建自定义标签 bPoint参数 数据库传过来
@@ -135,8 +91,6 @@ var polyLineObj = (function () {
   }
 
   polyLineObj.prototype.polyGonEvent = function () {
-    var label = this.getlabel()
-    var objbpoint = this.getbPoint()
     this.polygon.addEventListener('mouseover', function () {
 
     })
@@ -145,29 +99,27 @@ var polyLineObj = (function () {
     })
   }
 
-  //创建右键菜单
+  // 创建右键菜单
   polyLineObj.prototype.createpolyLineContextMenu = function () {
-    var vueobj = this.getvueHandleObj()
-    var label = this.getlabel()
     this.menu = new BMap.ContextMenu()
     var txtMenuItem = [
       {
         text: '删除',
         callback: () => {
-          vueobj.deleteOverlay(this.getpolyLineId())
+          this.handleObj.delDimHandle(this.bPoint)
         }
       },
       {
         text: '信息编辑',
         callback: () => {
-          vueobj.editOverlay(this.getpolyLine())
+          this.handleObj.addOrUpdateHandle(this.bPoint)
         }
       },
       {
         text: '开启图形编辑',
         callback: () => {
-          if (this.geteditFlag() == false) {
-            this.changeeditFlag()
+          if (this.editFlag === false) {
+            this.editFlag = true
             this.polyLine.enableEditing()
           }
         }
@@ -175,9 +127,9 @@ var polyLineObj = (function () {
       {
         text: '关闭图形编辑',
         callback: () => {
-          if (this.geteditFlag() == true) {
+          if (this.editFlag === true) {
             // 覆盖物围成坐标路径
-            var anginpolyList = this.getpolyLine().getPath()
+            var anginpolyList = this.polyLine.getPath()
             var anginx = 0
             var anginy = 0
             var anginangincoordinate = ''
@@ -193,8 +145,8 @@ var polyLineObj = (function () {
             anginx = (anginx / anginpolyList.length).toFixed(6)
             anginy = (anginy / anginpolyList.length).toFixed(6)
 
-            var eachPoint = this.getbPoint()
-            //交互 更改 中心坐标 坐标系数组 面积 标签坐标
+            var eachPoint = this.bPoint
+            // 交互 更改 中心坐标 坐标系数组 面积 标签坐标
             eachPoint.lng = anginx
             eachPoint.lat = anginy
             eachPoint.coordinate = anginangincoordinate
@@ -202,11 +154,10 @@ var polyLineObj = (function () {
             eachPoint.labelLat = anginlabelLat
             eachPoint.labelLng = anginlabelLng
 
-            this.vueHandleObj.updateAfterGraEdit(eachPoint)
+            this.handleObj.updateAfterGraEdit(eachPoint)
 
             this.polyLine.disableEditing()
-            // alert("执行了先打开再关闭的操作")
-            this.changeeditFlag()
+            this.editFlag = false
           } else {
             // alert("没有执行此操作")
           }
@@ -216,7 +167,7 @@ var polyLineObj = (function () {
     for (var i = 0; i < txtMenuItem.length; i++) {
       this.menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100))
     }
-
+    // this.label.addContextMenu(this.menu)
     this.polyLine.addContextMenu(this.menu)
   }
 
@@ -234,6 +185,6 @@ var polyLineObj = (function () {
     })
   }
 
-})
+}
 
 export default polyLineObj

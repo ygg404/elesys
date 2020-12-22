@@ -124,7 +124,7 @@
         personVisible: false,
       }
     },
-    activated () {
+    mounted () {
       this.dataForm.curTime = new Date()
       this.init()
     },

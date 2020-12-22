@@ -111,7 +111,7 @@
       AddOrUpdate,
       ProjectAddOrUpdate
     },
-    activated () {
+    mounted () {
       this.pageSize = 25
       this.pageIndex = 1
       this.dataForm.startDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)

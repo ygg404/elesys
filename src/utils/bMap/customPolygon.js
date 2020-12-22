@@ -1,85 +1,42 @@
-//多面线类
+// 面类
+import {stringIsNull} from '../index'
+
 var polyGonObj = function () {
-  //句柄
-  var vueHandleObj
+  // 句柄
+  var handleObj
   // 地图对象
-  var vueHandleMap
-  //多面线
+  var handleMap
+  // 面
   var polygon
-  //信息窗口
-  // var infoBox;
-  //标题
+  // 信息窗口
+  var infoBox;
+  // 标题
   var title
-  //标签
+  // 标签
   var label
   //右键菜单
   var menu
   //图形编辑标识
   var editFlag
-  //存放和数据库交互的数据
-  var bPoint = {
-    area: null,
-    coordinate: null,
-    createTime: null,
-    createUserId: null,
-    createUserName: null,
-    id: null,
-    label: null,
-    labelLat: null,
-    labelLng: null,
-    lat: null,
-    lng: null,
-    modifyTime: null,
-    remark: null,
-    type: null
-  }
+  // 存放和数据库交互的数据
+  var bPoint
 
-  var graUpdateFlag = false
-  polyGonObj.prototype.getbPoint = function () {
-    return this.bPoint
-  }
-
-  polyGonObj.prototype.geteditFlag = function () {
-    return this.editFlag
-  }
-  polyGonObj.prototype.changeeditFlag = function () {
-    this.editFlag = !this.editFlag
-  }
-  polyGonObj.prototype.getPolyGon = function () {
-    return this.polygon
-  }
-  polyGonObj.prototype.getpolyGonId = function () {
-    return this.polygon.id
-  }
-  polyGonObj.prototype.changeCoordinate = function (coordinate) {
-    this.bPoint.coordinate = coordinate
-  }
-  polyGonObj.prototype.changeArea = function (area) {
-    this.bPoint.area = area
-  }
-  polyGonObj.prototype.getlabel = function () {
-    return this.label
-  }
-  polyGonObj.prototype.getvueHandleObj = function () {
-    return this.vueHandleObj
-  }
-  polyGonObj.prototype.getvueHandleMap = function () {
-    return this.vueHandleMap
-  }
-  polyGonObj.prototype.setTitle = function (title) {
-    this.title = title
-  }
-  polyGonObj.prototype.getTitle = function () {
-    return this.title
-  }
-
-  //构造
-  polyGonObj.prototype.createpolyGonObj = function (bPoint, polyList, vueObj) {
-    this.vueHandleObj = vueObj
-    this.vueHandleMap = vueObj.map
+  // 构造
+  polyGonObj.prototype.init = function (bPoint, vueObj) {
+    this.handleObj = vueObj
+    this.handleMap = vueObj.map
     this.editFlag = false
     this.bPoint = bPoint
-    //线段样式
+    let polyList = []
+    // 创建多边形
+    let corlist = bPoint.coordinate.split(';')
+    for (let cor of corlist) {
+      if (!stringIsNull(cor)) {
+        let point = cor.split(',')
+        polyList.push(new BMap.Point(point[0],point[1]))
+      }
+    }
+    // 线段样式
     var linestyle = {
       strokeColor: '#db2311',   // 边线颜色
       fillColor: '#db8385',     // 填充颜色。当参数为空时，圆形没有填充颜色
@@ -89,11 +46,8 @@ var polyGonObj = function () {
     }
     this.polygon = new BMap.Polygon(polyList, linestyle)
     this.polygon.id = bPoint.id
-
-    this.polyGonEvent()
-    this.createpolyGonContextMenu()
-    this.vueHandleMap.addOverlay(this.getPolyGon())
-
+    // this.polyGonEvent()
+    this.handleMap.addOverlay(this.polygon)
     // 标题
     let opts = {
       position: new BMap.Point(bPoint.lng, bPoint.lat),    // 指定文本标注所在的地理位置
@@ -107,7 +61,9 @@ var polyGonObj = function () {
       lineHeight: '20px',
       fontFamily: '微软雅黑'
     })
-    this.vueHandleMap.addOverlay(label)
+    this.handleMap.addOverlay(label)
+
+    this.createpolyGonContextMenu()
   }
 
   //创建自定义标签 bPoint参数 数据库传过来
@@ -148,20 +104,20 @@ var polyGonObj = function () {
 
   //创建右键菜单
   polyGonObj.prototype.createpolyGonContextMenu = function () {
-    var vueobj = this.getvueHandleObj()
-    var label = this.getlabel()
+    var vueobj = this.handleObj
+    var label = this.label
     this.menu = new BMap.ContextMenu()
     var txtMenuItem = [
       {
         text: '删除',
         callback: () => {
-          vueobj.deletePolyGonOverlay(this.getpolyGonId())
+          vueobj.delDimHandle(this.bPoint)
         }
       },
       {
         text: '信息编辑',
         callback: () => {
-          vueobj.editOverlay(this.getPolyGon())
+          vueobj.addOrUpdateHandle(this.bPoint)
         }
       },
       {
@@ -173,8 +129,8 @@ var polyGonObj = function () {
       {
         text: '开启图形编辑',
         callback: () => {
-          if (this.geteditFlag() == false) {
-            this.changeeditFlag()
+          if (this.editFlag === false) {
+            this.editFlag = true
             this.polygon.enableEditing()
           }
         }
@@ -182,16 +138,16 @@ var polyGonObj = function () {
       {
         text: '关闭图形编辑',
         callback: () => {
-          if (this.geteditFlag() == true) {
-            //覆盖物围成坐标路径
-            var anginpolyList = this.getPolyGon().getPath()
+          if (this.editFlag === true) {
+            // 覆盖物围成坐标路径
+            var anginpolyList = this.polygon.getPath()
             var anginx = 0
             var anginy = 0
             var anginangincoordinate = ''
             var anginlabelLng = anginpolyList[anginpolyList.length - 1].lng
             var anginlabelLat = anginpolyList[anginpolyList.length - 1].lat
 
-            var anginarea = this.calculationArea(this.getPolyGon())
+            var anginarea = this.calculationArea(this.polygon)
             for (let item of anginpolyList) {
               //坐标系数组
               anginangincoordinate += item.lng + ',' + item.lat + ';'
@@ -202,8 +158,8 @@ var polyGonObj = function () {
             anginx = (anginx / anginpolyList.length).toFixed(6)
             anginy = (anginy / anginpolyList.length).toFixed(6)
 
-            var eachPoint = this.getbPoint()
-            //交互 更改 中心坐标 坐标系数组 面积 标签坐标
+            var eachPoint = this.bPoint
+            // 交互 更改 中心坐标 坐标系数组 面积 标签坐标
             eachPoint.lng = anginx
             eachPoint.lat = anginy
             eachPoint.coordinate = anginangincoordinate
@@ -211,11 +167,11 @@ var polyGonObj = function () {
             eachPoint.labelLat = anginlabelLat
             eachPoint.labelLng = anginlabelLng
 
-            this.vueHandleObj.updateAfterGraEdit(eachPoint)
+            this.handleObj.updateAfterGraEdit(eachPoint)
 
             this.polygon.disableEditing()
             // alert("执行了先打开再关闭的操作")
-            this.changeeditFlag()
+            this.editFlag = false
           } else {
             // alert("没有执行此操作")
           }

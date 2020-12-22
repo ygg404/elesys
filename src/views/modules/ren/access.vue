@@ -101,7 +101,7 @@
       AddOrUpdate,
       accessuserAddOrUpdate
     },
-    activated () {
+    mounted () {
       this.init()
     },
     methods: {
