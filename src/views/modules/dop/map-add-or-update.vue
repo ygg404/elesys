@@ -103,7 +103,7 @@
             </el-collapse-item>
             <el-collapse-item name="3">
               <template slot="title">
-                <span class="title_span">点之记</span>
+                  <div class="title_span">点之记</div>
               </template>
               <el-card>
                 <table border="1" cellspacing="0">
@@ -212,6 +212,23 @@
                     <td class="td_span" colspan="2"><el-input v-model="dataForm.checkMan" size="small"></el-input></td>
                   </tr>
                 </table>
+                <!-- 上传的word文件-->
+                <el-form-item label="上传Word文件:" prop="wordFile">
+                  <el-upload :action="upBmapWordUrl"
+                             :limit="1"
+                             name="file"
+                             ref="upload"
+                             accept=".doc,.docx"
+                             :headers="tokenHeaders"
+                             :before-upload="handleBeforeUpload"
+                             :on-success="handleSuccess"
+                             :on-error="handleError">
+                    <el-button size="small" plain type="primary">选择文件</el-button>
+                    <div slot="tip" style="color: dodgerblue" v-if="!stringIsNull(dataForm.wordFile)">
+                      已上传文件:<el-tag closable @close="dataForm.wordFile = ''">{{dataForm.wordFile}}</el-tag>
+                    </div>
+                  </el-upload>
+                </el-form-item>
               </el-card>
             </el-collapse-item>
           </el-collapse>
@@ -232,6 +249,7 @@
   import moment from 'moment'
   import html2canvas from 'html2canvas'
   import lrz from 'lrz'
+  import Vue from 'vue'
 
   export default {
     data () {
@@ -277,12 +295,15 @@
           remark: '',
           authMan: '',
           checkMan: '',
+          wordFile: '',
           createUserId: '',
           createUserName: '',
           createTime: '',
           modifyTime: '',
           parentId: ''
         },
+        upBmapWordUrl: window.SITE_CONFIG['baseUrl'] + '/dop/bmap/upBmapWord/',  // 点之记word上传地址
+        tokenHeaders: { token: Vue.cookie.get('token') },  // token请求
         dataRule: {
           label: [
             { required: true, message: '名称不能为空', trigger: 'blur' }
@@ -346,6 +367,7 @@
                 this.dataForm.createTime = data.dopBmap.createTime
                 this.dataForm.modifyTime = data.dopBmap.modifyTime
                 this.dataForm.parentId = data.dopBmap.parentId
+                this.dataForm.wordFile = data.dopBmap.wordFile
                 this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.photoFar
                 this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.photoScene
                 this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.transImg
@@ -543,7 +565,20 @@
             this.$message.error(data.msg)
           }
         })
-      }
+      },
+      // 文件上传成功时的钩子
+      handleSuccess (res, file, fileList) {
+        console.log(res.fileName)
+        this.dataForm.wordFile = res.fileName
+        this.$message({
+          message: '文件上传成功',
+          type: 'success',
+          duration: 1500,
+          onClose: () => {
+            this.$refs.upload.clearFiles()
+          }
+        })
+      },
     }
   }
 </script>

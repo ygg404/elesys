@@ -185,31 +185,7 @@
       // 右键菜单 导出Word 文件
       exportWordHandle () {
         let bmapId = this.selectNode.id
-        this.dataListLoading = true
-        this.$http({
-          url: this.$http.adornUrl('/dop/bmap/exportWord'),
-          method: 'get',
-          params: this.$http.adornParams({
-            bmapId: bmapId
-          }),
-          withCredentials: false, // 允许携带cookie
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-          },
-          responseType: 'blob'
-        }).then(({data}) => {
-          console.log(data)
-          let projectName = this.selectNode.label
-          var downloadElement = document.createElement('a')
-          var href = window.URL.createObjectURL(data) // 创建下载的链接
-          downloadElement.href = href
-          downloadElement.download = projectName + '.zip' // 下载后文件名
-          document.body.appendChild(downloadElement)
-          downloadElement.click() // 点击下载
-          document.body.removeChild(downloadElement) // 下载完成移除元素
-          window.URL.revokeObjectURL(href) // 释放掉blob对象
-          this.dataListLoading = false
-        })
+        this.vueObj.exportWordHandle(bmapId)
       },
       // 右键菜单 导入Kml 文件
       importKMLHandle (e) {
@@ -236,6 +212,7 @@
               this.$message.error(data.msg)
             }
           })
+          e.target.value = null
         }
       },
       // 右键菜单 导出Kml 文件
@@ -255,7 +232,7 @@
           var downloadElement = document.createElement('a')
           var href = window.URL.createObjectURL(data) // 创建下载的链接
           downloadElement.href = href
-          downloadElement.download = this.selectNode.label + '.kml' // 下载后文件名
+          downloadElement.download = this.selectNode.label + '-JX.kml' // 下载后文件名
           document.body.appendChild(downloadElement)
           downloadElement.click() // 点击下载
           document.body.removeChild(downloadElement) // 下载完成移除元素
@@ -273,6 +250,7 @@
     box-shadow: 5px 0px 5px $navbar--background-color;
     .text_item :hover {
       color: red;
+      font-weight: 700;
     }
     .text_item {
       width: 100%;

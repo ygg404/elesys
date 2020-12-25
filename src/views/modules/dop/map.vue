@@ -2,7 +2,7 @@
   <div>
     <div class="ef_line">
       <div style="display:flex;">
-        <el-button @click="addProjectHandle(null,0)" icon="el-icon-plus" type="success">新建项目</el-button>
+        <el-button @click="addProjectHandle(null,0)" icon="el-icon-plus" type="success">新建图层</el-button>
         <el-upload :action="upKmlUrl" style="margin-left: 10px;"
                    :limit="1"
                    name="file"
@@ -22,7 +22,7 @@
         <el-button @click="searchPlaceHandle()" icon="el-icon-search" type="primary">搜索</el-button>
       </div>
     </div>
-    <div v-loading="loading" element-loading-text="加载中...">
+    <div>
       <div class="detail_card" :class="menuVisible? 'open_setting':'close_setting'">
         <el-button class="btn" type="primary" size="mini" @click="menuVisible = !menuVisible">
           <i class="btn_rotate el-icon-s-tools"></i>
@@ -76,7 +76,7 @@
               <el-button @click="pageIndex = 1,getDataList()" icon="el-icon-search" type="primary" size="small"></el-button>
             </el-form-item>
           </el-form>
-          <div :style="'height:' + (documentClientHeight - 400) + 'px'" class="project_ul block" v-loading="loading">
+          <div :style="'height:' + (documentClientHeight - 400) + 'px'" class="project_ul block" v-loading="loading" element-loading-text="加载中...">
             <el-tree :data="bmapList" show-checkbox node-key="id" :props="defaultProps"  highlight-current current-node-key
                      :expand-on-click-node="true" @node-contextmenu = "rightClickHandle" @node-click="rightVisible = false"
                      :indent="0" :render-content="renderContent" default-expand-all="true">
@@ -97,6 +97,8 @@
         </el-card>
         <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'" ></div>
       </div>
+      <!-- 标注word 导出弹窗-->
+      <map-word-export v-if="wordVisible" ref="mapWordExport"></map-word-export>
       <!-- 标注弹窗, 新增 / 修改 -->
       <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
       <!-- 项目弹窗, 新增 / 修改 -->
@@ -113,7 +115,7 @@
   import pointObj from '@/utils/bMap/customPoint'
   import bmapRmenu from '@/components/bmap-rmenu'
   import {stringIsNull,treeDataTranslate} from '@/utils'
-  import html2canvas from 'html2canvas'
+  import mapWordExport from './map-word-export'
   import Vue from 'vue'
 
   export default {
@@ -152,6 +154,7 @@
         },  // 复制剪切对象(数据集、类型剪切粘贴)
         menuVisible: false,
         rightVisible: false,
+        wordVisible: false,
         drawingManager: '',
         addOrUpdateVisible: false,
         mproVisible: false,  // 添加项目可视图
@@ -167,7 +170,8 @@
     components: {
       AddOrUpdate,
       mapProjectAddOrUpdate,
-      bmapRmenu
+      bmapRmenu,
+      mapWordExport
     },
     mounted () {
       this.init()
@@ -465,6 +469,13 @@
         this.mproVisible = true
         this.$nextTick(() => {
           this.$refs.mapProjectAddOrUpdate.init(item)
+        })
+      },
+      // 导出word
+      exportWordHandle (id) {
+        this.wordVisible = true
+        this.$nextTick(() => {
+          this.$refs.mapWordExport.init(id)
         })
       },
       // 删除标注点事件
