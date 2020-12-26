@@ -225,7 +225,9 @@
                              :on-error="handleError">
                     <el-button size="small" plain type="primary">选择文件</el-button>
                     <div slot="tip" style="color: dodgerblue" v-if="!stringIsNull(dataForm.wordFile)">
-                      已上传文件:<el-tag closable @close="dataForm.wordFile = ''">{{dataForm.wordFile}}</el-tag>
+                      已上传文件:
+                      <el-tag closable @close="dataForm.wordFile = ''" >{{dataForm.wordFile}}</el-tag>
+                      <span class="browse_span" @click="browseWordHandle(dataForm.wordFile)">查看</span>
                     </div>
                   </el-upload>
                 </el-form-item>
@@ -368,9 +370,9 @@
                 this.dataForm.modifyTime = data.dopBmap.modifyTime
                 this.dataForm.parentId = data.dopBmap.parentId
                 this.dataForm.wordFile = data.dopBmap.wordFile
-                this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.photoFar
-                this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.photoScene
-                this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.dopBmap.transImg
+                this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoFar
+                this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoScene
+                this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.transImg
               }
             })
           } else {
@@ -412,6 +414,10 @@
             }
             this.dataForm.coordinate = coordinate
             this.dataForm.label = ''
+            this.dataForm.photoFar = ''
+            this.dataForm.photoScene = ''
+            this.dataForm.transImg = ''
+            this.dataForm.wordFile = ''
             this.dataForm.area = item.area
             this.dataForm.type = item.type
             this.dataForm.labelLng = item.labelLng
@@ -548,15 +554,15 @@
             switch (imgType) {
               case 'trans':
                 this.dataForm.transImg = data.imgPath
-                this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.imgPath
+                this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.imgPath
                 break
               case 'scene':
                 this.dataForm.photoScene = data.imgPath
-                this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.imgPath
+                this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.imgPath
                 break
               case 'far':
                 this.dataForm.photoFar = data.imgPath
-                this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/' + data.imgPath
+                this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.imgPath
                 break
               default:
                 break
@@ -579,6 +585,10 @@
           }
         })
       },
+      // 浏览word文档
+      browseWordHandle (file) {
+        window.open('http://view.officeapps.live.com/op/view.aspx?src=' + window.SITE_CONFIG['uploadUrl'] + 'bmap/word/' + file)
+      }
     }
   }
 </script>
@@ -630,6 +640,7 @@
     width: 100%;
     height: 100%;
     position: absolute;
+    border-radius: 11px;
     z-index: 1;
   }
 
@@ -720,5 +731,10 @@
     position: absolute;
     height: 100%;
     width: 100%;
+  }
+
+  .browse_span {
+    text-decoration:underline;
+    cursor: pointer;
   }
 </style>
