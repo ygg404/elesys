@@ -8,10 +8,10 @@
         </div>
         <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" status-icon style="margin-top: 20px;" >
           <el-form-item prop="userAccount">
-            <el-input v-model="dataForm.userAccount" placeholder="帐号"></el-input>
+            <el-input v-model="dataForm.userAccount" placeholder="帐号" clearable></el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="dataForm.password" type="password" placeholder="密码"></el-input>
+            <el-input v-model="dataForm.password" type="password" placeholder="密码" show-password></el-input>
           </el-form-item>
           <el-form-item>
             <el-button  class="login-btn-submit" :icon="loading==true?'el-icon-loading':''"  type="primary" @click="dataFormSubmit()">登录</el-button>

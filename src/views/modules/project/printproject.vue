@@ -271,17 +271,17 @@
             params: this.$http.adornParams()
           }).then(({data}) => {
             if (data && data.code === 0) {
-              data.projectInfo.executeStandard = '☑' + data.projectInfo.executeStandard.replace(/;/g, '☑').slice(0, -1)
-              if (data.projectInfo.qualityScore < 60) {
-                data.projectInfo.qualityLevel = '不合格'
-              } else if (data.projectInfo.qualityScore >= 60 && data.projectInfo.qualityScore <= 70) {
-                data.projectInfo.qualityLevel = '合格'
-              } else if (data.projectInfo.qualityScore > 70 && data.projectInfo.qualityScore < 90) {
-                data.projectInfo.qualityLevel = '良'
-              } else if (data.projectInfo.qualityScore >= 90) {
-                data.projectInfo.qualityLevel = '优'
+              data.projectInfo[0].executeStandard = '☑' + data.projectInfo[0].executeStandard.replace(/;/g, '☑').slice(0, -1)
+              if (data.projectInfo[0].qualityScore < 60) {
+                data.projectInfo[0].qualityLevel = '不合格'
+              } else if (data.projectInfo[0].qualityScore >= 60 && data.projectInfo[0].qualityScore <= 70) {
+                data.projectInfo[0].qualityLevel = '合格'
+              } else if (data.projectInfo[0].qualityScore > 70 && data.projectInfo[0].qualityScore < 90) {
+                data.projectInfo[0].qualityLevel = '良'
+              } else if (data.projectInfo[0].qualityScore >= 90) {
+                data.projectInfo[0].qualityLevel = '优'
               }
-              this.projectInfo = data.projectInfo
+              this.projectInfo = data.projectInfo[0]
               resolve(data.projectInfo)
             } else {
               this.$message.error(data.msg)

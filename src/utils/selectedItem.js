@@ -162,6 +162,47 @@ export function getMeasureItem () {
 }
 
 /**
+ * 获取线路类型列表
+ */
+export function getLineTypeItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '水准路线'},
+    {'id': 2, 'nameItem': '导线'},
+    {'id': 3, 'nameItem': 'GPS基线'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取高程基准列表
+ */
+export function getHeightDatumItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '1956年黄海高程系统'},
+    {'id': 2, 'nameItem': '1985国家高程基准'},
+    {'id': 3, 'nameItem': '大地高'},
+    {'id': 4, 'nameItem': '任意高程基准'}
+  ]
+  return itemList
+}
+
+/**
+ * 获取高程等级列表
+ */
+export function getHeightLevelItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '一等水准'},
+    {'id': 2, 'nameItem': '二等水准'},
+    {'id': 3, 'nameItem': '三等水准'},
+    {'id': 4, 'nameItem': '四等水准'},
+    {'id': 5, 'nameItem': '等外水准'},
+    {'id': 6, 'nameItem': 'GPS高程'},
+    {'id': 7, 'nameItem': '无'}
+  ]
+  return itemList
+}
+
+/**
  * 获取清单规格列表
  */
 export function getBillSpecItem () {

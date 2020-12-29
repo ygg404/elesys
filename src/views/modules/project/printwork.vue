@@ -281,7 +281,17 @@
     methods: {
       init () {
         let projectNo = this.$route.query.projectNo
-        this.getInfoByProjectNo(projectNo)
+        this.getInfoByProjectNo(projectNo).then( list => {
+          list[0].executeStandard = '☑' + list[0].executeStandard.replace(/;/g, '☑').slice(0, -1)
+          list[0].safeRequire = list[0].safeRequire == null ? '' : list[0].safeRequire.replace(/\n/g, '。 ') + '。'
+          // 工作组
+          let groupName = ''
+          for (let group of list) {
+            groupName += group.groupName + '、'
+          }
+          list[0].groupName = groupName.substring(0, groupName.length - 1)
+          this.projectInfo = list[0]
+        })
       },
       // 获取项目基本信息
       getInfoByProjectNo (projectNo) {
@@ -292,9 +302,6 @@
             params: this.$http.adornParams()
           }).then(({data}) => {
             if (data && data.code === 0) {
-              data.projectInfo.executeStandard = '☑' + data.projectInfo.executeStandard.replace(/;/g, '☑').slice(0, -1)
-              data.projectInfo.safeRequire = data.projectInfo.safeRequire == null ? '' : data.projectInfo.safeRequire.replace(/\n/g, '。 ') + '。'
-              this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
             } else {
               this.$message.error(data.msg)

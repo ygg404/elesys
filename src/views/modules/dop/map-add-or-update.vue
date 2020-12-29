@@ -40,9 +40,9 @@
         </el-col>
         <el-col :span="15">
           <el-collapse v-model="activeNames">
-            <el-collapse-item name="1">
+            <el-collapse-item name="1" v-if="dataForm.type === 1">
               <template slot="title">
-                <span class="title_span">基本信息</span>
+                <span class="title_span">基本信息（点）</span>
               </template>
               <el-card>
                 <el-row class="line">
@@ -65,7 +65,7 @@
                   </div>
                 </el-row>
                 <el-row class="line">
-                  <div class="property_span">测定方法：</div>
+                  <div class="property_span">定位方法：</div>
                   <div>
                     <el-autocomplete v-model="dataForm.posMethod" :fetch-suggestions="queryPosSearch" @select="handlePosSelect" size="small">
                       <template slot-scope="{ item }">
@@ -74,13 +74,160 @@
                     </el-autocomplete>
                   </div>
                 </el-row>
+                <el-row class="line">
+                  <div class="property_span">测绘时间：</div>
+                  <div><el-date-picker v-model="dataForm.surveyTime"  value-format="yyyy-MM-dd" size="small" ></el-date-picker></div>
+                </el-row>
               </el-card>
             </el-collapse-item>
-            <el-collapse-item name="2">
+            <el-collapse-item name="1" v-if="dataForm.type === 2">
+              <template slot="title">
+                <span class="title_span">基本信息 (线)</span>
+              </template>
+              <el-card>
+                <el-row class="line">
+                  <div class="property_span">名称：</div>
+                  <div><el-input v-model="dataForm.label" size="small"></el-input></div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">线路类型：</div>
+                  <div>
+                    <el-autocomplete v-model="dataForm.lineType" :fetch-suggestions="queryLineSearch" @select="handleLineSelect" size="small">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">线路长度：</div>
+                  <div>
+                    <el-input v-model="dataForm.lineLength" size="small" type="number"></el-input>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">测绘人员：</div>
+                  <div>
+                    <el-input v-model="dataForm.surveyor" size="small"></el-input>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">测绘时间：</div>
+                  <div><el-date-picker v-model="dataForm.surveyTime"  value-format="yyyy-MM-dd" size="small" ></el-date-picker></div>
+                </el-row>
+              </el-card>
+            </el-collapse-item>
+            <el-collapse-item name="1" v-if="dataForm.type === 3">
+              <template slot="title">
+                <span class="title_span">基本信息 (面)</span>
+              </template>
+              <el-card>
+                <el-row class="line">
+                  <div class="property_span">名称：</div>
+                  <div><el-input v-model="dataForm.label" size="small"></el-input></div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">测绘人员：</div>
+                  <div>
+                    <el-input v-model="dataForm.surveyor" size="small"></el-input>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">测绘时间：</div>
+                  <div><el-date-picker v-model="dataForm.surveyTime"  value-format="yyyy-MM-dd" size="small" ></el-date-picker></div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">坐标系统：</div>
+                  <div>
+                    <el-autocomplete v-model="dataForm.corSystem" :fetch-suggestions="queryCorSearch" @select="handleCorSelect" size="small">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">高程基准：</div>
+                  <div>
+                    <el-autocomplete v-model="dataForm.heightDatum" :fetch-suggestions="queryHeightDatumSearch" @select="handleHeightDatumSelect" size="small">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">高程基准：</div>
+                  <div>
+                    <el-radio-group v-model="dataForm.sfRadio">
+                      <el-radio :label="1">四参表</el-radio>
+                      <el-radio :label="2">七参表</el-radio>
+                    </el-radio-group>
+                    <table border="1" cellspacing="0" v-if="dataForm.sfRadio == 1">
+                      <tr><td class="property_td_sf">平移北(m)</td><td><el-input v-model="dataForm.corX" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">平移东(m)</td><td><el-input v-model="dataForm.corY" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">旋转</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">尺度 (K)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                    </table>
+                    <table border="1" cellspacing="0" v-if="dataForm.sfRadio == 2">
+                      <tr><td class="property_td_sf">DX(m)</td><td><el-input v-model="dataForm.corX" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DY(m)</td><td><el-input v-model="dataForm.corY" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DZ(m)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RX(″)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RY(″)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RZ(″)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">K(ppm)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                    </table>
+                  </div>
+                </el-row>
+
+                <!-- 上传的word文件-->
+                <el-row class="line">
+                  <div class="property_span">上传文件：</div>
+                  <div>
+                  <el-upload :action="upBmapWordUrl"
+                             :limit="1"
+                             name="file"
+                             ref="upload"
+                             :headers="tokenHeaders"
+                             :before-upload="handleBeforeUpload"
+                             :on-success="handleSuccess"
+                             :on-error="handleError">
+                    <el-button size="small" plain type="primary">选择文件</el-button>
+                    <div slot="tip" style="color: dodgerblue" v-if="!stringIsNull(dataForm.wordFile)">
+                      已上传文件:
+                      <el-tag closable @close="dataForm.wordFile = ''" >{{dataForm.wordFile}}</el-tag>
+                    </div>
+                  </el-upload>
+                  </div>
+                </el-row>
+              </el-card>
+            </el-collapse-item>
+            <el-collapse-item name="2" v-if="dataForm.type === 1">
               <template slot="title">
                 <span class="title_span">坐标信息</span>
               </template>
               <el-card>
+                <el-row class="line">
+                  <div class="property_span">高程基准：</div>
+                  <div>
+                    <el-autocomplete v-model="dataForm.heightDatum" :fetch-suggestions="queryHeightDatumSearch" @select="handleHeightDatumSelect" size="small">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">高程等级：</div>
+                  <div>
+                    <el-autocomplete v-model="dataForm.heightLevel" :fetch-suggestions="queryHeightLevelSearch" @select="handleHeightLevelSelect" size="small">
+                      <template slot-scope="{ item }">
+                        <div class="name">{{ item.nameItem }}</div>
+                      </template>
+                    </el-autocomplete>
+                  </div>
+                </el-row>
                 <el-row class="line">
                   <div class="property_span">坐标系统：</div>
                   <div>
@@ -101,7 +248,7 @@
                 </el-row>
               </el-card>
             </el-collapse-item>
-            <el-collapse-item name="3">
+            <el-collapse-item name="3" v-if="dataForm.type === 1">
               <template slot="title">
                   <div class="title_span">点之记</div>
               </template>
@@ -246,7 +393,7 @@
 </template>
 
 <script>
-  import {getMapDrawingItem,getPosMethodItem,getOrginItem,getCorSysItem,getPosCateItem,getMeasureItem} from '@/utils/selectedItem'
+  import {getMapDrawingItem,getPosMethodItem,getLineTypeItem,getOrginItem,getCorSysItem,getPosCateItem,getMeasureItem,getHeightDatumItem,getHeightLevelItem} from '@/utils/selectedItem'
   import {stringIsNull} from '@/utils'
   import moment from 'moment'
   import html2canvas from 'html2canvas'
@@ -260,6 +407,7 @@
         visible: false,
         measureList: getMeasureItem(),
         drawList: getMapDrawingItem(),
+        lineList: getLineTypeItem(),
         imgFar: '',
         imgScene: '',
         imgTrans: '',
@@ -276,6 +424,11 @@
           origin: '',
           surveyor: '',
           posMethod: '',
+          lineType: '',
+          lineLength: 0.0,
+          heightDatum: '',
+          heightLevel: '',
+          surveyTime: moment(new Date()).format('YYYY-MM-DD'),
           corSystem: '',
           corX: '',
           corY: '',
@@ -298,6 +451,7 @@
           authMan: '',
           checkMan: '',
           wordFile: '',
+          sfRadio: 1,
           createUserId: '',
           createUserName: '',
           createTime: '',
@@ -370,6 +524,12 @@
                 this.dataForm.modifyTime = data.dopBmap.modifyTime
                 this.dataForm.parentId = data.dopBmap.parentId
                 this.dataForm.wordFile = data.dopBmap.wordFile
+                this.dataForm.heightLevel = data.dopBmap.heightLevel
+                this.dataForm.heightDatum = data.dopBmap.heightDatum
+                this.dataForm.surveyTime = data.dopBmap.surveyTime
+                this.dataForm.surveyRequire = data.dopBmap.surveyRequire
+                this.dataForm.lineType = data.dopBmap.lineType
+                this.dataForm.lineLength = data.dopBmap.lineLength
                 this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoFar
                 this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoScene
                 this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.transImg
@@ -464,6 +624,27 @@
         // 调用 callback 返回建议列表的数据
         cb(results)
       },
+      // 线路类型选项
+      queryLineSearch (queryString, cb) {
+        var list = getLineTypeItem()
+        var results = queryString ? list.filter(this.createFilter(queryString)) : list
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      // 高程基准选项
+      queryHeightDatumSearch (queryString, cb) {
+        var list = getHeightDatumItem()
+        var results = queryString ? list.filter(this.createFilter(queryString)) : list
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      // 高程等级选项
+      queryHeightLevelSearch (queryString, cb) {
+        var list = getHeightLevelItem()
+        var results = queryString ? list.filter(this.createFilter(queryString)) : list
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
       createFilter (queryString) {
         return (restaurant) => {
           return (restaurant.nameItem.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
@@ -480,6 +661,15 @@
       },
       handleCateSelect (item) {
         this.dataForm.posCate = item.nameItem
+      },
+      handleLineSelect (item) {
+        this.dataForm.lineType = item.nameItem
+      },
+      handleHeightDatumSelect (item) {
+        this.dataForm.heightDatum = item.nameItem
+      },
+      handleHeightLevelSelect (item) {
+        this.dataForm.heightLevel = item.nameItem
       },
       // 表单提交
       dataFormSubmit () {
@@ -619,6 +809,10 @@
     }
     .property_td {
       width: 20px;
+      text-align: center;
+    }
+    .property_td_sf {
+      width: 80px;
       text-align: center;
     }
   }
