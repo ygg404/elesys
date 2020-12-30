@@ -89,6 +89,58 @@
               <el-input type="textarea" placeholder="请输入工作量" maxlength="1000" show-word-limit rows="4" v-model="dataForm.workLoad"></el-input>
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            岗位职责:
+            <table border="1" cellspacing="0">
+              <tr class="th_header">
+                <th>职责</th><th>姓名</th><th>任务分工</th>
+              </tr>
+              <tr>
+                <td class="property_td">项目技术负责人</td>
+                <td><el-input v-model="memForm.projectCharge" size="mini" style="padding: 3px;"></el-input></td>
+                <td>
+                  <el-autocomplete v-model="memForm.chargeTask" :fetch-suggestions="queryTaskSearch" @select="((item)=>{item.type = 0 ,handleMenSelect(item)})" size="small">
+                    <template slot-scope="{ item }">
+                      <div class="name">{{ item.nameItem }}</div>
+                    </template>
+                  </el-autocomplete>
+                </td>
+              </tr>
+              <tr>
+                <td class="property_td">项目组成员1</td>
+                <td><el-input v-model="memForm.projectMenber1" size="mini" style="padding: 3px;"></el-input></td>
+                <td>
+                  <el-autocomplete v-model="memForm.menber1Task" :fetch-suggestions="queryTaskSearch" @select="((item)=>{item.type = 1 ,handleMenSelect(item)})" size="small">
+                    <template slot-scope="{ item }">
+                      <div class="name">{{ item.nameItem }}</div>
+                    </template>
+                  </el-autocomplete>
+                </td>
+              </tr>
+              <tr>
+                <td class="property_td">项目组成员2</td>
+                <td><el-input v-model="memForm.projectMenber2" size="mini" style="padding: 3px;"></el-input></td>
+                <td>
+                  <el-autocomplete v-model="memForm.menber2Task" :fetch-suggestions="queryTaskSearch" @select="((item)=>{item.type = 2 ,handleMenSelect(item)})" size="small">
+                    <template slot-scope="{ item }">
+                      <div class="name">{{ item.nameItem }}</div>
+                    </template>
+                  </el-autocomplete>
+                </td>
+              </tr>
+              <tr>
+                <td class="property_td">项目组成员3</td>
+                <td><el-input v-model="memForm.projectMenber3" size="mini" style="padding: 3px;"></el-input></td>
+                <td>
+                  <el-autocomplete v-model="memForm.menber3Task" :fetch-suggestions="queryTaskSearch" @select="((item)=>{item.type = 3 ,handleMenSelect(item)})" size="small">
+                    <template slot-scope="{ item }">
+                      <div class="name">{{ item.nameItem }}</div>
+                    </template>
+                  </el-autocomplete>
+                </td>
+              </tr>
+            </table>
+          </el-col>
         </el-row>
       </el-card>
     </el-form>
@@ -102,6 +154,7 @@
 <script>
   import {closeTab} from '@/utils/tabs'
   import {stringIsNull} from '@/utils'
+  import {getSubTaskItem} from '@/utils/selectedItem'
 
   export default {
     data () {
@@ -110,6 +163,7 @@
         getArgsPageSize: this.$route.query.pageSize,
         projectInfo: '',
         scheduleList: [], // 项目进度表
+        subTaskList: getSubTaskItem(),
         disclosureNotesList: [],
         checkSuggestionsList: [],
         dataNameList: [],
@@ -126,6 +180,18 @@
           dataName: '',
           workLoad: '',
           briefSummary: ''
+        },
+        memForm: {
+          id: '',
+          projectNo: '',
+          projectCharge: '',
+          chargeTask: '',
+          projectMenber1: '',
+          menber1Task: '',
+          projectMenber2: '',
+          menber2Task: '',
+          projectMenber3: '',
+          menber3Task: ''
         },
         dataRule: {
           technicalDisclosureNote: [
@@ -163,13 +229,53 @@
       init () {
         let projectNo = this.$route.query.projectNo
         this.getScheduleList(projectNo)
-        this.getInfoByProjectNo(projectNo)
+        this.getInfoByProjectNo(projectNo).then(info => {
+          this.getPorjectMtask(projectNo).then(dat => {
+            console.log(dat)
+            if (stringIsNull(dat)) {
+              this.memForm.projectNo = projectNo
+              this.memForm.chargeTask = '负责人'
+              this.memForm.projectCharge = info.projectCharge
+            } else {
+              this.memForm = dat
+            }
+          })
+        })
         this.getWorkByProjectNo(projectNo)
         this.getdisclosureNote()
         this.getcheckSuggestion()
         this.getdataName()
         this.getbriefSummary()
         this.getworkLoad()
+      },
+      // 任务选项
+      queryTaskSearch (queryString, cb) {
+        var list = getSubTaskItem()
+        var results = queryString ? list.filter(this.createFilter(queryString)) : list
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      createFilter (queryString) {
+        return (restaurant) => {
+          return (restaurant.nameItem.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        }
+      },
+      // 任务选项选中
+      handleMenSelect (item) {
+        switch (item.type) {
+          case 0:
+            this.memForm.chargeTask = item.nameItem
+            break
+          case 1:
+            this.memForm.menber1Task = item.nameItem
+            break
+          case 2:
+            this.memForm.menber2Task = item.nameItem
+            break
+          case 3:
+            this.memForm.menber3Task = item.nameItem
+            break
+        }
       },
       // 获取进度列表
       getScheduleList (projectNo) {
@@ -235,6 +341,25 @@
               data.projectInfo.safeRequire = data.projectInfo.safeRequire == null ? '' : data.projectInfo.safeRequire.replace(/\n/g, '。 ') + '。'
               this.projectInfo = data.projectInfo
               resolve(data.projectInfo)
+            } else {
+              this.$message.error(data.msg)
+              reject(data.msg)
+            }
+          })
+        })
+      },
+      // 获取岗位职责信息
+      getPorjectMtask (projectNo) {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/mtask/info`),
+            method: 'get',
+            params: this.$http.adornParams({
+              'projectNo': projectNo
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data.projectMtask)
             } else {
               this.$message.error(data.msg)
               reject(data.msg)
@@ -395,33 +520,70 @@
           return false
         }
       },
+      // 提交作业表单
+      submitWorkToApi () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/work/${!this.dataForm.id ? 'save' : 'update'}`),
+            method: 'post',
+            data: this.$http.adornData({
+              'id': this.dataForm.id || undefined,
+              'projectNo': this.dataForm.projectNo,
+              'technicalDisclosureNote': this.dataForm.technicalDisclosureNote,
+              'checkSuggestion': this.dataForm.checkSuggestion,
+              'dataName': this.dataForm.dataName,
+              'briefSummary': this.dataForm.briefSummary,
+              'workLoad': this.dataForm.workLoad
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
+      // 提交岗位职责表单
+      submitDutyToApi () {
+        return new Promise((resolve, reject) => {
+          this.$http({
+            url: this.$http.adornUrl(`/project/mtask/${!this.memForm.id ? 'save' : 'update'}`),
+            method: 'post',
+            data: this.$http.adornData({
+              'id': this.memForm.id || undefined,
+              'projectNo': this.memForm.projectNo,
+              'projectCharge': this.memForm.projectCharge,
+              'chargeTask': this.memForm.chargeTask,
+              'projectMenber1': this.memForm.projectMenber1,
+              'menber1Task': this.memForm.menber1Task,
+              'projectMenber2': this.memForm.projectMenber2,
+              'menber2Task': this.memForm.menber2Task,
+              'projectMenber3': this.memForm.projectMenber3,
+              'menber3Task': this.memForm.menber3Task
+            })
+          }).then(({data}) => {
+            if (data && data.code === 0) {
+              resolve(data)
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
+      },
       // 表单提交
       dataFormSubmit () {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            this.$http({
-              url: this.$http.adornUrl(`/project/work/${!this.dataForm.id ? 'save' : 'update'}`),
-              method: 'post',
-              data: this.$http.adornData({
-                'id': this.dataForm.id || undefined,
-                'projectNo': this.dataForm.projectNo,
-                'technicalDisclosureNote': this.dataForm.technicalDisclosureNote,
-                'checkSuggestion': this.dataForm.checkSuggestion,
-                'dataName': this.dataForm.dataName,
-                'briefSummary': this.dataForm.briefSummary,
-                'workLoad': this.dataForm.workLoad
-              })
-            }).then(({data}) => {
-              if (data && data.code === 0) {
+            this.submitWorkToApi().then(success => {
+              this.submitDutyToApi().then(success => {
                 this.$message({
                   message: '操作成功',
                   type: 'success',
                   duration: 1500
                 })
                 this.goBack()
-              } else {
-                this.$message.error(data.msg)
-              }
+              })
             })
           }
         })
@@ -469,4 +631,9 @@
       width: 40%;
       margin-top: 4px;
     }
+
+  .th_header {
+    font-weight: 700;
+    font-size: 13pt;
+  }
 </style>

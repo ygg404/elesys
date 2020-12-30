@@ -1040,6 +1040,10 @@
       },
       // 删除项目清单项
       deleteBillHandle (id) {
+        if (this.dataForm.billList.length <= 1) {
+          this.$message.error('该项目成果项无法删除，请仔细填写！')
+          return
+        }
         let billList = []
         for (let bill of this.dataForm.billList) {
           if (bill.id !== id) {

@@ -37,7 +37,7 @@
           <div v-for="(data, index) in dataList">
             <el-row v-if="data.groupShow" class="table_row">
               <el-col :span="12" v-if="typeRadio === '作业'"><div class="group-header">{{data.groupName}}</div></el-col>
-              <el-col :span="12" v-if="typeRadio === '质检'"><div class="group-header">{{data.qualityUserName}}</div></el-col>
+              <el-col :span="12" v-if="typeRadio === '质检'"><div class="group-header">{{data.qualityUsername}}</div></el-col>
               <el-col :span="12"></el-col>
             </el-row>
             <el-row  v-if="data.groupName != null" class="item_row">
@@ -50,7 +50,7 @@
             </el-row>
             <el-row  v-if="data.groupName != null && data.footerShow" class="table_row">
               <el-col :span="11" v-if="typeRadio === '作业'"><div class="group-header">{{data.groupName}}:合计{{data.projectSum}}个项目</div></el-col>
-              <el-col :span="11" v-if="typeRadio === '质检'"><div class="group-header">{{data.qualityUserName}}:合计{{data.projectSum}}个项目</div></el-col>
+              <el-col :span="11" v-if="typeRadio === '质检'"><div class="group-header">{{data.qualityUsername}}:合计{{data.projectSum}}个项目</div></el-col>
               <el-col :span="3"><div class="group-header">{{'&ensp; '}}</div></el-col>
               <el-col :span="4"><div class="group-header">{{'&ensp; '}}</div></el-col>
               <el-col :span="3"><div class="group-header">{{'&ensp; '}}</div></el-col>
@@ -144,14 +144,14 @@
           this.totalOutPut = parseFloat((this.totalOutPut + outputtemp).toFixed(2))
         })
         datalist.forEach((item, index) => {
-          if ((this.typeRadio === '作业' && groupName !== item.groupName) || (this.typeRadio === '质检' && qualityUserName !== item.qualityUserName) ) {
+          if ((this.typeRadio === '作业' && groupName !== item.groupName) || (this.typeRadio === '质检' && qualityUserName !== item.qualityUsername) ) {
             item.groupShow = true
             groupName = item.groupName
-            qualityUserName = item.qualityUserName
+            qualityUserName = item.qualityUsername
             let projectSum = 0
             let outputSum = 0
             for (let i = index; i < datalist.length; i++) {
-              if ((this.typeRadio === '作业' && datalist[i].groupName === groupName) || (this.typeRadio === '质检' && datalist[i].qualityUserName === qualityUserName)) {
+              if ((this.typeRadio === '作业' && datalist[i].groupName === groupName) || (this.typeRadio === '质检' && datalist[i].qualityUsername === qualityUserName)) {
                 projectSum += 1
                 outputSum += datalist[i].projectActuallyOutput
                 datalist[i].projectSum = projectSum
@@ -230,7 +230,7 @@
           if (this.status === 200) {
             let blob = this.response
             console.log((e))
-            let filename = downTitle + '产值统计表.xls'
+            let filename = downTitle + '产值统计表' + (that.typeRadio === '作业' ? '(作业组)' : '（质检组）') + '.xls'
             let a = document.createElement('a')
             // 创键临时url对象
             var url = URL.createObjectURL(blob)

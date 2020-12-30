@@ -164,19 +164,19 @@
                       <el-radio :label="2">七参表</el-radio>
                     </el-radio-group>
                     <table border="1" cellspacing="0" v-if="dataForm.sfRadio == 1">
-                      <tr><td class="property_td_sf">平移北(m)</td><td><el-input v-model="dataForm.corX" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">平移东(m)</td><td><el-input v-model="dataForm.corY" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">旋转</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">尺度 (K)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">平移北(m)</td><td><el-input v-model="dataForm.fpNorth" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">平移东(m)</td><td><el-input v-model="dataForm.fpEast" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">旋转</td><td><el-input v-model="dataForm.fpRotate" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">尺度 (K)</td><td><el-input v-model="dataForm.fpSize" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
                     </table>
                     <table border="1" cellspacing="0" v-if="dataForm.sfRadio == 2">
-                      <tr><td class="property_td_sf">DX(m)</td><td><el-input v-model="dataForm.corX" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">DY(m)</td><td><el-input v-model="dataForm.corY" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">DZ(m)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">RX(″)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">RY(″)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">RZ(″)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">K(ppm)</td><td><el-input v-model="dataForm.corH" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DX(m)</td><td><el-input v-model="dataForm.spDXm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DY(m)</td><td><el-input v-model="dataForm.spDYm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DZ(m)</td><td><el-input v-model="dataForm.spDZm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RX(″)</td><td><el-input v-model="dataForm.spRX" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RY(″)</td><td><el-input v-model="dataForm.spRY" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RZ(″)</td><td><el-input v-model="dataForm.spRZ" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">K(ppm)</td><td><el-input v-model="dataForm.spKppm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
                     </table>
                   </div>
                 </el-row>
@@ -524,12 +524,23 @@
                 this.dataForm.modifyTime = data.dopBmap.modifyTime
                 this.dataForm.parentId = data.dopBmap.parentId
                 this.dataForm.wordFile = data.dopBmap.wordFile
-                this.dataForm.heightLevel = data.dopBmap.heightLevel
-                this.dataForm.heightDatum = data.dopBmap.heightDatum
-                this.dataForm.surveyTime = data.dopBmap.surveyTime
-                this.dataForm.surveyRequire = data.dopBmap.surveyRequire
-                this.dataForm.lineType = data.dopBmap.lineType
-                this.dataForm.lineLength = data.dopBmap.lineLength
+                this.dataForm.lineType = data.dopbmap.lineType
+                this.dataForm.lineLength = data.dopbmap.lineLength
+                this.dataForm.heightDatum = data.dopbmap.heightDatum
+                this.dataForm.heightLevel = data.dopbmap.heightLevel
+                this.dataForm.surveyRequire = data.dopbmap.surveyRequire
+                this.dataForm.sfRadio = data.dopbmap.sfRadio
+                this.dataForm.fpNorth = data.dopbmap.fpNorth
+                this.dataForm.fpEast = data.dopbmap.fpEast
+                this.dataForm.fpRotate = data.dopbmap.fpRotate
+                this.dataForm.fpSize = data.dopbmap.fpSize
+                this.dataForm.spDxm = data.dopbmap.spDxm
+                this.dataForm.spDym = data.dopbmap.spDym
+                this.dataForm.spDzm = data.dopbmap.spDzm
+                this.dataForm.spRx = data.dopbmap.spRx
+                this.dataForm.spRy = data.dopbmap.spRy
+                this.dataForm.spRz = data.dopbmap.spRz
+                this.dataForm.spKppm = data.dopbmap.spKppm
                 this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoFar
                 this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoScene
                 this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.transImg

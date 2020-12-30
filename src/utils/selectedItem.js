@@ -241,3 +241,12 @@ export function getBillNameItem () {
   ]
   return itemList
 }
+
+export function getSubTaskItem () {
+  let itemList = [
+    {'id': 1, 'nameItem': '负责人'},
+    {'id': 2, 'nameItem': '技术人员'},
+    {'id': 3, 'nameItem': '司机'}
+  ]
+  return itemList
+}
