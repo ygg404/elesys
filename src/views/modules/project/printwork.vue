@@ -167,7 +167,7 @@
           this.projectInfo = list[0]
         })
         this.getMtaskByProjectNo(projectNo).then(data => {
-          this.projectMtask = data
+          this.projectMtask = data == null ? {} : data
         })
         this.getBillByProjectNo(projectNo).then(list => {
           this.billList = list
