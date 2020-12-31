@@ -10,11 +10,6 @@
       <el-form-item label="合同编号" prop="contractNo">
         <el-input v-model="dataForm.contractNo" placeholder="合同编号" disabled="true"></el-input>
        </el-form-item>
-       <el-form-item label="项目类型" prop="projectType">
-         <el-select v-model="dataForm.projectTypeIdList" placeholder="项目类型"  multiple style="width: 100%;">
-          <el-option v-for="item in projectTypeList" :label="item.name" :key="item.id" :value="item.id"  ></el-option>
-        </el-select>
-       </el-form-item>
       <el-form-item label="合同金额" prop="contractMoney" >
         <el-input v-model.number="dataForm.contractMoney" placeholder="合同金额" type="number"></el-input>
       </el-form-item>
@@ -27,9 +22,7 @@
         <el-form-item label="委托单位" prop="contractAuthorize">
           <el-input v-model="dataForm.contractAuthorize" placeholder="委托单位"></el-input>
         </el-form-item>
-        <el-form-item label="委托要求" prop="contractNote">
-          <el-input v-model="dataForm.contractNote" placeholder="委托要求"></el-input>
-        </el-form-item>
+
       <el-form-item label="联系人姓名" prop="userName">
         <el-input v-model="dataForm.userName" placeholder="联系人名称"></el-input>
       </el-form-item>
@@ -131,17 +124,11 @@
           contractType: [
             { required: true, message: '合同类型 不能为空', trigger: 'blur' }
           ],
-          contractNote: [
-            { required: true, message: '委托要求不能为空', trigger: 'blur' }
-          ],
           contractBusiness: [
             { required: true, message: '业务负责人不能为空', trigger: 'blur' }
           ],
           contractMoney: [
             { required: true, message: '合同金额不能为空', trigger: 'blur' }
-          ],
-          projectType: [
-            { required: true, message: '项目类型不能为空', trigger: 'blur' }
           ],
           userPhone: [
             { required: false, message: '联系人电话不正确', trigger: 'blur', validator: checkPhone }
@@ -215,20 +202,10 @@
       },
       // 表单提交
       dataFormSubmit () {
-        console.log(this.dataForm.projectTypeIdList)
-        // 项目类型
-        this.dataForm.projectType = ''
-        for (let ptypeId of this.dataForm.projectTypeIdList) {
-          for (let ptype of this.projectTypeList) {
-            if (ptypeId === ptype.id) { this.dataForm.projectType += (ptype.name + ',') }
-          }
-        }
         // 业务负责人
         for (let bus of this.businessList) {
           if (this.dataForm.contractBusinessId === bus.userId) this.dataForm.contractBusiness = bus.username
         }
-        let len = this.dataForm.projectType.length
-        this.dataForm.projectType = len > 0 ? this.dataForm.projectType.substring(0, len - 1) : ''
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({

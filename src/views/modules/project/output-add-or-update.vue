@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--产值明细计算-->
-    <el-dialog title="产值明细计算" :visible.sync="outputCalVisible" width="70%" :close-on-click-modal="false" append-to-body>
+    <el-dialog title="产值明细计算" :visible.sync="outputCalVisible" width="78%" :close-on-click-modal="false" append-to-body>
       <el-row :gutter="24" class="card_work">
         <el-col :span="8">
           <el-card class="box-card"  >
@@ -82,12 +82,8 @@
           this.totalOutPut = 0
           this.getProjectTypelist().then(success => {
             this.getWorkTypelist(this.projectNo).then(success => {
-              for (let pt of this.projectTypelist) {
-                for (let type of ptType) {
-                  if (pt.name === type) {
-                    this.ptValue.push(pt.id)
-                  }
-                }
+              for (let pt of project.projectTypeIdList) {
+                this.ptValue.push(pt)
               }
               console.log(this.ptValue)
               if (this.ptValue === undefined) this.ptValue = [0]
