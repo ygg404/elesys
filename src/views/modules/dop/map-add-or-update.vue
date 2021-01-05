@@ -6,9 +6,7 @@
           <el-form-item label="名称:" prop="label">
             <el-input v-model="dataForm.label" placeholder="标题"></el-input>
           </el-form-item>
-          <el-form-item label="面积(平方米):" prop="area">
-            <span>{{dataForm.area}}</span>
-          </el-form-item>
+
           <el-form-item label="绘制类型:" prop="type">
             <el-select v-model="dataForm.type"  style="width: 110px;" disabled>
               <el-option v-for="item in drawList" :label="item.drawItem" :key="item.id" :value="item.id"></el-option>
@@ -133,6 +131,12 @@
                   </div>
                 </el-row>
                 <el-row class="line">
+                  <div class="property_span">测绘要求：</div>
+                  <div>
+                    <el-input v-model="dataForm.surveyRequire" size="small"></el-input>
+                  </div>
+                </el-row>
+                <el-row class="line">
                   <div class="property_span">测绘时间：</div>
                   <div><el-date-picker v-model="dataForm.surveyTime"  value-format="yyyy-MM-dd" size="small" ></el-date-picker></div>
                 </el-row>
@@ -157,7 +161,13 @@
                   </div>
                 </el-row>
                 <el-row class="line">
-                  <div class="property_span">高程基准：</div>
+                  <div class="property_span">面积(平方米)：</div>
+                  <div>
+                    <el-input v-model="dataForm.area" size="small" type="number"></el-input>
+                  </div>
+                </el-row>
+                <el-row class="line">
+                  <div class="property_span">参数类型：</div>
                   <div>
                     <el-radio-group v-model="dataForm.sfRadio">
                       <el-radio :label="1">四参表</el-radio>
@@ -170,12 +180,12 @@
                       <tr><td class="property_td_sf">尺度 (K)</td><td><el-input v-model="dataForm.fpSize" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
                     </table>
                     <table border="1" cellspacing="0" v-if="dataForm.sfRadio == 2">
-                      <tr><td class="property_td_sf">DX(m)</td><td><el-input v-model="dataForm.spDXm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">DY(m)</td><td><el-input v-model="dataForm.spDYm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">DZ(m)</td><td><el-input v-model="dataForm.spDZm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">RX(″)</td><td><el-input v-model="dataForm.spRX" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">RY(″)</td><td><el-input v-model="dataForm.spRY" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
-                      <tr><td class="property_td_sf">RZ(″)</td><td><el-input v-model="dataForm.spRZ" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DX(m)</td><td><el-input v-model="dataForm.spDxm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DY(m)</td><td><el-input v-model="dataForm.spDym" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">DZ(m)</td><td><el-input v-model="dataForm.spDzm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RX(″)</td><td><el-input v-model="dataForm.spRx" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RY(″)</td><td><el-input v-model="dataForm.spRy" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
+                      <tr><td class="property_td_sf">RZ(″)</td><td><el-input v-model="dataForm.spRz" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
                       <tr><td class="property_td_sf">K(ppm)</td><td><el-input v-model="dataForm.spKppm" type="number" size="mini" style="padding: 3px;"></el-input></td></tr>
                     </table>
                   </div>
@@ -452,6 +462,18 @@
           checkMan: '',
           wordFile: '',
           sfRadio: 1,
+          fpNorth: '',
+          fpEast: '',
+          fpRotate: '',
+          fpSize: '',
+          spDxm: '',
+          spDym: '',
+          spDzm: '',
+          spRx: '',
+          spRy: '',
+          spRz: '',
+          spKppm: '',
+          surveyRequire: '',
           createUserId: '',
           createUserName: '',
           createTime: '',
@@ -524,23 +546,23 @@
                 this.dataForm.modifyTime = data.dopBmap.modifyTime
                 this.dataForm.parentId = data.dopBmap.parentId
                 this.dataForm.wordFile = data.dopBmap.wordFile
-                this.dataForm.lineType = data.dopbmap.lineType
-                this.dataForm.lineLength = data.dopbmap.lineLength
-                this.dataForm.heightDatum = data.dopbmap.heightDatum
-                this.dataForm.heightLevel = data.dopbmap.heightLevel
-                this.dataForm.surveyRequire = data.dopbmap.surveyRequire
-                this.dataForm.sfRadio = data.dopbmap.sfRadio
-                this.dataForm.fpNorth = data.dopbmap.fpNorth
-                this.dataForm.fpEast = data.dopbmap.fpEast
-                this.dataForm.fpRotate = data.dopbmap.fpRotate
-                this.dataForm.fpSize = data.dopbmap.fpSize
-                this.dataForm.spDxm = data.dopbmap.spDxm
-                this.dataForm.spDym = data.dopbmap.spDym
-                this.dataForm.spDzm = data.dopbmap.spDzm
-                this.dataForm.spRx = data.dopbmap.spRx
-                this.dataForm.spRy = data.dopbmap.spRy
-                this.dataForm.spRz = data.dopbmap.spRz
-                this.dataForm.spKppm = data.dopbmap.spKppm
+                this.dataForm.lineType = data.dopBmap.lineType
+                this.dataForm.lineLength = data.dopBmap.lineLength
+                this.dataForm.heightDatum = data.dopBmap.heightDatum
+                this.dataForm.heightLevel = data.dopBmap.heightLevel
+                this.dataForm.surveyRequire = data.dopBmap.surveyRequire
+                this.dataForm.sfRadio = data.dopBmap.sfRadio
+                this.dataForm.fpNorth = data.dopBmap.fpNorth
+                this.dataForm.fpEast = data.dopBmap.fpEast
+                this.dataForm.fpRotate = data.dopBmap.fpRotate
+                this.dataForm.fpSize = data.dopBmap.fpSize
+                this.dataForm.spDxm = data.dopBmap.spDxm
+                this.dataForm.spDym = data.dopBmap.spDym
+                this.dataForm.spDzm = data.dopBmap.spDzm
+                this.dataForm.spRx = data.dopBmap.spRx
+                this.dataForm.spRy = data.dopBmap.spRy
+                this.dataForm.spRz = data.dopBmap.spRz
+                this.dataForm.spKppm = data.dopBmap.spKppm
                 this.imgFar = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoFar
                 this.imgScene = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.photoScene
                 this.imgTrans = window.SITE_CONFIG['uploadUrl'] + 'bmap/photo/' + data.dopBmap.transImg

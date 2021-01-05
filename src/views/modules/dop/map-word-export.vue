@@ -29,6 +29,7 @@
           children: 'children',
           label: 'label'
         },
+        id: '',
         loading: false,
         visible: false,
         treeList: []
@@ -38,6 +39,7 @@
       init (id) {
         console.log(id)
         this.visible = true
+        this.id = id
         this.$nextTick(() => {
           if (id) {
             this.$http({
@@ -73,7 +75,7 @@
       },
       // 导出Word接口
       exportWordHandle () {
-        let bmapId = this.selectNode.id
+        let bmapId = this.id
         this.dataListLoading = true
         this.$http({
           url: this.$http.adornUrl('/dop/bmap/exportWord'),
@@ -88,7 +90,7 @@
           responseType: 'blob'
         }).then(({data}) => {
           console.log(data)
-          let projectName = this.selectNode.label
+          let projectName = bmapId
           var downloadElement = document.createElement('a')
           var href = window.URL.createObjectURL(data) // 创建下载的链接
           downloadElement.href = href
