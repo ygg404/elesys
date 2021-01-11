@@ -4,8 +4,8 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <div v-loading="loading" class="code_content" element-loading-text="导出中请稍等...">
-      <el-tree :data="treeList" show-checkbox node-key="id" :props="defaultProps"  highlight-current current-node-key
-               :expand-on-click-node="true" default-expand-all="true">
+      <el-tree :data="treeList" show-checkbox node-key="id" :props="defaultProps"  :highlight-current="true" current-node-key
+               :expand-on-click-node="true" default-expand-all="true" ref="tree">
               <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span><i :class="data.icon"></i>{{ node.label }}</span>
               </span>
@@ -29,24 +29,23 @@
           children: 'children',
           label: 'label'
         },
-        id: '',
+        item: '',
         loading: false,
         visible: false,
         treeList: []
       }
     },
     methods: {
-      init (id) {
-        console.log(id)
+      init (item) {
         this.visible = true
-        this.id = id
+        this.item = item
         this.$nextTick(() => {
-          if (id) {
+          if (item.id) {
             this.$http({
               url: this.$http.adornUrl(`/dop/bmap/list`),
               method: 'get',
               params: this.$http.adornParams({
-                'id': id
+                'id': item.id
               })
             }).then(({data}) => {
               for (let bPoint of data.list) {
@@ -69,19 +68,22 @@
                 }
               }
               this.treeList = treeDataTranslate(data.list)
+              this.$refs.tree.setCheckedKeys([item.id])
             })
           }
         })
       },
       // 导出Word接口
       exportWordHandle () {
-        let bmapId = this.id
+        let bmapId = this.item.id
         this.dataListLoading = true
+        let selectIds = this.$refs.tree.getCheckedKeys().concat(this.$refs.tree.getHalfCheckedKeys())
         this.$http({
           url: this.$http.adornUrl('/dop/bmap/exportWord'),
           method: 'get',
           params: this.$http.adornParams({
-            bmapId: bmapId
+            bmapId: bmapId,
+            selectIds: selectIds.join()
           }),
           withCredentials: false, // 允许携带cookie
           headers: {
@@ -90,11 +92,10 @@
           responseType: 'blob'
         }).then(({data}) => {
           console.log(data)
-          let projectName = bmapId
           var downloadElement = document.createElement('a')
           var href = window.URL.createObjectURL(data) // 创建下载的链接
           downloadElement.href = href
-          downloadElement.download = projectName + '.zip' // 下载后文件名
+          downloadElement.download = this.item.label + '.zip' // 下载后文件名
           document.body.appendChild(downloadElement)
           downloadElement.click() // 点击下载
           document.body.removeChild(downloadElement) // 下载完成移除元素
@@ -106,6 +107,10 @@
   }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+  @import "src/assets/scss/_variables.scss";
+  .code_content .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
+    background-color: rgb(255, 255, 255);
+    color: $navbar--background-color;
+  }
 </style>

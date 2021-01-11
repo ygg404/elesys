@@ -95,7 +95,10 @@
             <el-button size="mini" type="primary" :disabled="pageIndex >= totalPage?true:false" @click="++pageIndex,getDataList()">下一页</el-button>
           </div>
         </el-card>
-        <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'" ></div>
+        <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'"  v-loading="posLoading"
+             element-loading-text="定位加载中"
+             element-loading-spinner="el-icon-loading"
+             element-loading-background="rgba(0, 0, 0, 0.8)"></div>
       </div>
       <!-- 标注word 导出弹窗-->
       <map-word-export v-if="wordVisible" ref="mapWordExport"></map-word-export>
@@ -139,6 +142,7 @@
         },
         bmapList: [],
         loading: true,
+        posLoading: true,
         zoom: 13,
         BMap: '',
         map: '',
@@ -189,8 +193,8 @@
         let point = new BMap.Point(116.72 , 23.37)   // 设置默认的坐标
         map.centerAndZoom(point, 17)  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true)     // 开启鼠标滚轮缩放
-        map.panTo(point)
         map.setMapType(BMAP_HYBRID_MAP)
+        this.getLocationHandle()
         this.map = map
         map.addEventListener('dragend', function () {
           var center = map.getCenter()
@@ -294,7 +298,6 @@
           that.dataForm.key = _value.province + _value.city + _value.district + _value.street + _value.business
           that.searchPlaceHandle()
         })
-
       },
       // 树状显示列表
       renderContent (h, {node, data, store}) {
@@ -340,13 +343,18 @@
       // 获取当前位置
       getLocationHandle () {
         let that = this
+        this.posLoading = true
         // 浏览器定位
         var geolocation = new BMap.Geolocation()
         geolocation.getCurrentPosition(function (res) {
+          console.log(res)
           if (this.getStatus() === BMAP_STATUS_SUCCESS) {
+            that.posLoading = false
             // 网络定位 初始化百度地图
-            var marker = new BMap.Marker(res.point)
-            marker.setAnimation(BMAP_ANIMATION_BOUNCE) // 跳动的动画
+            // var marker = new BMap.Marker(res.point)
+            // marker.setAnimation(BMAP_ANIMATION_BOUNCE) // 跳动的动画
+            that.map.centerAndZoom(res.point, 16)
+            that.map.panTo(res.point)
           } else {
             that.$message.error('获取地理位置失败！')
           }
@@ -475,7 +483,7 @@
       exportWordHandle (id) {
         this.wordVisible = true
         this.$nextTick(() => {
-          this.$refs.mapWordExport.init(id)
+          this.$refs.mapWordExport.init(this.selectNode)
         })
       },
       // 删除标注点事件
