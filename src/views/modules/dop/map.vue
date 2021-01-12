@@ -65,6 +65,9 @@
           </el-collapse-item>
         </el-collapse>
       </div>
+      <div class="pos_card">
+        <el-button type="primary" plain icon="el-icon-place" circle size="large" @click="getLocationHandle"></el-button>
+      </div>
       <div class="map">
         <el-card class="map_project" :body-style="{ padding: '2px' }">
           <div slot="header" class="clearfix">
@@ -115,9 +118,10 @@
   import mapProjectAddOrUpdate from './mapproject-add-or-update'
   import polyGonObj from '@/utils/bMap/customPolygon'
   import polylineObj from '@/utils/bMap/customPolyline'
+  import corGps from '@/utils/bMap/corGps'
   import pointObj from '@/utils/bMap/customPoint'
   import bmapRmenu from '@/components/bmap-rmenu'
-  import {stringIsNull,treeDataTranslate} from '@/utils'
+  import {stringIsNull,treeDataTranslate,checkPhone} from '@/utils'
   import mapWordExport from './map-word-export'
   import Vue from 'vue'
 
@@ -344,21 +348,52 @@
       getLocationHandle () {
         let that = this
         this.posLoading = true
-        // 浏览器定位
-        var geolocation = new BMap.Geolocation()
-        geolocation.getCurrentPosition(function (res) {
-          console.log(res)
-          if (this.getStatus() === BMAP_STATUS_SUCCESS) {
-            that.posLoading = false
-            // 网络定位 初始化百度地图
-            // var marker = new BMap.Marker(res.point)
-            // marker.setAnimation(BMAP_ANIMATION_BOUNCE) // 跳动的动画
-            that.map.centerAndZoom(res.point, 16)
-            that.map.panTo(res.point)
+        if (checkPhone()) {
+          // Ip 定位
+          if (navigator.geolocation) {
+            // timeout at 60000 milliseconds (60 seconds)
+            var options = {timeout: 60000}
+            navigator.geolocation.getCurrentPosition(function (position) {
+              that.posLoading = false
+              var latitude = position.coords.latitude
+              var longitude = position.coords.longitude
+              let cor = new corGps()
+              let pos = cor.wgs84tobd09(longitude, latitude)
+              let point = new BMap.Point(pos[0], pos[1])   // 设置默认的坐标
+              var marker = new BMap.Marker(point)
+              // marker.setAnimation(BMAP_ANIMATION_BOUNCE) // 跳动的动画
+              that.map.centerAndZoom(point, 16)
+              that.map.addOverlay(marker)
+              that.map.panTo(point)
+            }, function (err) {
+              that.posLoading = false
+              if (err.code === 1) {
+                that.$message.error('错误: 无定位权限!')
+              } else if (err.code === 2) {
+                that.$message.error('错误: 定位无效!')
+              }
+            }, options)
           } else {
-            that.$message.error('获取地理位置失败！')
+            this.posLoading = false
+            this.$message('抱歉，该浏览器不支持定位!')
           }
-        }, {enableHighAccuracy: true})
+        } else {
+          // 浏览器定位
+          var geolocation = new BMap.Geolocation()
+          geolocation.getCurrentPosition(function (res) {
+            console.log(res)
+            if (this.getStatus() === BMAP_STATUS_SUCCESS) {
+              that.posLoading = false
+              // 网络定位 初始化百度地图
+              // var marker = new BMap.Marker(res.point)
+              // marker.setAnimation(BMAP_ANIMATION_BOUNCE) // 跳动的动画
+              that.map.centerAndZoom(res.point, 16)
+              that.map.panTo(res.point)
+            } else {
+              that.$message.error('获取地理位置失败！')
+            }
+          }, {enableHighAccuracy: true})
+        }
       },
       // 地址搜索
       searchPlaceHandle () {
@@ -563,6 +598,12 @@
     width: 1px;
     -webkit-transition: width .3s;
     transition: width .3s;
+  }
+  .pos_card {
+    position: absolute;
+    right: 25px;
+    z-index: 1000;
+    bottom:30px;
   }
   .detail_card {
     position: absolute;
