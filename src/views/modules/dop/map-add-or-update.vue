@@ -123,28 +123,28 @@
                 <el-card>
                   <el-row class="line">
                     <div class="property_span">名称：</div>
-                    <div><el-input v-model="dataForm.label" size="small"></el-input></div>
+                    <div class="property_line"><el-input v-model="dataForm.label" size="small"></el-input></div>
                   </el-row>
                   <el-row class="line">
                     <div class="property_span">测绘人员：</div>
-                    <div>
+                    <div class="property_line">
                       <el-input v-model="dataForm.surveyor" size="small"></el-input>
                     </div>
                   </el-row>
                   <el-row class="line">
                     <div class="property_span">测绘要求：</div>
-                    <div style="width: 50%">
+                    <div class="property_line">
                       <el-input v-model="dataForm.surveyRequire" size="small"  type="textarea" rows="4" ></el-input>
                     </div>
                   </el-row>
                   <el-row class="line">
                     <div class="property_span">测绘时间：</div>
-                    <div><el-date-picker v-model="dataForm.surveyTime"  value-format="yyyy-MM-dd" size="small" ></el-date-picker></div>
+                    <div><el-date-picker v-model="dataForm.surveyTime" class="property_line" value-format="yyyy-MM-dd" size="small" ></el-date-picker></div>
                   </el-row>
                   <el-row class="line">
                     <div class="property_span">坐标系统：</div>
                     <div>
-                      <el-autocomplete v-model="dataForm.corSystem" :fetch-suggestions="queryCorSearch" @select="handleCorSelect" size="small">
+                      <el-autocomplete v-model="dataForm.corSystem" :fetch-suggestions="queryCorSearch" @select="handleCorSelect" size="small" class="property_line">
                         <template slot-scope="{ item }">
                           <div class="name">{{ item.nameItem }}</div>
                         </template>
@@ -154,7 +154,7 @@
                   <el-row class="line">
                     <div class="property_span">高程基准：</div>
                     <div>
-                      <el-autocomplete v-model="dataForm.heightDatum" :fetch-suggestions="queryHeightDatumSearch" @select="handleHeightDatumSelect" size="small">
+                      <el-autocomplete v-model="dataForm.heightDatum" :fetch-suggestions="queryHeightDatumSearch" class="property_line" @select="handleHeightDatumSelect" size="small">
                         <template slot-scope="{ item }">
                           <div class="name">{{ item.nameItem }}</div>
                         </template>
@@ -163,7 +163,7 @@
                   </el-row>
                   <el-row class="line">
                     <div class="property_span">面积(㎡)：</div>
-                    <div>
+                    <div class="property_line">
                       <el-input v-model="dataForm.area" size="small" type="number"></el-input>
                     </div>
                   </el-row>
@@ -850,6 +850,10 @@
       line-height: 200%;
       font-size: 12pt;
       width: 130px;
+    }
+    .property_line{
+      width: 50%;
+      min-width:280px;
     }
     .property_td {
       width: 20px;

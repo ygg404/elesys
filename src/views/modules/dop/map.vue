@@ -70,19 +70,25 @@
       </div>
       <div class="map">
         <el-card class="map_project" :body-style="{ padding: '2px' }">
-          <div slot="header" class="clearfix">
-            <div class="span_title">图层目录</div>
-          </div>
-          <el-form :inline="true" :model="dataForm" >
+          <el-form :inline="true" :model="dataForm">
             <el-form-item>
               <el-input v-model="dataForm.labelName" placeholder="关键字搜索" clearable style="width: 145px;" @clear="pageIndex=1,getDataList()"></el-input>
               <el-button @click="pageIndex = 1,getDataList()" icon="el-icon-search" type="primary" size="small"></el-button>
             </el-form-item>
           </el-form>
-          <div :style="'height:' + (documentClientHeight - 400) + 'px'" class="project_ul block" v-loading="loading" element-loading-text="加载中...">
+          <div class="ul_line" ref="ulmap" @contextmenu.prevent.stop="rightVisible = false,ulVisible = true,rightBaseHandle(item,$event)">
+            <div class="span_title">图层目录</div>
+            <div><i class="el-icon-menu" @click="closeExpandHandle"></i></div>
+            <!--定义菜单及菜单项的操作-->
+            <div v-show = "ulVisible" ref="ulMenu" id="ulMenu" class="ul_menu">
+              <bmap-umenu ref="bmapUmenu" :vueObj="this"></bmap-umenu>
+            </div>
+          </div>
+
+          <div :style="'height:' + (documentClientHeight - 350) + 'px'" class="project_ul block" v-loading="loading" element-loading-text="加载中...">
             <el-tree :data="bmapList" show-checkbox node-key="id" :props="defaultProps"  highlight-current current-node-key
-                     :expand-on-click-node="true" @node-contextmenu = "rightClickHandle" @node-click="rightVisible = false"
-                     :indent="0" :render-content="renderContent" default-expand-all="true">
+                     :expand-on-click-node="true" @node-contextmenu = "rightClickHandle" @node-click="rightVisible = false , ulVisible = false"
+                     :indent="0" :render-content="renderContent" default-expand-all="true" ref="tree">
             </el-tree>
             <!--定义菜单及菜单项的操作-->
             <div v-show = "rightVisible" ref="rightMenu" id="rightMenu" style="display:flex;">
@@ -90,7 +96,7 @@
               <bmap-rmenu ref="bmapRmenu" :vueObj="this" :selectNode="selectNode" :copyItem="copyItem"></bmap-rmenu>
             </div>
           </div>
-          <div class="">
+          <div class=" bot_line">
             <el-button size="mini" type="primary" :disabled="pageIndex <= 1?true:false" @click="--pageIndex,getDataList()">上一页</el-button>
             <el-select size="mini" v-model="pageIndex" style="width: 58px;" @change="getDataList()">
               <el-option v-for="item in pageList" :key="item" :label="item" :value="item" ></el-option>
@@ -99,9 +105,8 @@
           </div>
         </el-card>
         <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'"  v-loading="posLoading"
-             element-loading-text="定位加载中"
-             element-loading-spinner="el-icon-loading"
-             element-loading-background="rgba(0, 0, 0, 0.8)"></div>
+             element-loading-text="定位加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)">
+        </div>
       </div>
       <!-- 标注word 导出弹窗-->
       <map-word-export v-if="wordVisible" ref="mapWordExport"></map-word-export>
@@ -121,6 +126,7 @@
   import corGps from '@/utils/bMap/corGps'
   import pointObj from '@/utils/bMap/customPoint'
   import bmapRmenu from '@/components/bmap-rmenu'
+  import bmapUmenu from '@/components/bmap-umenu'
   import {stringIsNull,treeDataTranslate,checkPhone} from '@/utils'
   import mapWordExport from './map-word-export'
   import Vue from 'vue'
@@ -147,6 +153,7 @@
         bmapList: [],
         loading: true,
         posLoading: true,
+        expanded: true,
         zoom: 13,
         BMap: '',
         map: '',
@@ -161,6 +168,7 @@
           type: ''
         },  // 复制剪切对象(数据集、类型剪切粘贴)
         menuVisible: false,
+        ulVisible: false,
         rightVisible: false,
         wordVisible: false,
         drawingManager: '',
@@ -179,6 +187,7 @@
       AddOrUpdate,
       mapProjectAddOrUpdate,
       bmapRmenu,
+      bmapUmenu,
       mapWordExport
     },
     mounted () {
@@ -190,6 +199,7 @@
         let that = this
         // 右键菜单取消
         document.addEventListener('click', function (e) {
+          that.ulVisible = false
           that.rightVisible = false
         })
         this.loading = false
@@ -344,6 +354,13 @@
           })
         })
       },
+      // 不展开列表
+      closeExpandHandle () {
+        this.expanded = !this.expanded
+        for (var i = 0; i < this.$refs.tree.store._getAllNodes().length; i++) {
+          this.$refs.tree.store._getAllNodes()[i].expanded = this.expanded
+        }
+      },
       // 获取当前位置
       getLocationHandle () {
         let that = this
@@ -416,6 +433,7 @@
       // 获取标注数据并绘制
       getDataList () {
         this.loading = true
+        this.expanded = true
         this.map.clearOverlays()
         this.getBampList().then(page => {
           this.totalPage = page.totalPage
@@ -452,9 +470,14 @@
           this.loading = false
         })
       },
-      // 右键点击事件
+      // 右键点击事件 (目录菜单)
+      rightBaseHandle (item, event) {
+        let ulMenu = document.querySelector('#ulMenu')
+        ulMenu.style.cssText = 'position: fixed; left: ' + (event.clientX) + 'px' + '; top: ' + (event.clientY) + 'px; z-index: 999; cursor:pointer;'
+      },
+      // 右键点击事件 (标注菜单)
       rightClickHandle (event, object, value, element) {
-        console.log(event)
+        this.ulVisible = false
         this.rightVisible = true
         let menu = document.querySelector('#rightMenu')
         let rect = element.$el.getClientRects()[0]
@@ -696,15 +719,40 @@
     width: 275px;
     display: inline-block;
   }
+  .map .ul_line {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed rgba($--color-primary,0.7);
+    border-top: 1px dashed rgba($--color-primary,0.7);
+    background-color: $--color-primary;
+    color: whitesmoke;
+  }
+  .map .ul_menu{
+    position:absolute;
+    display:flex;
+    z-index: 1001;
+  }
+  .map .ul_line i{
+    padding: 6px;
+    font-size: 13pt;
+    cursor: pointer;
+  }
   .map .span_title {
     font-weight: 700;
-    font-size: 14pt;
+    font-size: 13pt;
+    padding: 5px;
+    width: 80%;
+    cursor: pointer;
   }
   .map .project_ul {
     overflow-y: auto;
     -ms-overflow-y: auto;
     overflow-x: hidden;
     font-size: 11pt;
+    border: 1px solid $--color-primary;
+  }
+  .map .bot_line {
+    margin-top: 8px;
   }
   .map .project_ul /deep/{
     .el-tree > .el-tree-node:after {
