@@ -70,7 +70,7 @@
                   <div class="span_title back_title" >质检反馈</div>
                 </template>
                 <div style="background-color: #f0f0f0;margin-top: 20px;">
-                  <div ref="reportId" @click="proxyImage"></div>
+                  <div ref="reportId" @dblclick="proxyImage"></div>
                 </div>
               </el-collapse-item>
             </el-collapse>

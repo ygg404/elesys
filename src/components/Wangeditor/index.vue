@@ -1,6 +1,6 @@
 <template>
     <div style="text-align:left"  :id="id" :ref="id" v-loading="loadingVisible"
-         element-loading-text="图片上传中......" @click="proxyImage">
+         element-loading-text="图片上传中......" @dblclick="proxyImage">
     </div>
 </template>
 
