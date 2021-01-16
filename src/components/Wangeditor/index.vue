@@ -1,13 +1,7 @@
 <template>
-  <div style="text-align:left"  :id="id" :ref="id" v-loading="loadingVisible" element-loading-text="图片上传中......">
-<!--    <el-dialog append-to-body :visible="loadingVisible" style="opacity: 0.8">-->
-<!--      <div style="text-align: center;">-->
-<!--&lt;!&ndash;        <el-progress type="circle" :percentage="curRate"></el-progress>&ndash;&gt;-->
-<!--        <div style="color: #00b7ee"> 图片上传中 {{'。。。。。。' .substring(0,value)}}</div>-->
-<!--      </div>-->
-<!--    </el-dialog>-->
-  </div>
-
+    <div style="text-align:left"  :id="id" :ref="id" v-loading="loadingVisible"
+         element-loading-text="图片上传中......" @click="proxyImage">
+    </div>
 </template>
 
 <script>
@@ -38,6 +32,8 @@
         editor: '',
         loadingVisible: false,
         timer: '',
+        showImg: false,
+        imgSrc: [],
         value: 0
       }
     },
@@ -146,6 +142,21 @@
         //   }
         // })
       },
+      // 浏览图片
+      proxyImage: function (e) {
+        if (e.target.tagName.toUpperCase() === 'IMG') {
+          console.log(e.target)
+          // 这里是需要执行的方法
+          this.showImg = true
+          // 获取当前图片地址
+          this.imgSrc = [e.target.src]
+          this.$emit('proxyImage' , e.target.src)
+        }
+      },
+      // 关闭图片预览
+      closeImgHandle () {
+        this.showImg = false
+      },
       upReportImgHandle (base64Img) {
         let that = this
         let urlpath = window.SITE_CONFIG['uploadUrl']
@@ -165,7 +176,7 @@
             this.loadingVisible = false
             if (data && data.code === 0) {
               this.$message(data.msg)
-              this.editor.cmd.do('insertHtml', '<img src="' + urlpath + 'report/' + data.imgName + '" style="max-width:100%;"/>')
+              this.editor.cmd.do('insertHtml', '<img src="' + urlpath + 'report/' + data.imgName + '" style="max-width:100%;cursor:pointer;"/>')
               resolve(data.list)
             } else {
               this.$message.error(data.msg)

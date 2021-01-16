@@ -19,7 +19,7 @@
     <!-- 质检反馈报告-->
     <el-card :class="reportVisible? 'anim_report_view' : 'anim_not_view' "  class="quality_card">
       <div class="quality_card_title">{{reportTitle}}</div>
-      <div ref="reportId" class="quality_report" ></div>
+      <div ref="reportId" class="quality_report" @click="proxyImage"></div>
     </el-card>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false,reportVisible = false">取消</el-button>
@@ -38,12 +38,14 @@
       </span>
     </el-dialog>
 
+    <!--#预览单张图-->
+    <el-image-viewer v-if="showImg" :url-list="imgSrc" :on-close="closeImgHandle"></el-image-viewer>
   </el-dialog>
 </template>
 
 <script>
   import WangEditor from '@/components/WangEditor/index'
-  import 'viewerjs/dist/viewer.css'
+  import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
 
   export default {
     data () {
@@ -52,6 +54,8 @@
         visible: false,
         noteVisible: false,
         reportVisible: false,
+        showImg: false,
+        imgSrc: '',
         reportTitle: '',
         isEdit: true,
         imageList: [], // 报告图片列表
@@ -83,7 +87,8 @@
       }
     },
     components: {
-      WangEditor
+      WangEditor,
+      ElImageViewer
     },
     methods: {
       init (projectNo,isEdit) {
@@ -150,6 +155,20 @@
             }
           })
         })
+      },
+      // 浏览图片
+      proxyImage: function (e) {
+        if (e.target.tagName.toUpperCase() === 'IMG') {
+          console.log(e.target)
+          // 这里是需要执行的方法
+          this.showImg = true
+          // 获取当前图片地址
+          this.imgSrc = [e.target.src]
+        }
+      },
+      // 关闭图片预览
+      closeImgHandle () {
+        this.showImg = false
       },
       // 表单提交
       dataFormSubmit () {

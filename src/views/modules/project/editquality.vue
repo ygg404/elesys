@@ -1,5 +1,5 @@
 <template>
-  <div class="mod-config">
+  <div class="mod-config" ref="main">
     <el-collapse v-model="activeNames">
       <el-collapse-item>
         <template slot="title">
@@ -70,7 +70,7 @@
                   <div class="span_title back_title" >质检反馈</div>
                 </template>
                 <div style="background-color: #f0f0f0;margin-top: 20px;">
-                  <div ref="reportId"></div>
+                  <div ref="reportId" @click="proxyImage"></div>
                 </div>
               </el-collapse-item>
             </el-collapse>
@@ -104,7 +104,8 @@
       <el-button type="danger" size="large" @click="recallRepairHandle" :disabled="isCheck != 2">撤回返修</el-button>
     </div>
 
-
+    <!--#预览单张图-->
+    <el-image-viewer v-if="showImg" :url-list="imgSrc" :on-close="closeImgHandle"></el-image-viewer>
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检评分-->
     <qualityscore-add-or-update v-if="qualityScoreVisible" ref="qualityscoreAddOrUpdate" @refreshDataList="setQualityScore"></qualityscore-add-or-update>
     <!--&lt;!&ndash; 弹窗, 新增 / 修改  质检编辑-->
@@ -118,6 +119,7 @@
   import qualityscoreAddOrUpdate from './qualityscore-add-or-update'
   import qualityeditAddOrUpdate from './qualityedit-add-or-update'
   import {stringIsNull} from '../../../utils'
+  import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
 
   export default {
     data () {
@@ -130,6 +132,8 @@
         totalprog: 1,
         dataLoading: false,
         reportLoading: false,
+        showImg: false,
+        imgSrc: '',
         loadingText: '正在加载...',
         projectNo: '',
         reportVisible: false,
@@ -168,7 +172,8 @@
     },
     components: {
       qualityscoreAddOrUpdate,
-      qualityeditAddOrUpdate
+      qualityeditAddOrUpdate,
+      ElImageViewer
     },
     activated () {
       this.init()
@@ -293,9 +298,9 @@
                 this.dataForm.id = data.checkQuality.id
                 this.dataForm.qualityNote = data.checkQuality.qualityNote
                 this.dataForm.qualityScore = data.checkQuality.qualityScore
+                this.isCheck = data.isCheck
                 this.dataForm.qualityReport = data.checkQuality.qualityReport
                 this.$refs.reportId.innerHTML = data.checkQuality.qualityReport
-                this.isCheck = data.isCheck
               }
               resolve(data)
             } else {
@@ -472,6 +477,19 @@
           return false
         }
       },
+      // 浏览图片
+      proxyImage: function (e) {
+        if (e.target.tagName.toUpperCase() === 'IMG') {
+          // 这里是需要执行的方法
+          this.showImg = true
+          // 获取当前图片地址
+          this.imgSrc = [e.target.src]
+        }
+      },
+      // 关闭图片预览
+      closeImgHandle () {
+        this.showImg = false
+      },
       // 返回
       goBack () {
         closeTab('project-editquality')
@@ -480,6 +498,7 @@
         this.$router.push('project-project')
       }
     },
+
     watch: {
       '$route': function (to, from) {
         this.projectNo = to.query['projectNo']
@@ -495,6 +514,19 @@
           this.reportVisible = false
           this.proLoading = false
           this.$refs.reportPreId.innerHTML = ''
+        }
+      },
+      showImg (val) {
+        const scrollTopElement = document.documentElement || document.body
+        const body = document.body
+        if (val) {
+          body.style.top = `-${scrollTopElement.scrollTop}px`
+          body.setAttribute('data-height', scrollTopElement.scrollTop)
+          body.style.position = 'fixed'
+        } else {
+          const height = body.getAttribute('data-height')
+          body.style.position = 'static'
+          scrollTopElement.scrollTop = height
         }
       }
     }

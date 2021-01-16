@@ -354,7 +354,7 @@
           })
         })
       },
-      // 不展开列表
+      // 展开(收缩)列表
       closeExpandHandle () {
         this.expanded = !this.expanded
         for (var i = 0; i < this.$refs.tree.store._getAllNodes().length; i++) {
@@ -398,7 +398,6 @@
           // 浏览器定位
           var geolocation = new BMap.Geolocation()
           geolocation.getCurrentPosition(function (res) {
-            console.log(res)
             if (this.getStatus() === BMAP_STATUS_SUCCESS) {
               that.posLoading = false
               // 网络定位 初始化百度地图

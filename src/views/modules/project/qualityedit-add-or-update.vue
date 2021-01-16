@@ -4,7 +4,8 @@
     :close-on-click-modal="false"
     width="80%"
     :visible.sync="visible">
-    <wang-editor :content="ueContent" :id='id' :projectNo="projectNo" @refreshContent="getReportHandle" v-loading="loading"></wang-editor>
+    <wang-editor :content="ueContent" :id='id' :projectNo="projectNo" @refreshContent="getReportHandle"
+                 v-loading="loading" @proxyImage="proxyImage" ></wang-editor>
     <span slot="footer" class="dialog-footer">
       <el-upload :action="upReportUrl" style="display:inline-block"
                  :data="{'projectNo': this.projectNo}"
@@ -22,11 +23,15 @@
       <el-button type="primary" @click="saveReportHandle">保 存</el-button>
       <el-button @click="closeHandle">返 回</el-button>
     </span>
+
+    <!--#预览单张图-->
+    <el-image-viewer v-if="showImg" :url-list="imgSrc" :on-close="closeImgHandle" style="z-index: 20000"></el-image-viewer>
   </el-dialog>
 </template>
 
 <script>
   import WangEditor from '@/components/WangEditor'
+  import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
   import Vue from 'vue'
 
   export default {
@@ -38,12 +43,15 @@
         projectNo: '',
         visible: false,
         loading: false,
+        showImg: false,
+        imgSrc: [],
         upReportUrl: window.SITE_CONFIG['baseUrl'] + '/project/quality/uploadWord/',  // 合同上传地址
         tokenHeaders: { token: Vue.cookie.get('token') }  // token请求
       }
     },
     components: {
-      WangEditor
+      WangEditor,
+      ElImageViewer
     },
     methods: {
       init (content,projectNo) {
@@ -103,6 +111,15 @@
           }
         })
       },
+      // 浏览图片
+      proxyImage: function (imgurl) {
+        this.showImg = true
+        this.imgSrc = [imgurl]
+      },
+      // 关闭图片预览
+      closeImgHandle () {
+        this.showImg = false
+      }
     }
   }
 </script>
