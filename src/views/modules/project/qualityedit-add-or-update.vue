@@ -94,6 +94,12 @@
       },
       handleBeforeUpload (res) {
         this.loading = true
+        // 上传文件过大 10M
+        if (res.size >= 10 * 1024 * 1024) {
+          this.$message.error('上传文件过大，不宜超过10M！')
+          this.loading = false
+          return false
+        }
       },
       handleError (res) {
         this.loading = false

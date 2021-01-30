@@ -589,18 +589,24 @@
                 this.dataForm.unit = '广东杰信测绘科技有限公司'
                 this.dataForm.stoneTime = moment(new Date()).format('YYYY-MM-DD')
                 break
-              // 线和面
+              // 线
               case 2:
+                let lineLength = 0
                 console.log(item.lay)
                 for (let point of item.lay) {
                   coordinate += point.lng + ',' + point.lat + ';'
                   lngall += point.lng
                   latall += point.lat
                 }
+                for (let i = 0; i < item.lay.length - 1; i++) {
+                  lineLength += this.getDistance(item.lay[i].lat, item.lay[i].lng, item.lay[i + 1].lat, item.lay[i + 1].lng)
+                }
                 coordinate = coordinate.substring(0, coordinate.length - 1)
                 this.dataForm.lng = (lngall / item.lay.length).toFixed(6)
                 this.dataForm.lat = (latall / item.lay.length).toFixed(6)
+                this.dataForm.lineLength = lineLength
                 break
+              // 面
               case 3:
                 // 计算中心坐标
                 for (let point of item.lay.Ao) {
@@ -630,6 +636,18 @@
             this.findLocationName(item.labelLng , item.labelLat)
           }
         })
+      },
+      // 两点经纬度的距离
+      getDistance (lat1, lng1, lat2, lng2) {
+        var radLat1 = lat1 * Math.PI / 180.0
+        var radLat2 = lat2 * Math.PI / 180.0
+        var a = radLat1 - radLat2
+        var b = lng1 * Math.PI / 180.0 - lng2 * Math.PI / 180.0
+        var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)))
+        s = s * 6378.137
+        s = Math.round(s * 10000) / 10
+        console.log(s)
+        return s  // 单位米
       },
       // 通过经纬度查找地址
       findLocationName (lng , lat) {

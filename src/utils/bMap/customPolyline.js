@@ -98,7 +98,18 @@ var polyLineObj = function () {
       label.setPosition(e.point)
     })
   }
-
+  // 两点经纬度的距离
+  polyLineObj.prototype.getDistance = function (lat1, lng1, lat2, lng2) {
+    var radLat1 = lat1 * Math.PI / 180.0
+    var radLat2 = lat2 * Math.PI / 180.0
+    var a = radLat1 - radLat2
+    var b = lng1 * Math.PI / 180.0 - lng2 * Math.PI / 180.0
+    var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)))
+    s = s * 6378.137
+    s = Math.round(s * 10000) / 10
+    console.log(s)
+    return s  // 单位米
+  },
   // 创建右键菜单
   polyLineObj.prototype.createpolyLineContextMenu = function () {
     this.menu = new BMap.ContextMenu()
@@ -128,6 +139,8 @@ var polyLineObj = function () {
         text: '关闭图形编辑',
         callback: () => {
           if (this.editFlag === true) {
+            // 路径的长度
+            let distance = 0
             // 覆盖物围成坐标路径
             var anginpolyList = this.polyLine.getPath()
             var anginx = 0
@@ -141,6 +154,9 @@ var polyLineObj = function () {
               anginx += item.lng
               anginy += item.lat
             }
+            for (let i = 0; i < anginpolyList.length - 1; i++) {
+              distance += this.getDistance(anginpolyList[i].lat, anginpolyList[i].lng, anginpolyList[i + 1].lat, anginpolyList[i + 1].lng)
+            }
             // 中心坐标
             anginx = (anginx / anginpolyList.length).toFixed(6)
             anginy = (anginy / anginpolyList.length).toFixed(6)
@@ -153,7 +169,7 @@ var polyLineObj = function () {
             eachPoint.area = 0
             eachPoint.labelLat = anginlabelLat
             eachPoint.labelLng = anginlabelLng
-
+            eachPoint.lineLength = distance
             this.handleObj.updateAfterGraEdit(eachPoint)
 
             this.polyLine.disableEditing()

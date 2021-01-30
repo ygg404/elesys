@@ -15,13 +15,17 @@
       </div>
       <div class="sys_link">系统链接</div>
       <div class="sys_item">
-        <el-card @click.native="gotoUrl('https://www.gdjxch.cn/#/login')" class="item_url">
+        <el-card @click.native="gotoUrl('https://www.gdjxch.cn/#/login')" class="item_url" >
           <img src="~@/assets/img/project.png" />
           <div class="sys_name_font">项目管理</div>
         </el-card>
         <el-card @click.native="gotoUrl('https://ren.gdjxch.cn/#/login')" class="item_url">
           <img src="~@/assets/img/ren.png" />
           <div class="sys_name_font">人事管理</div>
+        </el-card>
+        <el-card @click.native="gotoUrl('https://dop.gdjxch.cn/#/login')" class="item_url">
+          <img src="~@/assets/img/dop.png" />
+          <div class="sys_name_font">仪器档案管理</div>
         </el-card>
       </div>
       <div class="sys_link">关于杰信</div>
@@ -136,13 +140,13 @@
   }
   .sys_item .item_url{
     cursor: pointer;
-    width: 300px;
+    width: 230px;
     text-align: center;
     color: #3b97d7;
   }
   .sys_item .item_url img{
     width: 170px;
-    height: 170px;
+    height: 150px;
   }
   .sys_item .item_url :hover{
     color: whitesmoke;
