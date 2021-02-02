@@ -64,7 +64,7 @@
                     </div>
                   </el-row>
                   <el-row class="line">
-                    <div class="property_span">定位方法：</div>
+                    <div class="property_span">施测方法：</div>
                     <div>
                       <el-autocomplete v-model="dataForm.posMethod" :fetch-suggestions="queryPosSearch" @select="handlePosSelect" size="small">
                         <template slot-scope="{ item }">
@@ -220,6 +220,26 @@
                 </template>
                 <el-card>
                   <el-row class="line">
+                    <div class="property_span">坐标系统：</div>
+                    <div>
+                      <el-autocomplete v-model="dataForm.corSystem" :fetch-suggestions="queryCorSearch" @select="handleCorSelect" size="small">
+                        <template slot-scope="{ item }">
+                          <div class="name">{{ item.nameItem }}</div>
+                        </template>
+                      </el-autocomplete>
+                    </div>
+                  </el-row>
+                  <el-row class="line">
+                    <div class="property_span">平面等级：</div>
+                    <div>
+                      <el-autocomplete v-model="dataForm.corSystem" :fetch-suggestions="queryCorSearch" @select="handleCorSelect" size="small">
+                        <template slot-scope="{ item }">
+                          <div class="name">{{ item.nameItem }}</div>
+                        </template>
+                      </el-autocomplete>
+                    </div>
+                  </el-row>
+                  <el-row class="line">
                     <div class="property_span">高程基准：</div>
                     <div>
                       <el-autocomplete v-model="dataForm.heightDatum" :fetch-suggestions="queryHeightDatumSearch" @select="handleHeightDatumSelect" size="small">
@@ -233,16 +253,6 @@
                     <div class="property_span">高程等级：</div>
                     <div>
                       <el-autocomplete v-model="dataForm.heightLevel" :fetch-suggestions="queryHeightLevelSearch" @select="handleHeightLevelSelect" size="small">
-                        <template slot-scope="{ item }">
-                          <div class="name">{{ item.nameItem }}</div>
-                        </template>
-                      </el-autocomplete>
-                    </div>
-                  </el-row>
-                  <el-row class="line">
-                    <div class="property_span">坐标系统：</div>
-                    <div>
-                      <el-autocomplete v-model="dataForm.corSystem" :fetch-suggestions="queryCorSearch" @select="handleCorSelect" size="small">
                         <template slot-scope="{ item }">
                           <div class="name">{{ item.nameItem }}</div>
                         </template>
@@ -315,7 +325,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td class="td_span" colspan="1">现场近照</td>
+                      <td class="td_span" colspan="1">点位略图</td>
                       <td colspan="5" style="text-align: left">
                         <div class="card_detail_img">
                           <img :src="imgScene" class="card_detail_img_content" v-if="!stringIsNull(dataForm.photoScene)"/>
@@ -323,7 +333,7 @@
                           <input type="file" class="card_detail_img_input" accept="image/*" id="scene" @change="compressImgHandle"/>
                         </div>
                       </td>
-                      <td class="td_span" colspan="1">现场远照</td>
+                      <td class="td_span" colspan="1">现场照片</td>
                       <td colspan="5">
                         <div class="card_detail_img">
                           <img :src="imgFar" alt="" class="card_detail_img_content" v-if="!stringIsNull(dataForm.photoFar)"/>

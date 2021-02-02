@@ -203,11 +203,14 @@
           that.rightVisible = false
         })
         this.loading = false
-        var map = new BMap.Map('mapId', {minZoom: 9, maxZoom: 24, enableMapClick: false})
-        let point = new BMap.Point(116.72 , 23.37)   // 设置默认的坐标
+        var map = new BMap.Map('mapId', {minZoom: 6, maxZoom: 21, enableMapClick: false})
+        let point = new BMap.Point(116.72, 23.37)   // 设置默认的坐标
         map.centerAndZoom(point, 17)  // 初始化地图,设置中心点坐标和地图级别
         map.enableScrollWheelZoom(true)     // 开启鼠标滚轮缩放
+        var scaleCtrl = new BMap.ScaleControl()  // 添加比例尺控件
+        map.addControl(scaleCtrl)
         map.setMapType(BMAP_HYBRID_MAP)
+
         this.getLocationHandle()
         this.map = map
         map.addEventListener('dragend', function () {
