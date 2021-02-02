@@ -109,7 +109,7 @@ var polyLineObj = function () {
     s = Math.round(s * 10000) / 10
     console.log(s)
     return s  // 单位米
-  },
+  }
   // 创建右键菜单
   polyLineObj.prototype.createpolyLineContextMenu = function () {
     this.menu = new BMap.ContextMenu()
@@ -187,7 +187,7 @@ var polyLineObj = function () {
     this.polyLine.addContextMenu(this.menu)
   }
 
-  //特定事件
+  // 特定事件
   polyLineObj.prototype.polyLineEvent = function () {
     var label = this.getlabel()
     var objbpoint = this.getbPoint()

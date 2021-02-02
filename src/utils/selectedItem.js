@@ -118,9 +118,10 @@ export function getPosMethodItem () {
 export function getCorSysItem () {
   let itemList = [
     {'id': 1, 'nameItem': '2000国家大地坐标系'},
-    {'id': 2, 'nameItem': '1954年北京坐标系'},
-    {'id': 3, 'nameItem': '1980西安坐标系'},
-    {'id': 4, 'nameItem': '独立坐标系'}
+    {'id': 2, 'nameItem': '1980西安坐标系'},
+    {'id': 3, 'nameItem': '1954年北京坐标系'},
+    {'id': 4, 'nameItem': 'WGS84坐标系'},
+    {'id': 5, 'nameItem': '独立坐标系'}
   ]
   return itemList
 }
@@ -143,9 +144,15 @@ export function getPosCateItem () {
   let itemList = [
     {'id': 1, 'nameItem': '一级RTK'},
     {'id': 2, 'nameItem': '二级RTK'},
-    {'id': 3, 'nameItem': '一级导线'},
-    {'id': 4, 'nameItem': '二级导线'},
-    {'id': 5, 'nameItem': '三级导线'}
+    {'id': 3, 'nameItem': '三级RTK'},
+    {'id': 4, 'nameItem': '一级GPS'},
+    {'id': 5, 'nameItem': '二级GPS'},
+    {'id': 6, 'nameItem': 'GPS-C级'},
+    {'id': 7, 'nameItem': 'GPS-D级'},
+    {'id': 8, 'nameItem': 'GPS-E级'},
+    {'id': 9, 'nameItem': '一级导线'},
+    {'id': 10, 'nameItem': '二级导线'},
+    {'id': 11, 'nameItem': '三级导线'}
   ]
   return itemList
 }
