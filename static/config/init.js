@@ -21,7 +21,9 @@
       window.SITE_CONFIG.cdnUrl + '/static/plugins/ueditor-1.4.3.3/lang/zh-cn/zh-cn.js',
       // 插件 - 百度地图
       window.SITE_CONFIG.cdnUrl + '/static/plugins/bmap/DrawingManager_min.js',
-      window.SITE_CONFIG.cdnUrl + '/static/plugins/bmap/DrawingManager_min.css'
+      window.SITE_CONFIG.cdnUrl + '/static/plugins/bmap/DrawingManager_min.css',
+      window.SITE_CONFIG.cdnUrl + '/static/plugins/bmapGL/DrawingManager_min.js',
+      window.SITE_CONFIG.cdnUrl + '/static/plugins/bmapGL/DrawingManager_min.css'
     ]
   };
 
