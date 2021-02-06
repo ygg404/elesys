@@ -101,9 +101,11 @@
             <el-button size="mini" type="primary" :disabled="pageIndex >= totalPage?true:false" @click="++pageIndex,getDataList()">下一页</el-button>
           </div>
         </el-card>
-        <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'"  v-loading="posLoading"
+        <!--地图-->
+        <div id="mapId" :style="'height:' + (documentClientHeight - 200) + 'px'" v-loading="posLoading"
              :element-loading-text="loadTxt" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0, 0, 0, 0.8)">
         </div>
+
       </div>
       <!-- 标注word 导出弹窗-->
       <map-word-export v-if="wordVisible" ref="mapWordExport"></map-word-export>
@@ -127,7 +129,6 @@
   import {stringIsNull,treeDataTranslate,checkPhone} from '@/utils'
   import mapWordExport from './map-word-export'
   import AddOrUpdate from './map-add-or-update'
-
   export default {
     data () {
       return {
@@ -156,6 +157,7 @@
         BMap: '',
         map: '',
         activeNames: [],
+        drawOpen: false,
         // 被选中的节点
         selectNode: {
           id: '',
@@ -166,6 +168,7 @@
           data: '',
           type: ''
         },  // 复制剪切对象(数据集、类型剪切粘贴)
+        contextMenu: '',  // 标注右键菜单
         menuVisible: false,
         ulVisible: false,
         rightVisible: false,
@@ -195,6 +198,12 @@
     methods: {
       init () {
         let that = this
+        // 右键菜单取消
+        document.addEventListener('click', function (e) {
+          that.ulVisible = false
+          that.rightVisible = false
+        })
+        // 地图等级
         var satellite = new AMap.TileLayer.Satellite()
         var roadNet = new AMap.TileLayer.RoadNet({
           opacity: 0.5
@@ -213,26 +222,16 @@
           center: [116.72, 23.37],
           viewMode: '3D',
           resizeEnable: true,
+          expandZoomRange: true,
+          buildingAnimation: true, // 楼块出现是否带动画
+          zooms: [3, 21],
           layers: [
             satellite,
             roadNet,
             buildings
           ]
         })
-        map.on('complete', function () {
-          // 输入提示
-          var auto = new AMap.Autocomplete({
-            input: 'searchId'
-          })
-          // 构造地点查询类
-          var placeSearch = new AMap.PlaceSearch({
-            map: map
-          })
-          AMap.event.addListener(auto, 'select', function (e) {
-            placeSearch.setCity(e.poi.adcode)
-            placeSearch.search(e.poi.name)  // 关键字查询查询
-          }) // 注册监听，当选中某条记录时会触发
-        })
+
         // 添加范围控件
         map.addControl(new AMap.Scale())
         // 添加 3D 罗盘控制
@@ -241,7 +240,7 @@
             right: '5px',
             bottom: '0px'
           },
-          showControlButton: true,})
+          showControlButton: true})
         )
         // 定位控件
         var geolocation = new AMap.Geolocation({
@@ -249,11 +248,7 @@
           timeout: 10000,          // 超过10秒后停止定位，默认：5s
           buttonPosition: 'RB',    // 定位按钮的停靠位置
           buttonOffset: new AMap.Pixel(10, 20), // 定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
-          zoomToAccuracy: true,   // 定位成功后是否自动调整地图视野到定位点
-          position: {
-            right: '10px',
-            bottom: '100px'
-          }
+          zoomToAccuracy: true   // 定位成功后是否自动调整地图视野到定位点
         })
         map.addControl(geolocation)
         geolocation.getCurrentPosition(function (status, result) {
@@ -263,6 +258,19 @@
             that.$message.error('定位失败！')
           }
         })
+        // 输入提示
+        var autoOptions = {
+          input: 'searchId'
+        }
+        var auto = new AMap.Autocomplete(autoOptions)
+        // 构造地点查询类
+        var placeSearch = new AMap.PlaceSearch({
+          map: map
+        })
+        AMap.event.addListener(auto, 'select', function (e) {
+          placeSearch.setCity(e.poi.adcode)
+          placeSearch.search(e.poi.name)  // 关键字查询查询
+        }) // 注册监听，当选中某条记录时会触发
 
         this.map = map
         this.getDataList()
@@ -369,6 +377,23 @@
         menu.style.cssText = 'position: fixed; left: ' + (event.clientX) + 'px' + '; top: ' + rect.top + 'px; z-index: 999; cursor:pointer;'
         this.selectNode = value.data
       },
+      // 图形编辑之后执行的数据库更新操作
+      updateAfterGraEdit (eachPoint) {
+        this.$http({
+          url: this.$http.adornUrl('/dop/bmap/update'),
+          method: 'post',
+          data: this.$http.adornData({
+            'dopBmapEntity': eachPoint
+          })
+        }).then(({data}) => {
+          if (data && data.code === 0) {
+            this.visible = false
+            this.getDataList()
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      },
       // 新增 / 修改
       addOrUpdateHandle (id) {
         this.addOrUpdateVisible = true
@@ -435,6 +460,30 @@
     }
   }
 </script>
+
+<style>
+  .fh{
+    display: inline-block;
+    max-width:220px;
+    word-wrap:break-word;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+  }
+  .fh:hover{
+    white-space:normal;
+    overflow:auto;
+    color: #0000ff;
+  }
+  .main_ul {
+    color: #00a0e9;
+    font-weight: 700;
+    font-size: 13pt;
+  }
+  .other_ul {
+    font-size: 10pt;
+  }
+</style>
 
 <style lang="scss" scoped>
   @import "src/assets/scss/_variables.scss";

@@ -72,31 +72,47 @@
     methods: {
       // 绘制标注点
       drawPoint () {
-        // 需要自己手动去关闭
-        if (this.vueObj.drawingManager._isOpen === true) {
-          this.vueObj.drawingManager._isOpen = false
-        }
-        this.vueObj.menuVisible = false
-        this.vueObj.drawingManager.setDrawingMode(BMAP_DRAWING_MARKER)
-        this.vueObj.drawingManager.open()
+        let listener = AMap.event.addListener(this.vueObj.map, 'click', function (e) {
+          console.log(e.lnglat)
+          AMap.event.removeListener(listener)
+        })
+
+        // if (this.vueObj.drawingManager._isOpen === true) {
+        //   this.vueObj.drawingManager._isOpen = false
+        // }
+        // this.vueObj.menuVisible = false
+        // this.vueObj.drawingManager.setDrawingMode(BMAP_DRAWING_MARKER)
+        // this.vueObj.drawingManager.open()
       },
       // 绘制多段线
       drawPolyline () {
-        if (this.vueObj.drawingManager._isOpen === true) {
-          this.vueObj.drawingManager._isOpen = false
-        }
-        this.vueObj.menuVisible = false
-        this.vueObj.drawingManager.setDrawingMode(BMAP_DRAWING_POLYLINE)
-        this.vueObj.drawingManager.open()
+        this.vueObj.drawOpen = true
+        let mouseTool = new AMap.MouseTool(this.vueObj.map)
+        mouseTool.polyline({
+          strokeColor: 'red',
+          strokeOpacity: 1,
+          strokeWeight: 4,
+          strokeStyle: 'solid'
+        })
+        mouseTool.on('draw', function (event) {
+          mouseTool.close(true)
+          console.log(event.obj.getPath())
+        })
       },
       // 绘制面
       drawPolygon () {
-        if (this.vueObj.drawingManager._isOpen === true) {
-          this.vueObj.drawingManager._isOpen = false
-        }
-        this.vueObj.menuVisible = false
-        this.vueObj.drawingManager.setDrawingMode(BMAP_DRAWING_POLYGON)
-        this.vueObj.drawingManager.open()
+        let mouseTool = new AMap.MouseTool(this.vueObj.map)
+        mouseTool.polygon({
+          strokeColor: '#ff1f48',
+          strokeWeight: 4,
+          strokeOpacity: 1,
+          fillOpacity: 0.4,
+          fillColor: '#fc665f'
+        })
+        mouseTool.on('draw', function (event) {
+          mouseTool.close(true)
+          console.log(event)
+        })
       },
       // 查看详情
       readMenuHandle () {
@@ -105,8 +121,7 @@
           case 1:
           case 2:
           case 3:
-            let point = new BMap.Point(this.vueObj.selectNode.lng, this.vueObj.selectNode.lat)   // 设置默认的坐标
-            this.vueObj.map.centerAndZoom(point, 17)  // 初始化地图,设置中心点坐标和地图级别
+            this.vueObj.map.setZoomAndCenter(17, [this.vueObj.selectNode.lng, this.vueObj.selectNode.lat])
             this.vueObj.menuVisible = true
             this.vueObj.activeNames = ['2']
             break

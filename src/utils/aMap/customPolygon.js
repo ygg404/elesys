@@ -36,7 +36,7 @@ var polyGonObj = function () {
         polyList.push([point[0], point[1]])
       }
     }
-    var polygon = new AMap.Polygon({
+    this.polygon = new AMap.Polygon({
       path: polyList,
       strokeColor: '#ff1f48',
       strokeWeight: 4,
@@ -45,8 +45,9 @@ var polyGonObj = function () {
       fillColor: '#fc665f',
       zIndex: 0
     })
-    polygon.setMap(this.handleMap)
+    this.polygon.setMap(this.handleMap)
     this.createpolyGonLabel()
+    this.createpolyGonContextMenu()
     // // 线段样式
     // var linestyle = {
     //   strokeColor: '#db2311',   // 边线颜色
@@ -133,87 +134,114 @@ var polyGonObj = function () {
 
   }
 
-  //创建右键菜单
+  // 创建右键菜单
   polyGonObj.prototype.createpolyGonContextMenu = function () {
-    var vueobj = this.handleObj
-    var label = this.label
-    this.menu = new BMap.ContextMenu()
-    var txtMenuItem = [
-      {
-        text: '删除',
-        callback: () => {
-          vueobj.delDimHandle(this.bPoint)
-        }
-      },
-      {
-        text: '信息编辑',
-        callback: () => {
-          vueobj.addOrUpdateHandle(this.bPoint)
-        }
-      },
-      {
-        text: '显示标注信息',
-        callback: () => {
-          label.show()
-        }
-      },
-      {
-        text: '开启图形编辑',
-        callback: () => {
-          if (this.editFlag === false) {
-            this.editFlag = true
-            this.polygon.enableEditing()
-          }
-        }
-      },
-      {
-        text: '关闭图形编辑',
-        callback: () => {
-          if (this.editFlag === true) {
-            // 覆盖物围成坐标路径
-            var anginpolyList = this.polygon.getPath()
-            var anginx = 0
-            var anginy = 0
-            var anginangincoordinate = ''
-            var anginlabelLng = anginpolyList[anginpolyList.length - 1].lng
-            var anginlabelLat = anginpolyList[anginpolyList.length - 1].lat
-
-            var anginarea = this.calculationArea(this.polygon)
-            for (let item of anginpolyList) {
-              //坐标系数组
-              anginangincoordinate += item.lng + ',' + item.lat + ';'
-              anginx += item.lng
-              anginy += item.lat
-            }
-            //中心坐标
-            anginx = (anginx / anginpolyList.length).toFixed(6)
-            anginy = (anginy / anginpolyList.length).toFixed(6)
-
-            var eachPoint = this.bPoint
-            // 交互 更改 中心坐标 坐标系数组 面积 标签坐标
-            eachPoint.lng = anginx
-            eachPoint.lat = anginy
-            eachPoint.coordinate = anginangincoordinate
-            eachPoint.area = anginarea
-            eachPoint.labelLat = anginlabelLat
-            eachPoint.labelLng = anginlabelLng
-
-            this.handleObj.updateAfterGraEdit(eachPoint)
-
-            this.polygon.disableEditing()
-            // alert("执行了先打开再关闭的操作")
-            this.editFlag = false
-          } else {
-            // alert("没有执行此操作")
-          }
-        }
-      }
-    ]
-    for (var i = 0; i < txtMenuItem.length; i++) {
-      this.menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100))
-    }
-
-    this.polygon.addContextMenu(this.menu)
+    let that = this
+    let vueObj = this.handleObj
+    var polyEditor = new AMap.PolyEditor(vueObj.map, this.polygon)
+    polyEditor.on('end', function (event) {
+      console.log(event)
+      // event.target 即为编辑后的多边形对象
+    })
+    // 绑定鼠标右击事件——弹出右键菜单
+    this.polygon.on('rightclick', function (e) {
+      console.log(e)
+      // 创建右键菜单
+      vueObj.contextMenu = new AMap.ContextMenu()
+      vueObj.contextMenu.addItem('删除', function () {
+        vueObj.delDimHandle(that.polygon)
+      }, 0)
+      vueObj.contextMenu.addItem('信息编辑', function () {
+        vueObj.addOrUpdateHandle(that.polygon)
+      }, 1)
+      vueObj.contextMenu.addItem('图形编辑', function () {
+        that.label.hide()
+        polyEditor.open()
+        // vueobj.addOrUpdateHandle(this.bPoint)
+      }, 2)
+      vueObj.contextMenu.addItem('关闭编辑', function () {
+        polyEditor.open()
+        // vueObj.updateAfterGraEdit(that.bPoint)
+      }, 3)
+      vueObj.contextMenu.open(vueObj.map, e.lnglat)
+    })
+    // this.menu = new BMap.ContextMenu()
+    // var txtMenuItem = [
+    //   {
+    //     text: '删除',
+    //     callback: () => {
+    //       vueobj.delDimHandle(this.bPoint)
+    //     }
+    //   },
+    //   {
+    //     text: '信息编辑',
+    //     callback: () => {
+    //       vueobj.addOrUpdateHandle(this.bPoint)
+    //     }
+    //   },
+    //   {
+    //     text: '显示标注信息',
+    //     callback: () => {
+    //       label.show()
+    //     }
+    //   },
+    //   {
+    //     text: '开启图形编辑',
+    //     callback: () => {
+    //       if (this.editFlag === false) {
+    //         this.editFlag = true
+    //         this.polygon.enableEditing()
+    //       }
+    //     }
+    //   },
+    //   {
+    //     text: '关闭图形编辑',
+    //     callback: () => {
+    //       if (this.editFlag === true) {
+    //         // 覆盖物围成坐标路径
+    //         var anginpolyList = this.polygon.getPath()
+    //         var anginx = 0
+    //         var anginy = 0
+    //         var anginangincoordinate = ''
+    //         var anginlabelLng = anginpolyList[anginpolyList.length - 1].lng
+    //         var anginlabelLat = anginpolyList[anginpolyList.length - 1].lat
+    //
+    //         var anginarea = this.calculationArea(this.polygon)
+    //         for (let item of anginpolyList) {
+    //           //坐标系数组
+    //           anginangincoordinate += item.lng + ',' + item.lat + ';'
+    //           anginx += item.lng
+    //           anginy += item.lat
+    //         }
+    //         //中心坐标
+    //         anginx = (anginx / anginpolyList.length).toFixed(6)
+    //         anginy = (anginy / anginpolyList.length).toFixed(6)
+    //
+    //         var eachPoint = this.bPoint
+    //         // 交互 更改 中心坐标 坐标系数组 面积 标签坐标
+    //         eachPoint.lng = anginx
+    //         eachPoint.lat = anginy
+    //         eachPoint.coordinate = anginangincoordinate
+    //         eachPoint.area = anginarea
+    //         eachPoint.labelLat = anginlabelLat
+    //         eachPoint.labelLng = anginlabelLng
+    //
+    //         this.handleObj.updateAfterGraEdit(eachPoint)
+    //
+    //         this.polygon.disableEditing()
+    //         // alert("执行了先打开再关闭的操作")
+    //         this.editFlag = false
+    //       } else {
+    //         // alert("没有执行此操作")
+    //       }
+    //     }
+    //   }
+    // ]
+    // for (var i = 0; i < txtMenuItem.length; i++) {
+    //   this.menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100))
+    // }
+    //
+    // this.polygon.addContextMenu(this.menu)
   }
 
   //特定事件

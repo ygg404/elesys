@@ -1,4 +1,6 @@
 // 点类
+import {stringIsNull} from '../index'
+
 var pointObj = function () {
   // 句柄
   let handleObj
@@ -20,30 +22,15 @@ var pointObj = function () {
     this.marker = new AMap.Marker({
       icon: require('@/assets/img/amap/poi-marker-red.png'),
       position: [bPoint.lng, bPoint.lat],
-      offset: new AMap.Pixel(-13, -30)
+      offset: new AMap.Pixel(-13, -30),
+      raiseOnDrag: true
     })
     this.bPoint = bPoint
     this.marker.id = bPoint.id
-    // // 设置鼠点标记显示的文字提示
-    // let pointStyle = 'background-color: #ff00001f;' +
-    //   'border-width: 0;' +
-    //   'padding: 1px;' +
-    //   'border: 1px solid red;' +
-    //   'box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);' +
-    //   'text-align: center;' +
-    //   'font-size: 13px;' +
-    //   'color: red;' +
-    //   'font-weight: 700;'
-    // console.log(pointStyle)
-    // this.marker.setLabel({
-    //   offset: new AMap.Pixel(0, -5),  // 设置文本标注偏移量
-    //   content: '<div style="' + pointStyle + '">' + bPoint.label + '</div>', // 设置文本标注内容
-    //   direction: 'bottom' // 设置文本标注方位
-    // })
-
 
     this.marker.setMap(this.handleMap)
     this.createPointLabel()
+    this.createpointContextMenu()
   }
   // 创建标题
   pointObj.prototype.createPointLabel = function () {
@@ -51,7 +38,6 @@ var pointObj = function () {
     this.label = new AMap.Text({
       text: this.bPoint.label,
       anchor: 'center', // 设置文本标记锚点
-      draggable: true,
       cursor: 'pointer',
       style: {
         'padding': '3px',
@@ -65,7 +51,7 @@ var pointObj = function () {
         'color': 'red'
       },
       position: [this.bPoint.lng, this.bPoint.lat],
-      offset: new AMap.Pixel(0,10) //设置偏移量
+      offset: new AMap.Pixel(0, 12) // 设置偏移量
     })
     this.label.setMap(this.handleMap)
   }
@@ -97,62 +83,37 @@ var pointObj = function () {
   }
   // 创建右键菜单
   pointObj.prototype.createpointContextMenu = function () {
-    var vueobj = this.handleObj
-    //   var label = this.getlabel()
-    this.menu = new BMap.ContextMenu()
-    var txtMenuItem = [
-      {
-        text: '删除',
-        callback: () => {
-          vueobj.delDimHandle(this.bPoint)
-        }
-      },
-      {
-        text: '信息编辑',
-        callback: () => {
-          vueobj.addOrUpdateHandle(this.bPoint)
-        }
-      },
-      {
-        text: '移动位置',
-        callback: () => {
-          if (this.editFlag === false) {
-            this.editFlag = true
-            this.marker.enableDragging()
-          }
-        }
-      },
-      {
-        text: '关闭移动',
-        callback: () => {
-          if (this.editFlag === true) {
-            var marker = this.marker.point
-            var eachPoint = this.bPoint
-            eachPoint.lng = marker.lng
-            eachPoint.lat = marker.lat
-            eachPoint.labelLat = marker.lng
-            eachPoint.labelLng = marker.lat
-            this.handleObj.updateAfterGraEdit(eachPoint)
-            this.marker.disableDragging()
-            this.editFlag = false
-          } else {
-
-          }
-        }
+    let that = this
+    let vueObj = this.handleObj
+    // 绑定鼠标右击事件——弹出右键菜单
+    this.marker.on('rightclick', function (e) {
+      if (!stringIsNull(vueObj.contextMenu)) {
+        vueObj.contextMenu.close()
       }
-    ]
-    for (var i = 0; i < txtMenuItem.length; i++) {
-      this.menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100))
-    }
-    this.marker.addContextMenu(this.menu)
+      // 创建右键菜单
+      vueObj.contextMenu = new AMap.ContextMenu()
+      vueObj.contextMenu.addItem('删除', function () {
+        vueObj.delDimHandle(that.bPoint)
+      }, 0)
+      vueObj.contextMenu.addItem('信息编辑', function () {
+        vueObj.addOrUpdateHandle(that.bPoint)
+      }, 1)
+      vueObj.contextMenu.addItem('移动位置', function () {
+        that.marker.setDraggable(true)
+        that.marker.on('dragend' , function (e) {
+          that.bPoint.lng = e.lnglat.lng
+          that.bPoint.lat = e.lnglat.lat
+        })
+        that.label.hide()
+        // vueobj.addOrUpdateHandle(this.bPoint)
+      }, 2)
+      vueObj.contextMenu.addItem('关闭移动', function () {
+        that.marker.setDraggable(false)
+        vueObj.updateAfterGraEdit(that.bPoint)
+      }, 3)
+      vueObj.contextMenu.open(that.handleMap, e.lnglat)
+    })
   }
-  // return{
-  //   createPointObj:_createPointObj,
-  //   getvueHandleObj:_getvueHandleObj,
-  //   getvueHandleMap:_getvueHandleMap,
-  // //   getmarker:_getMarker
-  // createpointContextMenu:_createpointContextMenu
-  // }
 }
 
 export default pointObj
