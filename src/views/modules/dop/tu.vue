@@ -227,8 +227,7 @@
           zooms: [3, 21],
           layers: [
             satellite,
-            roadNet,
-            buildings
+            roadNet
           ]
         })
 

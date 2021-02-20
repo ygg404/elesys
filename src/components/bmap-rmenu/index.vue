@@ -72,20 +72,22 @@
     methods: {
       // 绘制标注点
       drawPoint () {
+        let that = this
         let listener = AMap.event.addListener(this.vueObj.map, 'click', function (e) {
-          console.log(e.lnglat)
+          let item = {
+            id: '',
+            lng: e.lnglat.lng,
+            lat: e.lnglat.lat,
+            type: 1,
+            parentId: that.selectNode.id
+          }
+          that.vueObj.addOrUpdateHandle(item)
           AMap.event.removeListener(listener)
         })
-
-        // if (this.vueObj.drawingManager._isOpen === true) {
-        //   this.vueObj.drawingManager._isOpen = false
-        // }
-        // this.vueObj.menuVisible = false
-        // this.vueObj.drawingManager.setDrawingMode(BMAP_DRAWING_MARKER)
-        // this.vueObj.drawingManager.open()
       },
       // 绘制多段线
       drawPolyline () {
+        let that = this
         this.vueObj.drawOpen = true
         let mouseTool = new AMap.MouseTool(this.vueObj.map)
         mouseTool.polyline({
@@ -96,11 +98,34 @@
         })
         mouseTool.on('draw', function (event) {
           mouseTool.close(true)
-          console.log(event.obj.getPath())
+          let polyLineList = []
+          let coordinate = ''
+          // 中心坐标
+          let i = 0
+          let lng = 0
+          let lat = 0
+          for (let point of event.obj.getPath()) {
+            polyLineList.push([point.lng, point.lat])
+            coordinate += point.lng + ',' + point.lat + ';'
+            i += 1
+            lng +=  point.lng
+            lat +=  point.lat
+          }
+          let item = {
+            coordinate: coordinate.substring(0, coordinate.length - 1),
+            lng: (lng / i).toFixed(6),
+            lat: (lat / i).toFixed(6),
+            lineLength: AMap.GeometryUtil.distanceOfLine(polyLineList).toFixed(1),
+            type: 2,
+            parentId: that.selectNode.id
+          }
+          console.log(item)
+          that.vueObj.addOrUpdateHandle(item)
         })
       },
       // 绘制面
       drawPolygon () {
+        let that = this
         let mouseTool = new AMap.MouseTool(this.vueObj.map)
         mouseTool.polygon({
           strokeColor: '#ff1f48',
@@ -111,7 +136,29 @@
         })
         mouseTool.on('draw', function (event) {
           mouseTool.close(true)
-          console.log(event)
+          let polyLineList = []
+          let coordinate = ''
+          // 中心坐标
+          let i = 0
+          let lng = 0
+          let lat = 0
+          for (let point of event.obj.getPath()) {
+            polyLineList.push([point.lng, point.lat])
+            coordinate += point.lng + ',' + point.lat + ';'
+            i += 1
+            lng +=  point.lng
+            lat +=  point.lat
+          }
+          let item = {
+            coordinate: coordinate.substring(0, coordinate.length - 1),
+            lng: (lng / i).toFixed(6),
+            lat: (lat / i).toFixed(6),
+            area: AMap.GeometryUtil.ringArea(polyLineList).toFixed(1),
+            type: 3,
+            parentId: that.selectNode.id
+          }
+          console.log(item)
+          that.vueObj.addOrUpdateHandle(item)
         })
       },
       // 查看详情

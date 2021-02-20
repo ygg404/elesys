@@ -408,7 +408,7 @@
       </el-form>
     </transition>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="visible = false">返回</el-button>
+      <el-button @click="visible = false">取消</el-button>
       <el-button type="primary" @click="dataFormSubmit()">保存</el-button>
     </span>
   </el-dialog>
@@ -591,9 +591,9 @@
             switch (item.type) {
               // 点
               case 1:
-                this.dataForm.lng = item.labelLng
-                this.dataForm.lat = item.labelLat
-                coordinate = item.labelLng + ',' + item.labelLat
+                this.dataForm.lng = item.lng
+                this.dataForm.lat = item.lat
+                coordinate = item.lng + ',' + item.lat
                 this.dataForm.cake = '平地、山地'
                 this.dataForm.soil = '水泥、土质'
                 this.dataForm.unit = '广东杰信测绘科技有限公司'
@@ -601,32 +601,17 @@
                 break
               // 线
               case 2:
-                let lineLength = 0
-                console.log(item.lay)
-                for (let point of item.lay) {
-                  coordinate += point.lng + ',' + point.lat + ';'
-                  lngall += point.lng
-                  latall += point.lat
-                }
-                for (let i = 0; i < item.lay.length - 1; i++) {
-                  lineLength += this.getDistance(item.lay[i].lat, item.lay[i].lng, item.lay[i + 1].lat, item.lay[i + 1].lng)
-                }
-                coordinate = coordinate.substring(0, coordinate.length - 1)
-                this.dataForm.lng = (lngall / item.lay.length).toFixed(6)
-                this.dataForm.lat = (latall / item.lay.length).toFixed(6)
-                this.dataForm.lineLength = lineLength
+                coordinate = item.coordinate
+                this.dataForm.lng = item.lng
+                this.dataForm.lat = item.lat
+                this.dataForm.lineLength = item.lineLength
                 break
               // 面
               case 3:
-                // 计算中心坐标
-                for (let point of item.lay.Ao) {
-                  coordinate += point.lng + ',' + point.lat + ';'
-                  lngall += point.lng
-                  latall += point.lat
-                }
-                coordinate = coordinate.substring(0, coordinate.length - 1)
-                this.dataForm.lng = (lngall / item.lay.Ao.length).toFixed(6)
-                this.dataForm.lat = (latall / item.lay.Ao.length).toFixed(6)
+                coordinate = item.coordinate
+                this.dataForm.lng = item.lng
+                this.dataForm.lat = item.lat
+                this.dataForm.area = item.area
                 break
               default:
                 break

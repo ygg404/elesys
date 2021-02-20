@@ -7,7 +7,7 @@ var polyLineObj = function () {
   // 地图对象
   var handleMap
   // 线
-  var polyLine
+  var polyline
   // 信息窗口
   // var infoBox;
   // 标题
@@ -38,7 +38,7 @@ var polyLineObj = function () {
     }
     // 线段样式
     var linestyle = {strokeColor: 'red', strokeWeight: 4, strokeOpacity: 0.7, fillColor: '#db8385'}
-    var polyline = new AMap.Polyline({
+    this.polyline = new AMap.Polyline({
       path: polyList,
       isOutline: true,
       outlineColor: '#ffeeff',
@@ -54,24 +54,9 @@ var polyLineObj = function () {
       lineCap: 'round',
       zIndex: 0
     })
-    polyline.setMap(this.handleMap)
+    this.polyline.setMap(this.handleMap)
     this.createpolyLineLabel()
-    // 标题
-    // let opts = {
-    //   position: new BMap.Point(bPoint.lng, bPoint.lat),    // 指定文本标注所在的地理位置
-    //   offset: new BMap.Size(0, 0)    // 设置文本偏移量
-    // }
-    // this.label = new BMap.Label(bPoint.label, opts)  // 创建文本标注对象
-    // this.label.setStyle({
-    //   color: 'red',
-    //   fontSize: '12px',
-    //   height: '20px',
-    //   lineHeight: '20px',
-    //   fontFamily: '微软雅黑'
-    // })
-    // this.handleMap.addOverlay(this.label)
-    //
-    // this.createpolyLineContextMenu()
+    this.createpolyLineContextMenu()
     // this.polyLineEvent()
   }
 
@@ -94,34 +79,9 @@ var polyLineObj = function () {
         'font-weight': '700',
         'color': 'red'
       },
-      position: [this.bPoint.lng,this.bPoint.lat]
+      position: [this.bPoint.lng, this.bPoint.lat]
     })
     this.label.setMap(this.handleMap)
-    // var vuemap = this.getvueHandleMap()
-    // var objbpoint = this.getbPoint()
-    // var opts = {
-    //   position: new BMap.Point(objbpoint.labelLng, objbpoint.labelLat),    // 指定文本标注所在的地理位置
-    //   offset: new BMap.Size(0, 0)    // 设置文本偏移量
-    // }
-    // var html = '<div class=\'infoBoxContent \'><p>标题: ' + objbpoint.label +
-    //   '</p><div><p>备注信息: ' + objbpoint.remark +
-    //   '</p><p>创建人: ' + objbpoint.createUserName +
-    //   '</p><p>创建时间: ' + objbpoint.createTime +
-    //   '</p></div></div>'
-    // this.label = new BMap.Label(html, opts) // 创建文本标注对象
-    // this.label.setStyle({
-    //   opacity: '0.7',
-    //   background: '#FFFAFA',
-    //   border: '1px solid #FFFAFA',
-    //   color: 'black',
-    //   fontSize: '12px',
-    //   height: '100px',
-    //   lineHeight: '15px',
-    //   fontFamily: '微软雅黑',
-    //   borderRadius: '10px'
-    // })
-    // vuemap.addOverlay(this.label)
-    // this.label.hide()
   }
 
   polyLineObj.prototype.polyGonEvent = function () {
@@ -132,95 +92,53 @@ var polyLineObj = function () {
       label.setPosition(e.point)
     })
   }
-  // 两点经纬度的距离
-  polyLineObj.prototype.getDistance = function (lat1, lng1, lat2, lng2) {
-    var radLat1 = lat1 * Math.PI / 180.0
-    var radLat2 = lat2 * Math.PI / 180.0
-    var a = radLat1 - radLat2
-    var b = lng1 * Math.PI / 180.0 - lng2 * Math.PI / 180.0
-    var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)))
-    s = s * 6378.137
-    s = Math.round(s * 10000) / 10
-    console.log(s)
-    return s  // 单位米
-  }
   // 创建右键菜单
   polyLineObj.prototype.createpolyLineContextMenu = function () {
-    this.menu = new BMap.ContextMenu()
-    var txtMenuItem = [
-      {
-        text: '删除',
-        callback: () => {
-          this.handleObj.delDimHandle(this.bPoint)
-        }
-      },
-      {
-        text: '信息编辑',
-        callback: () => {
-          this.handleObj.addOrUpdateHandle(this.bPoint)
-        }
-      },
-      {
-        text: '开启图形编辑',
-        callback: () => {
-          if (this.editFlag === false) {
-            this.editFlag = true
-            this.polyLine.enableEditing()
-          }
-        }
-      },
-      {
-        text: '关闭图形编辑',
-        callback: () => {
-          if (this.editFlag === true) {
-            // 路径的长度
-            let distance = 0
-            // 覆盖物围成坐标路径
-            var anginpolyList = this.polyLine.getPath()
-            var anginx = 0
-            var anginy = 0
-            var anginangincoordinate = ''
-            var anginlabelLng = anginpolyList[anginpolyList.length - 1].lng
-            var anginlabelLat = anginpolyList[anginpolyList.length - 1].lat
-            for (let item of anginpolyList) {
-              // 坐标系数组
-              anginangincoordinate += item.lng + ',' + item.lat + ';'
-              anginx += item.lng
-              anginy += item.lat
-            }
-            for (let i = 0; i < anginpolyList.length - 1; i++) {
-              distance += this.getDistance(anginpolyList[i].lat, anginpolyList[i].lng, anginpolyList[i + 1].lat, anginpolyList[i + 1].lng)
-            }
-            // 中心坐标
-            anginx = (anginx / anginpolyList.length).toFixed(6)
-            anginy = (anginy / anginpolyList.length).toFixed(6)
-
-            var eachPoint = this.bPoint
-            // 交互 更改 中心坐标 坐标系数组 面积 标签坐标
-            eachPoint.lng = anginx
-            eachPoint.lat = anginy
-            eachPoint.coordinate = anginangincoordinate
-            eachPoint.area = 0
-            eachPoint.labelLat = anginlabelLat
-            eachPoint.labelLng = anginlabelLng
-            eachPoint.lineLength = distance
-            this.handleObj.updateAfterGraEdit(eachPoint)
-
-            this.polyLine.disableEditing()
-            this.editFlag = false
-          } else {
-            // alert("没有执行此操作")
-          }
-        }
-      }
-    ]
-    for (var i = 0; i < txtMenuItem.length; i++) {
-      this.menu.addItem(new BMap.MenuItem(txtMenuItem[i].text, txtMenuItem[i].callback, 100))
-    }
-    // this.label.addContextMenu(this.menu)
-    this.polyLine.addContextMenu(this.menu)
+    let that = this
+    let vueObj = this.handleObj
+    var polyEditor = new AMap.PolyEditor(vueObj.map, this.polyline)
+    // 绑定鼠标右击事件——弹出右键菜单
+    this.label.on('rightclick', function (e) {
+      console.log(e)
+      // 创建右键菜单
+      vueObj.contextMenu = new AMap.ContextMenu()
+      vueObj.contextMenu.addItem('删除', function () {
+        vueObj.delDimHandle(that.bPoint)
+      }, 0)
+      vueObj.contextMenu.addItem('信息编辑', function () {
+        vueObj.addOrUpdateHandle(that.bPoint)
+      }, 1)
+      vueObj.contextMenu.addItem('图形编辑', function () {
+        polyEditor.open()
+      }, 2)
+      vueObj.contextMenu.addItem('关闭编辑', function () {
+        polyEditor.close()
+        that.bPoint.lineLength = that.calculationLine()
+        vueObj.updateAfterGraEdit(that.bPoint)
+      }, 3)
+      vueObj.contextMenu.open(vueObj.map, e.lnglat)
+    })
   }
-
+  // 计算线段的距离
+  polyLineObj.prototype.calculationLine = function () {
+    let polyLineList = []
+    let coordinate = ''
+    // 中心坐标
+    let i = 0
+    let lng = 0
+    let lat = 0
+    for (let point of this.polyline.getPath()) {
+      polyLineList.push([point.lng, point.lat])
+      coordinate += point.lng + ',' + point.lat + ';'
+      i += 1
+      lng +=  point.lng
+      lat +=  point.lat
+    }
+    this.bPoint.coordinate = coordinate.substring(0, coordinate.length - 1)
+    this.bPoint.lng = (lng / i).toFixed(6)
+    this.bPoint.lat = (lat / i).toFixed(6)
+    return AMap.GeometryUtil.distanceOfLine(polyLineList).toFixed(1)
+  }
   // 特定事件
   polyLineObj.prototype.polyLineEvent = function () {
     var label = this.getlabel()
